@@ -3,9 +3,9 @@ import './ProfileScreen.css';
 
 export default function ProfileScreen({ user, userUpgrades }) {
   const xpForLevel = user?.level ? user.level * 100 : 100;
-  const xpProgress = user ? ((user.xp % 100) / 100) * 100 : 0;
-
+  const xpProgress = user ? Math.min(((user.xp % 100) / 100) * 100, 100) : 0;
   const totalPower = userUpgrades.reduce((sum, u) => sum + (u.effect_value * u.level), 0);
+  const cpt = user?.coinsPerTap || 1;
 
   return (
     <div className="profile-screen">
@@ -15,34 +15,30 @@ export default function ProfileScreen({ user, userUpgrades }) {
       <h2 className="profile-name">{user?.first_name || 'Игрок'}</h2>
       <p className="profile-username">@{user?.username || 'no_username'}</p>
 
-      <div className="profile-stats-card">
+      <div className="card profile-stats-card">
         <div className="stat">
           <span className="stat-icon">📊</span>
-          <span>Уровень: <strong>{user?.level || 1}</strong></span>
+          <div className="stat-text"><span>Уровень</span><strong>{user?.level || 1}</strong></div>
         </div>
         <div className="stat">
           <span className="stat-icon">🎯</span>
-          <span>Всего монет: <strong>{user ? Math.floor(user.coins).toLocaleString('ru-RU') : 0}</strong></span>
-        </div>
-        <div className="stat">
-          <span className="stat-icon">⚡</span>
-          <span>Энергия: <strong>{user?.energy || 0} / {user?.maxEnergy || 0}</strong></span>
+          <div className="stat-text"><span>Монеты</span><strong>{user ? Math.floor(user.coins).toLocaleString('ru-RU') : 0}</strong></div>
         </div>
         <div className="stat">
           <span className="stat-icon">👆</span>
-          <span>За тап: <strong>+{user?.coinsPerTap || 1} 🪙</strong></span>
+          <div className="stat-text"><span>Монет за тап</span><strong>{cpt > Math.floor(cpt) ? `+${cpt}` : `+${Math.floor(cpt)}`}</strong></div>
         </div>
         <div className="stat">
-          <span className="stat-icon">⚔️</span>
-          <span>Сила: <strong>{totalPower}</strong></span>
+          <span className="stat-icon">⚡</span>
+          <div className="stat-text"><span>Энергия</span><strong>{user?.energy || 0} / {user?.maxEnergy || 0}</strong></div>
         </div>
         <div className="stat">
           <span className="stat-icon">🔋</span>
-          <span>Регенерация: <strong>{user?.energyRegen || 1}/сек</strong></span>
+          <div className="stat-text"><span>Регенерация</span><strong>{user?.energyRegen || 1}/сек</strong></div>
         </div>
         <div className="stat">
-          <span className="stat-icon">🔥</span>
-          <span>Френзи: <strong>{userUpgrades.find(u => u.effect_type === 'tap_multiplier')?.level || 0}</strong></span>
+          <span className="stat-icon">⚔️</span>
+          <div className="stat-text"><span>Сила улучшений</span><strong>{totalPower}</strong></div>
         </div>
       </div>
 
@@ -51,8 +47,8 @@ export default function ProfileScreen({ user, userUpgrades }) {
         <span>XP: {user?.xp || 0} / {xpForLevel}</span>
       </div>
 
-      <div className="upgrade-count">
-        <h3>📈 Купленные улучшения</h3>
+      <div className="card upgrade-count">
+        <h3>📈 Улучшения</h3>
         <p>Всего уровней: <strong>{userUpgrades.reduce((s, u) => s + u.level, 0)}</strong></p>
       </div>
     </div>

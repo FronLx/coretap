@@ -2,15 +2,40 @@
   padding: 16px;
 }
 
-.shop-title {
-  font-size: 22px;
-  margin-bottom: 4px;
+.shop-balance {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin-bottom: 14px;
 }
 
-.shop-balance {
-  color: #ffd700;
-  font-weight: 600;
+.shop-balance strong {
+  color: var(--gold);
+  font-size: 16px;
+}
+
+.section-tabs {
+  display: flex;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 5px;
+  border-radius: 16px;
   margin-bottom: 16px;
+  border: 1px solid var(--card-border);
+}
+
+.section-tab {
+  flex: 1;
+  padding: 11px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dim);
+  transition: all 0.2s;
+}
+
+.section-tab.active {
+  background: linear-gradient(135deg, var(--gold), var(--gold-2));
+  color: #1a1200;
 }
 
 .category-tabs {
@@ -27,19 +52,22 @@
 }
 
 .category-btn {
-  padding: 8px 14px;
+  padding: 8px 15px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--card);
+  border: 1px solid var(--card-border);
   font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
   white-space: nowrap;
   flex-shrink: 0;
   transition: all 0.2s;
 }
 
 .category-btn.active {
-  background: linear-gradient(135deg, #ffd700, #ff9800);
-  color: #000;
-  font-weight: 700;
+  background: rgba(255, 209, 102, 0.15);
+  border-color: var(--gold);
+  color: var(--gold);
 }
 
 .upgrades-list {
@@ -52,21 +80,18 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 16px;
-  padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 13px;
 }
 
 .upgrade-icon {
-  font-size: 36px;
-  width: 50px;
-  height: 50px;
+  font-size: 32px;
+  width: 52px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
   flex-shrink: 0;
 }
 
@@ -82,35 +107,164 @@
 
 .upgrade-info p {
   font-size: 12px;
-  color: #888;
-  margin-bottom: 4px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
 }
 
 .upgrade-level {
   font-size: 11px;
-  color: #aaa;
+  color: var(--text-dim);
+}
+
+.level-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.level-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), #009dff);
+  border-radius: 4px;
+  transition: width 0.3s;
 }
 
 .upgrade-buy {
-  padding: 10px 12px;
-  border-radius: 12px;
+  padding: 11px 13px;
+  border-radius: 13px;
   font-weight: 700;
   font-size: 12px;
   flex-shrink: 0;
   text-align: center;
-  min-width: 90px;
+  min-width: 92px;
   transition: all 0.2s;
 }
 
 .upgrade-buy.affordable {
-  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  background: linear-gradient(135deg, var(--cyan), #009dff);
+  color: #00222e;
 }
 
 .upgrade-buy.too-expensive {
-  background: rgba(255, 255, 255, 0.08);
-  color: #888;
+  background: var(--card);
+  color: var(--text-dim);
+  border: 1px solid var(--card-border);
 }
 
 .upgrade-buy.maxed {
-  background: linear-gradient(135deg, #4caf50, #388e3c);
+  background: linear-gradient(135deg, #34d399, #059669);
+  color: #032b1a;
+}
+
+/* --- Skins --- */
+
+.skins-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.skin-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px;
+  transition: border-color 0.2s;
+}
+
+.skin-card.equipped {
+  border-color: var(--gold);
+  background: rgba(255, 209, 102, 0.06);
+}
+
+.skin-preview {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #2b2c31, #18191d);
+  border: 2px solid var(--skin, #e8c34a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.skin-preview-icon {
+  font-size: 30px;
+}
+
+.skin-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.skin-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.skin-name-row h3 {
+  font-size: 15px;
+}
+
+.rarity {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.rarity-common { background: rgba(160, 160, 160, 0.2); color: #b8b8b8; }
+.rarity-rare { background: rgba(0, 229, 255, 0.15); color: var(--cyan); }
+.rarity-epic { background: rgba(201, 163, 255, 0.16); color: #c9a3ff; }
+.rarity-legendary { background: rgba(255, 215, 0, 0.16); color: var(--gold); }
+
+.skin-bonus {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.skin-action {
+  flex-shrink: 0;
+}
+
+.equipped-badge {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.equip-btn {
+  font-size: 13px;
+  padding: 9px 16px;
+}
+
+.skin-buy {
+  padding: 10px 14px;
+  border-radius: 13px;
+  font-weight: 700;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.skin-buy.affordable {
+  background: linear-gradient(135deg, var(--cyan), #009dff);
+  color: #00222e;
+}
+
+.skin-buy.too-expensive {
+  background: var(--card);
+  color: var(--text-dim);
+  border: 1px solid var(--card-border);
+}
+
+.skin-buy:disabled {
+  opacity: 0.5;
 }

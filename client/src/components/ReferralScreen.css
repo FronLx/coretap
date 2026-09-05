@@ -5,33 +5,23 @@
   align-items: center;
 }
 
-.referral-title {
-  font-size: 24px;
-  margin-bottom: 8px;
-}
-
-.referral-subtitle {
-  color: #888;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
 .referral-subtitle strong {
-  color: #ffd700;
+  color: var(--gold);
 }
 
 .referral-stats {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
   max-width: 360px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .referral-stat {
   flex: 1;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -41,26 +31,27 @@
 
 .referral-stat span {
   font-size: 12px;
-  color: #888;
+  color: var(--text-dim);
 }
 
 .referral-stat strong {
   font-size: 18px;
-  color: #ffd700;
+  color: var(--gold);
 }
 
 .referral-link-box {
   width: 100%;
   max-width: 360px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
 }
 
 .referral-link-label {
   font-size: 13px;
-  color: #888;
+  color: var(--text-dim);
   margin-bottom: 8px;
 }
 
@@ -72,50 +63,45 @@
 
 .referral-link-text {
   flex: 1;
-  font-size: 12px;
-  color: #00c6ff;
+  font-size: 11px;
+  color: var(--cyan);
   word-break: break-all;
   background: rgba(0, 0, 0, 0.3);
-  padding: 8px;
-  border-radius: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
 }
 
 .copy-btn {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #00c6ff, #0072ff);
-  border-radius: 8px;
-  font-size: 18px;
+  background: linear-gradient(135deg, var(--cyan), #009dff);
+  border-radius: 11px;
+  font-size: 17px;
   flex-shrink: 0;
-}
-
-.share-btn {
-  width: 100%;
-  max-width: 360px;
-  padding: 16px;
-  background: linear-gradient(135deg, #00c6ff, #0072ff);
-  border-radius: 16px;
-  font-size: 16px;
+  color: #00222e;
   font-weight: 700;
-  margin-bottom: 20px;
 }
 
 .referral-how {
   width: 100%;
   max-width: 360px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
   padding: 16px;
 }
 
 .referral-how h3 {
   margin-bottom: 10px;
+  font-size: 15px;
 }
 
 .referral-how ol {
   padding-left: 20px;
-  color: #aaa;
+  color: var(--text-dim);
   display: flex;
   flex-direction: column;
   gap: 6px;
+  font-size: 13px;
 }

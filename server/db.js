@@ -52,7 +52,32 @@ db.exec(`
     day INTEGER PRIMARY KEY,
     reward INTEGER NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS skins (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    icon TEXT NOT NULL,
+    color TEXT NOT NULL,
+    price REAL NOT NULL,
+    bonus_per_tap REAL DEFAULT 0,
+    rarity TEXT DEFAULT 'common'
+  );
+
+  CREATE TABLE IF NOT EXISTS user_skins (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    skin_id INTEGER NOT NULL,
+    equipped INTEGER DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (skin_id) REFERENCES skins(id),
+    UNIQUE(user_id, skin_id)
+  );
 `);
+
+const userColumns = db.prepare(`PRAGMA table_info(users)`).all().map(c => c.name);
+if (!userColumns.includes('equipped_skin_id')) {
+  db.exec(`ALTER TABLE users ADD COLUMN equipped_skin_id INTEGER DEFAULT 1`);
+}
 
 const defaultUpgrades = [
   { name: 'Energy Cap', description: 'Max energy +50', icon: '⚡', category: 'energy', base_cost: 500, cost_multiplier: 1.3, effect_type: 'max_energy', effect_value: 50, max_level: 50 },
@@ -78,6 +103,20 @@ const dailyRewards = [
 const drStmt = db.prepare(`INSERT OR IGNORE INTO daily_rewards (day, reward) VALUES (?, ?)`);
 for (const dr of dailyRewards) drStmt.run(dr.day, dr.reward);
 
+const defaultSkins = [
+  { name: 'Classic', icon: '🪙', color: '#e8c34a', price: 0, bonus_per_tap: 0, rarity: 'common' },
+  { name: 'Neon', icon: '⚡', color: '#00e5ff', price: 2000, bonus_per_tap: 0.5, rarity: 'common' },
+  { name: 'Star', icon: '⭐', color: '#ffe066', price: 10000, bonus_per_tap: 1, rarity: 'rare' },
+  { name: 'Moon', icon: '🌙', color: '#c9a3ff', price: 50000, bonus_per_tap: 2, rarity: 'rare' },
+  { name: 'Fire', icon: '🔥', color: '#ff5e3a', price: 200000, bonus_per_tap: 5, rarity: 'epic' },
+  { name: 'Crown', icon: '👑', color: '#ffd700', price: 1000000, bonus_per_tap: 10, rarity: 'epic' },
+  { name: 'Diamond', icon: '💎', color: '#7df9ff', price: 5000000, bonus_per_tap: 20, rarity: 'legendary' },
+];
+const skinStmt = db.prepare(`INSERT OR IGNORE INTO skins (name, icon, color, price, bonus_per_tap, rarity) VALUES (?, ?, ?, ?, ?, ?)`);
+for (const s of defaultSkins) {
+  skinStmt.run(s.name, s.icon, s.color, s.price, s.bonus_per_tap, s.rarity);
+}
+
 export function getUser(telegramId) {
   return db.prepare('SELECT * FROM users WHERE telegram_id = ?').get(telegramId);
 }
@@ -86,7 +125,9 @@ export function createUser(telegramId, username, firstName) {
   const existing = getUser(telegramId);
   if (existing) return existing;
   db.prepare('INSERT INTO users (telegram_id, username, first_name) VALUES (?, ?, ?)').run(telegramId, username, firstName);
-  return getUser(telegramId);
+  const created = getUser(telegramId);
+  db.prepare('INSERT OR IGNORE INTO user_skins (user_id, skin_id, equipped) VALUES (?, 1, 1)').run(created.id);
+  return created;
 }
 
 export function updateUserCoins(userId, coins) {
@@ -163,6 +204,69 @@ export function claimDaily(userId) {
 
 export function getReferralCount(userId) {
   return db.prepare('SELECT COUNT(*) as count FROM users WHERE referrer_id = ?').get(userId).count;
+}
+
+export function getSkins() {
+  return db.prepare('SELECT * FROM skins ORDER BY price ASC').all();
+}
+
+export function getSkinsWithState(userId) {
+  const all = getSkins();
+  const owned = db.prepare('SELECT * FROM user_skins WHERE user_id = ?').all(userId);
+  const user = db.prepare('SELECT equipped_skin_id FROM users WHERE id = ?').get(userId);
+
+  return all.map(skin => {
+    const record = owned.find(o => o.skin_id === skin.id);
+    return {
+      ...skin,
+      owned: !!record,
+      equipped: user.equipped_skin_id === skin.id
+    };
+  });
+}
+
+export function buySkin(userId, skinId) {
+  const skin = db.prepare('SELECT * FROM skins WHERE id = ?').get(skinId);
+  if (!skin) return { error: 'Skin not found' };
+
+  if (skin.price === 0) {
+    db.prepare('INSERT OR IGNORE INTO user_skins (user_id, skin_id, equipped) VALUES (?, ?, 0)').run(userId, skinId);
+    return { skin, cost: 0 };
+  }
+
+  const has = db.prepare('SELECT * FROM user_skins WHERE user_id = ? AND skin_id = ?').get(userId, skinId);
+  if (has) return { error: 'Already owned' };
+
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+  if (user.coins < skin.price) return { error: 'Not enough coins' };
+
+  db.prepare('UPDATE users SET coins = coins - ? WHERE id = ?').run(skin.price, userId);
+  db.prepare('INSERT INTO user_skins (user_id, skin_id, equipped) VALUES (?, ?, 0)').run(userId, skinId);
+
+  return { skin, cost: skin.price };
+}
+
+export function equipSkin(userId, skinId) {
+  const skin = db.prepare('SELECT * FROM skins WHERE id = ?').get(skinId);
+  if (!skin) return { error: 'Skin not found' };
+
+  const has = db.prepare('SELECT * FROM user_skins WHERE user_id = ? AND skin_id = ?').get(userId, skinId);
+  if (!has) return { error: 'Skin not owned' };
+
+  db.prepare('UPDATE user_skins SET equipped = 0 WHERE user_id = ?').run(userId);
+  db.prepare('UPDATE user_skins SET equipped = 1 WHERE user_id = ? AND skin_id = ?').run(userId, skinId);
+  db.prepare('UPDATE users SET equipped_skin_id = ? WHERE id = ?').run(skinId, userId);
+
+  return { skin };
+}
+
+export function getEquippedSkinBonus(userId) {
+  const row = db.prepare(`
+    SELECT s.bonus_per_tap FROM skins s
+    JOIN users u ON u.equipped_skin_id = s.id
+    WHERE u.id = ?
+  `).get(userId);
+  return row ? row.bonus_per_tap : 0;
 }
 
 export { db };

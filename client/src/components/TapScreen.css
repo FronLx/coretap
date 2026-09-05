@@ -2,138 +2,207 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  padding: 0 16px;
   height: 100%;
+  padding: 0 16px;
 }
 
 .energy-bar {
   width: 100%;
   max-width: 360px;
-  height: 24px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  height: 26px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 13px;
   overflow: hidden;
   position: relative;
-  margin: 8px 0 16px;
+  margin: 6px 0 10px;
+  border: 1px solid var(--card-border);
 }
 
 .energy-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #00c6ff, #0072ff);
-  border-radius: 12px;
-  transition: width 0.3s;
+  background: linear-gradient(90deg, var(--cyan), #009dff);
+  border-radius: 13px;
+  transition: width 0.25s ease;
+  box-shadow: 0 0 18px rgba(0, 229, 255, 0.35);
 }
 
 .energy-label {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
   font-weight: 700;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  font-variant-numeric: tabular-nums;
 }
 
-.tap-canvas {
+.tap-arena {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex: 1;
   width: 100%;
-  perspective: 800px;
+  min-height: 0;
 }
 
-.tap-cube {
-  width: 200px;
-  height: 200px;
-  position: relative;
-  transform-style: preserve-3d;
-  transform: rotateX(45deg) rotateY(45deg);
-  cursor: pointer;
-  animation: cubeFloat 3s ease-in-out infinite;
-  transition: transform 0.1s;
-  -webkit-transform: rotateX(45deg) rotateY(45deg);
-}
-
-.tap-cube.flashing {
-  transform: rotateX(45deg) rotateY(45deg) scale(0.92);
-  -webkit-transform: rotateX(45deg) rotateY(45deg) scale(0.92);
-}
-
-@keyframes cubeFloat {
-  0%, 100% { transform: rotateX(45deg) rotateY(45deg) translateY(0); }
-  50% { transform: rotateX(45deg) rotateY(45deg) translateY(-15px); }
-}
-
-.cube-face {
-  position: absolute;
-  width: 200px;
-  height: 200px;
-  background: linear-gradient(135deg, #ffd700, #ff9800);
-  border: 3px solid rgba(255, 255, 255, 0.3);
+.tap-ring {
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 80px;
-  opacity: 0.9;
+  position: relative;
+  transition: transform 0.13s ease;
+  animation: ringPulse 3s ease-in-out infinite;
 }
 
-.cube-front  { transform: translateZ(100px); }
-.cube-back   { transform: rotateY(180deg) translateZ(100px); }
-.cube-right  { transform: rotateY(90deg) translateZ(100px); }
-.cube-left   { transform: rotateY(-90deg) translateZ(100px); }
-.cube-top    { transform: rotateX(90deg) translateZ(100px); }
-.cube-bottom { transform: rotateX(-90deg) translateZ(100px); }
+.tap-ring::before {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  border: 2px dashed var(--skin, #e8c34a);
+  opacity: 0.25;
+  animation: orbit 24s linear infinite;
+}
+
+.tap-ring.flash {
+  transform: scale(0.96);
+}
+
+@keyframes ringPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.tap-coin {
+  width: 196px;
+  height: 196px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.22), transparent 42%),
+    linear-gradient(145deg, #2b2c31, #18191d);
+  border: 3px solid var(--skin, #e8c34a);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transform-style: preserve-3d;
+}
+
+.tap-coin:active {
+  transform: scale(0.94);
+}
+
+.tap-coin-icon {
+  font-size: 74px;
+  line-height: 1;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.5));
+  animation: coinBob 2.6s ease-in-out infinite;
+}
+
+@keyframes coinBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.tap-coin-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--skin, #e8c34a);
+}
 
 .tap-hint {
-  margin-top: 24px;
-  color: #888;
-  font-size: 14px;
-  animation: hintPulse 2s ease-in-out infinite;
+  margin-top: 22px;
+  color: var(--text-dim);
+  font-size: 13px;
+  animation: hintPulse 2.4s ease-in-out infinite;
 }
 
 @keyframes hintPulse {
-  0%, 100% { opacity: 0.6; }
+  0%, 100% { opacity: 0.55; }
   50% { opacity: 1; }
 }
 
-.boost-row {
+.tap-bottom {
   width: 100%;
   max-width: 360px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 0 20px;
+  flex-direction: column;
+  gap: 12px;
+  padding: 6px 0 18px;
+}
+
+.boost-row {
+  display: flex;
+  justify-content: center;
 }
 
 .boost-btn {
-  background: linear-gradient(135deg, #ff6b35, #ff2e63);
-  padding: 12px 20px;
-  border-radius: 16px;
-  font-weight: 700;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  box-shadow: 0 4px 15px rgba(255, 46, 99, 0.3);
+  gap: 10px;
+  padding: 13px 26px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 94, 58, 0.35);
+  font-weight: 700;
+  transition: background 0.15s, transform 0.15s, border-color 0.15s;
+}
+
+.boost-btn.active {
+  background: linear-gradient(135deg, var(--gold), var(--gold-2));
+  border-color: transparent;
+  color: #1a1200;
+}
+
+.boost-btn:active {
+  transform: scale(0.96);
+}
+
+.boost-icon {
+  font-size: 22px;
+}
+
+.boost-title {
+  font-size: 15px;
 }
 
 .boost-cost {
   font-size: 12px;
-  opacity: 0.8;
+  opacity: 0.75;
 }
 
-.stats-mini {
+.boost-btn.active .boost-cost {
+  color: #4a3b00;
+}
+
+.stats-chips {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
   font-size: 12px;
-  color: #aaa;
-  text-align: right;
+  font-weight: 600;
+  color: var(--text-dim);
 }

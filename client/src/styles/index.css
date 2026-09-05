@@ -5,15 +5,31 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+:root {
+  --bg-top: #1c1d21;
+  --bg-mid: #222327;
+  --bg-bottom: #16171a;
+  --card: rgba(255, 255, 255, 0.05);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --text: #f2f3f5;
+  --text-dim: #8b8d93;
+  --gold: #ffd166;
+  --gold-2: #ff9f1c;
+  --cyan: #00e5ff;
+  --danger: #ff5e5e;
+  --green: #34d399;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: linear-gradient(180deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%);
-  color: #ffffff;
+  background: linear-gradient(160deg, var(--bg-top) 0%, var(--bg-mid) 45%, var(--bg-bottom) 100%);
+  color: var(--text);
   overflow: hidden;
   height: 100vh;
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-font-smoothing: antialiased;
 }
 
 #root {
@@ -26,4 +42,44 @@ button {
   background: none;
   color: inherit;
   font-family: inherit;
+}
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-radius: 16px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1200;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%);
+  box-shadow: 0 6px 20px rgba(255, 159, 28, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-primary:active {
+  transform: scale(0.96);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-ghost {
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  transition: background 0.15s;
+}
+
+.btn-ghost:active {
+  background: rgba(255, 255, 255, 0.1);
 }

@@ -7,7 +7,8 @@ import { fileURLToPath } from 'url';
 import {
   getUser, createUser,
   getUpgrades, getUserUpgrades, purchaseUpgrade,
-  getLeaderboard, claimDaily, getReferralCount, db
+  getLeaderboard, claimDaily, getReferralCount,
+  getSkinsWithState, buySkin, equipSkin, getEquippedSkinBonus, db
 } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -100,7 +101,8 @@ app.post('/api/auth', (req, res) => {
     res.json({
       user: { ...updatedUser, ...stats, refCount },
       upgrades: getUpgrades(),
-      userUpgrades
+      userUpgrades,
+      skins: getSkinsWithState(updatedUser.id)
     });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -126,6 +128,8 @@ function calculateStats(user, userUpgrades) {
       case 'global_multiplier': globalMultiplier += val / 100; break;
     }
   }
+
+  coinsPerTap += getEquippedSkinBonus(user.id);
 
   return { coinsPerTap, maxEnergy, energyRegen, autoTap, luckyChance, globalMultiplier };
 }
@@ -230,6 +234,30 @@ app.post('/api/boost/tap_frenzy', authMiddleware, (req, res) => {
   db.prepare('UPDATE users SET coins = coins - ? WHERE id = ?').run(cost, user.id);
 
   res.json({ multiplier: frenzyUp.effect_value, duration: 30, coins: user.coins - cost });
+});
+
+app.get('/api/skins', authMiddleware, (req, res) => {
+  const user = getUser(req.telegramUser.id);
+  res.json({ skins: getSkinsWithState(user.id), coins: user.coins });
+});
+
+app.post('/api/skins/:id/buy', authMiddleware, (req, res) => {
+  const user = getUser(req.telegramUser.id);
+  const result = buySkin(user.id, parseInt(req.params.id));
+  if (result.error) return res.status(400).json(result);
+
+  const updatedUser = getUser(req.telegramUser.id);
+  res.json({ ...result, coins: updatedUser.coins, skins: getSkinsWithState(user.id) });
+});
+
+app.post('/api/skins/:id/equip', authMiddleware, (req, res) => {
+  const user = getUser(req.telegramUser.id);
+  const result = equipSkin(user.id, parseInt(req.params.id));
+  if (result.error) return res.status(400).json(result);
+
+  const updatedUser = getUser(req.telegramUser.id);
+  const stats = calculateStats(updatedUser, getUserUpgrades(updatedUser.id));
+  res.json({ ...result, skins: getSkinsWithState(user.id), stats, coinsPerTap: stats.coinsPerTap });
 });
 
 app.listen(PORT, () => {
