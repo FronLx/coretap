@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: coretap-api
+    runtime: node
+    rootDir: server
+    plan: free
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: BOT_USERNAME
+        sync: false
+      - key: WEBAPP_URL
+        value: https://fronlx.github.io/coretap/
+      - key: NODE_VERSION
+        value: 24
+    healthCheckPath: /api/leaderboard
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true

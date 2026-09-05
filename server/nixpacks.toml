@@ -1,5 +1,0 @@
-[nixpacks]
-providers = ["node"]
-
-[nixpacks.build]
-cmd = "npm install"
