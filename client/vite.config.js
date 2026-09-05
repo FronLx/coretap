@@ -4,6 +4,7 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  base: '/coretap/',
   build: {
     outDir: 'dist',
     sourcemap: false
