@@ -54,7 +54,7 @@ export default function TapScreen({ display, stats, equippedSkin, onTap, frenzy,
         <p className="tap-hint">Жми, пока энергия есть!</p>
       </div>
 
-      <div className="tap-bottom">
+      <div className="tap-bottom" onPointerDown={(e) => e.stopPropagation()}>
         <div className="boost-row">
           <button className={`boost-btn ${frenzy ? 'active' : ''}`} onClick={handleFrenzy}>
             <span className="boost-icon">🔥</span>
