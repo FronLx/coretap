@@ -1,0 +1,67 @@
+.leaderboard-screen {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.leaderboard-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.leaderboard-loading {
+  color: #888;
+}
+
+.leaderboard-list {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.leaderboard-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.leaderboard-card.top-3 {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.leaderboard-rank {
+  font-size: 24px;
+  width: 40px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.leaderboard-player {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.leaderboard-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.leaderboard-level {
+  font-size: 11px;
+  color: #888;
+}
+
+.leaderboard-coins {
+  font-size: 14px;
+  color: #ffd700;
+  font-weight: 700;
+}

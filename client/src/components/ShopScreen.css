@@ -1,0 +1,116 @@
+.shop-screen {
+  padding: 16px;
+}
+
+.shop-title {
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+.shop-balance {
+  color: #ffd700;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.category-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  scrollbar-width: none;
+}
+
+.category-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.category-btn {
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 13px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.category-btn.active {
+  background: linear-gradient(135deg, #ffd700, #ff9800);
+  color: #000;
+  font-weight: 700;
+}
+
+.upgrades-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.upgrade-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.upgrade-icon {
+  font-size: 36px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.upgrade-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.upgrade-info h3 {
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.upgrade-info p {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.upgrade-level {
+  font-size: 11px;
+  color: #aaa;
+}
+
+.upgrade-buy {
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 12px;
+  flex-shrink: 0;
+  text-align: center;
+  min-width: 90px;
+  transition: all 0.2s;
+}
+
+.upgrade-buy.affordable {
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+}
+
+.upgrade-buy.too-expensive {
+  background: rgba(255, 255, 255, 0.08);
+  color: #888;
+}
+
+.upgrade-buy.maxed {
+  background: linear-gradient(135deg, #4caf50, #388e3c);
+}

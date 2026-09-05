@@ -1,0 +1,96 @@
+.daily-screen {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.daily-title {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.daily-subtitle {
+  color: #888;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.daily-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.daily-card {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  border: 2px solid transparent;
+}
+
+.daily-card.current {
+  border-color: #ffd700;
+  background: rgba(255, 215, 0, 0.1);
+  animation: pulse 1.5s infinite;
+}
+
+.daily-card.claimed {
+  background: rgba(76, 175, 80, 0.15);
+  border-color: rgba(76, 175, 80, 0.4);
+}
+
+.daily-card.locked {
+  opacity: 0.4;
+}
+
+.daily-day {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.daily-reward {
+  font-size: 12px;
+  color: #ffd700;
+}
+
+.daily-status {
+  font-size: 10px;
+  color: #4caf50;
+}
+
+.daily-claim-btn {
+  width: 100%;
+  max-width: 360px;
+  padding: 16px;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.daily-claim-btn.active {
+  background: linear-gradient(135deg, #ffd700, #ff6b35);
+  color: #000;
+}
+
+.daily-claim-btn.disabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: #888;
+}
+
+.daily-streak {
+  margin-top: 20px;
+  color: #888;
+}
+
+.daily-streak strong {
+  color: #ff6b35;
+}
