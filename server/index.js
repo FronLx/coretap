@@ -7,8 +7,8 @@ import { fileURLToPath } from 'url';
 import {
   getUser, getUserById, createUser, getUpgrades, getUserUpgrades, purchaseUpgrade, getLeaderboard,
   isAdmin, grantAdmin, revokeAdmin, getAdmins, setBlocked, giveCoins, setUserXp, resetUser,
-  adminStats, searchUsers, logAdmin, getAdminLogs, dailyStatus, claimDaily, isRefillAvailable,
-  doRefill, applyLevelUp, applyReferral, userPublicInfo, OWNER_ID, db,
+  adminStats, searchUsers, logAdmin, getAdminLogs, applyLevelUp, applyReferral, userPublicInfo, computeLevel,
+  LEVEL_XP, LEVEL_REWARD, OWNER_ID, db,
 } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -99,6 +99,8 @@ function stats(user, userUpgrades) {
   let luckyChance = 0;
   let globalMultiplier = 1;
   let tapMultiplier = 1;
+  let autoTap = 0;
+  let frenzyLevels = 0;
 
   for (const up of userUpgrades) {
     const val = up.effect_value * up.level;
@@ -109,11 +111,15 @@ function stats(user, userUpgrades) {
       case 'offline_regen': energyRegen += val; break;
       case 'lucky_chance': luckyChance += val; break;
       case 'global_multiplier': globalMultiplier += val / 100; break;
-      case 'tap_multiplier': tapMultiplier += val; break;
+      case 'tap_multiplier': frenzyLevels += up.level; break;
+      case 'auto_tap': autoTap += up.level; break;
     }
   }
 
-  return { coinsPerTap, maxEnergy, energyRegen, luckyChance, globalMultiplier, tapMultiplier };
+  const frenzyActive = !!user.frenzy_until && new Date(user.frenzy_until).getTime() > Date.now();
+  if (frenzyActive && frenzyLevels > 0) tapMultiplier = 1 + frenzyLevels;
+
+  return { coinsPerTap, maxEnergy, energyRegen, luckyChance, globalMultiplier, tapMultiplier, autoTap, frenzyActive };
 }
 
 export function calculateStats(user, userUpgrades) {
@@ -123,13 +129,26 @@ export function calculateStats(user, userUpgrades) {
 function upgradesResponse(userId) {
   const userUpgrades = getUserUpgrades(userId);
   return getUpgrades()
-    .filter(u => u.effect_type !== 'auto_tap')
     .map(u => {
       const row = userUpgrades.find(uu => uu.upgrade_id === u.id);
       const level = row ? row.level : 0;
       const cost = Math.floor(u.base_cost * Math.pow(u.cost_multiplier, level));
       return { ...u, currentLevel: level, cost, owned: !!row };
     });
+}
+
+function applyOfflineAutoTap(user) {
+  if (!user.last_seen) return 0;
+  const s = stats(user, getUserUpgrades(user.id));
+  if (!(s.autoTap > 0)) return 0;
+  const now = Date.now();
+  const lastTs = new Date(user.last_seen).getTime();
+  if (!lastTs) return 0;
+  const capped = Math.min(Math.floor((now - lastTs) / 1000), 8 * 3600);
+  if (capped < 1) return 0;
+  const earned = Math.max(1, Math.floor(capped * s.autoTap * s.coinsPerTap * s.globalMultiplier));
+  db.prepare('UPDATE users SET coins = coins + ? WHERE id = ?').run(earned, user.id);
+  return earned;
 }
 
 function applyOfflineEnergy(user) {
@@ -149,6 +168,7 @@ function applyOfflineEnergy(user) {
 function userPayload(user) {
   const userUpgrades = getUserUpgrades(user.id);
   const info = userPublicInfo(user.id);
+  const s = stats(user, userUpgrades);
   return {
     id: user.id,
     telegram_id: user.telegram_id,
@@ -161,9 +181,9 @@ function userPayload(user) {
     total_taps: user.total_taps,
     referrals: info.referrals,
     isAdmin: !!isAdmin(user.telegram_id),
-    daily: dailyStatus(user.id),
-    refillAvailable: isRefillAvailable(user.id),
-    ...stats(user, userUpgrades)
+    frenzyActive: !!s.frenzyActive,
+    frenzyUntil: user.frenzy_until || null,
+    ...s
   };
 }
 
@@ -193,13 +213,15 @@ app.post('/api/auth', (req, res) => {
     }
 
     const offlineEnergy = applyOfflineEnergy(user);
+    const offlineCoins = applyOfflineAutoTap(user);
     user = getUser(data.id);
 
     res.json({
       user: userPayload(user),
       upgrades: upgradesResponse(user.id),
       userUpgrades: getUserUpgrades(user.id),
-      offlineEnergy
+      offlineEnergy,
+      offlineCoins
     });
   } catch (e) {
     console.log(`${new Date().toISOString()} AUTH ERR: ${e.message}`);
@@ -240,7 +262,7 @@ app.post('/api/tap', auth, (req, res) => {
     level: updated.level,
     leveledUp: leveled.leveled,
     levelReward: leveled.reward,
-    stats: s
+    stats: { ...s, frenzyActive: !!s.frenzyActive }
   });
 });
 
@@ -264,6 +286,17 @@ app.post('/api/upgrade/:id', auth, (req, res) => {
   const result = purchaseUpgrade(user.id, parseInt(req.params.id));
   if (result.error) return res.status(400).json(result);
 
+  const upgrade = getUpgrades().find(u => u.id === parseInt(req.params.id));
+
+  if (upgrade && upgrade.effect_type === 'tap_multiplier') {
+    const now = Date.now();
+    const currentFrenzyEnd = user.frenzy_until ? new Date(user.frenzy_until).getTime() : 0;
+    const base = Math.max(now, currentFrenzyEnd);
+    const until = new Date(base + 30000).toISOString();
+    db.prepare('UPDATE users SET frenzy_until = ? WHERE id = ?').run(until, user.id);
+    result.frenzyUntil = until;
+  }
+
   const updatedUser = getUser(req.telegramUser.id);
   const userUpgrades = getUserUpgrades(user.id);
 
@@ -272,20 +305,6 @@ app.post('/api/upgrade/:id', auth, (req, res) => {
 
 app.get('/api/leaderboard', (req, res) => {
   res.json({ leaderboard: getLeaderboard() });
-});
-
-app.post('/api/daily', auth, (req, res) => {
-  const user = req.dbUser || getUser(req.telegramUser.id);
-  const result = claimDaily(user.id);
-  if (result.error) return res.status(400).json(result);
-  res.json({ ...result, coins: result.coins, daily: dailyStatus(user.id) });
-});
-
-app.post('/api/boost/refill', auth, (req, res) => {
-  const user = req.dbUser || getUser(req.telegramUser.id);
-  const result = doRefill(user.id);
-  if (result.error) return res.status(400).json(result);
-  res.json({ ...result, refillAvailable: false });
 });
 
 app.get('/api/profile', auth, (req, res) => {

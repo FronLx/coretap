@@ -127,6 +127,22 @@
   border-color: var(--cyan);
 }
 
+.action-btn.frenzy-active {
+  border-color: var(--cyan);
+  background: rgba(34, 231, 255, 0.12);
+  box-shadow: 0 0 18px var(--neon-cyan-glow);
+}
+
+.frenzy-badge {
+  font-size: 16px;
+  animation: frenzyPulse 0.9s ease-in-out infinite;
+}
+
+@keyframes frenzyPulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px var(--neon-cyan-glow)); }
+  50% { transform: scale(1.25); filter: drop-shadow(0 0 12px var(--neon-cyan-glow)); }
+}
+
 .tap-arena {
   flex: 1;
   display: flex;
@@ -149,20 +165,6 @@
   animation: ringPulse 3s ease-in-out infinite;
 }
 
-.tap-ring::before {
-  content: '';
-  position: absolute;
-  inset: -12px;
-  border-radius: 50%;
-  border: 2px dashed var(--skin, #e8c34a);
-  opacity: 0.25;
-  animation: orbit 24s linear infinite;
-}
-
-.tap-ring.flash {
-  transform: scale(0.96);
-}
-
 @keyframes ringPulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.02); }
@@ -173,14 +175,28 @@
   to { transform: rotate(360deg); }
 }
 
+.tap-ring::before {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  border: 2px dashed var(--coin);
+  opacity: 0.35;
+  animation: orbit 24s linear infinite;
+}
+
+.tap-ring.flash {
+  transform: scale(0.96);
+}
+
 .tap-coin {
   width: 196px;
   height: 196px;
   border-radius: 50%;
   background:
-    radial-gradient(circle at 30% 28%, rgba(110, 170, 255, 0.28), transparent 42%),
-    linear-gradient(145deg, #1a2540, #0a1020);
-  border: 3px solid var(--skin, #e8c34a);
+    radial-gradient(circle at 30% 28%, rgba(185, 194, 212, 0.22), transparent 42%),
+    linear-gradient(145deg, #273349, #0d1626);
+  border: 3px solid var(--coin);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -188,7 +204,12 @@
   gap: 6px;
   cursor: pointer;
   transform-style: preserve-3d;
-  box-shadow: 0 0 30px var(--neon-blue-glow), inset 0 0 18px rgba(46, 123, 255, 0.2);
+  box-shadow: 0 0 30px var(--neon-white-glow), 0 0 60px rgba(34, 231, 255, 0.15), inset 0 0 18px rgba(185, 194, 212, 0.15);
+}
+
+.tap-coin.frenzy-glow {
+  border-color: var(--cyan);
+  box-shadow: 0 0 40px var(--neon-cyan-glow), inset 0 0 24px rgba(34, 231, 255, 0.3);
 }
 
 .tap-coin:active {
@@ -198,9 +219,9 @@
 .tap-coin-icon {
   font-size: 74px;
   line-height: 1;
-  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 14px var(--neon-white-glow));
   animation: coinBob 2.6s ease-in-out infinite;
-  color: var(--gold);
+  color: var(--coin);
 }
 
 @keyframes coinBob {
@@ -213,7 +234,7 @@
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: var(--skin, #e8c34a);
+  color: var(--coin);
 }
 
 .tap-hint {
@@ -263,59 +284,10 @@
   flex-shrink: 0;
 }
 
-.daily-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-  margin-top: 6px;
-}
-
-.daily-day {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 2px;
-  border-radius: 12px;
-  background: rgba(40, 90, 200, 0.1);
-  border: 1px solid rgba(70, 130, 255, 0.2);
-  font-size: 10px;
-  color: var(--text-dim);
-}
-
-.daily-day .daily-day-coin {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  font-weight: 700;
-  color: var(--text-dim);
-}
-
-.daily-day-coin svg {
-  color: var(--gold);
-}
-
-.daily-day.done {
-  background: rgba(61, 255, 154, 0.08);
-  border-color: rgba(61, 255, 154, 0.35);
-}
-
-.daily-day.done .daily-day-coin {
-  color: var(--green);
-}
-
-.daily-day.today {
-  border-color: var(--cyan);
-  background: rgba(46, 123, 255, 0.2);
-  box-shadow: 0 0 14px var(--neon-blue-glow);
-}
-
-.daily-day.today .daily-day-coin {
+.chip-neon {
+  border-color: rgba(34, 231, 255, 0.4);
   color: var(--cyan);
-}
-
-.daily-day-num {
-  font-weight: 700;
+  box-shadow: 0 0 14px var(--neon-cyan-glow);
 }
 
 .ref-link input {

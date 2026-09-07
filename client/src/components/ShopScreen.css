@@ -1,98 +1,112 @@
 .shop-screen {
-  padding: 16px;
+  padding: 12px 12px 16px;
 }
 
-.shop-balance {
-  color: var(--text-dim);
-  font-size: 14px;
-  margin-bottom: 14px;
+.shop-header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.screen-title-icon {
+  color: var(--coin);
+  display: inline-flex;
+  vertical-align: -3px;
+  margin-right: 6px;
+  filter: drop-shadow(0 0 12px var(--neon-white-glow));
 }
 
 .inline-coin {
-  color: var(--gold);
+  color: var(--coin);
   display: inline-flex;
   vertical-align: -3px;
   margin-right: 3px;
 }
 
-.screen-title-icon {
-  color: var(--gold);
-  display: inline-flex;
-  vertical-align: -3px;
-  margin-right: 6px;
-  filter: drop-shadow(0 0 10px var(--neon-cyan-glow));
+.shop-balance {
+  color: var(--text-dim);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .shop-balance strong {
   color: var(--cyan);
-  font-size: 17px;
+  font-size: 18px;
   text-shadow: 0 0 12px var(--neon-cyan-glow);
+  font-variant-numeric: tabular-nums;
 }
 
-.category-btn.active {
-  background: rgba(0, 240, 255, 0.1);
-  border-color: var(--cyan);
-  color: var(--cyan);
-  box-shadow: 0 0 14px var(--neon-cyan-glow);
+.upgrades-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
-.upgrades-list {
+.upgrade-cell {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  padding: 11px;
+  min-width: 0;
 }
 
-.upgrade-card {
+.upgrade-head {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
 }
 
 .upgrade-icon {
-  font-size: 34px;
-  width: 56px;
-  height: 56px;
+  font-size: 30px;
+  width: 46px;
+  height: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
+  border-radius: 14px;
   flex-shrink: 0;
-  filter: drop-shadow(0 0 8px var(--neon-purple-glow));
+  filter: drop-shadow(0 0 10px var(--neon-purple-glow));
 }
 
-.upgrade-info {
-  flex: 1;
-  min-width: 0;
+.upgrade-level-chip {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--cyan);
+  white-space: nowrap;
+  background: rgba(34, 231, 255, 0.1);
+  border: 1px solid rgba(34, 231, 255, 0.3);
+  padding: 3px 8px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(34, 231, 255, 0.15);
 }
 
-.upgrade-info h3 {
-  font-size: 15px;
-  margin-bottom: 2px;
-}
-
-.upgrade-info p {
-  font-size: 12px;
+.upgrade-level-chip em {
+  font-style: normal;
   color: var(--text-dim);
-  margin-bottom: 7px;
 }
 
-.upgrade-level {
+.upgrade-name {
+  font-size: 13px;
+  margin: 9px 0 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.upgrade-desc {
   font-size: 11px;
   color: var(--text-dim);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  min-height: 28px;
+  margin-bottom: 8px;
+  line-height: 1.35;
 }
 
-.purchased {
-  color: var(--green);
-  font-weight: 700;
-  text-shadow: 0 0 10px var(--neon-green-glow);
+.upgrade-track {
+  margin-bottom: 9px;
 }
 
 .level-track {
@@ -105,31 +119,35 @@
 
 .level-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--green), var(--cyan));
+  background: linear-gradient(90deg, var(--coin), var(--cyan));
   border-radius: 4px;
-  box-shadow: 0 0 10px var(--neon-green-glow);
+  box-shadow: 0 0 10px var(--neon-cyan-glow);
   transition: width 0.3s;
 }
 
 .upgrade-buy {
-  padding: 14px 10px;
-  border-radius: 14px;
+  padding: 11px 6px;
+  border-radius: 13px;
   font-weight: 800;
-  font-size: 12px;
+  font-size: 13px;
   flex-shrink: 0;
   text-align: center;
-  min-width: 88px;
-  max-width: 118px;
+  width: 100%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   transition: all 0.2s;
 }
 
 .upgrade-buy.affordable {
   background: linear-gradient(135deg, var(--green), var(--cyan));
-  color: #041018;
-  box-shadow: 0 0 16px var(--neon-green-glow);
+  color: #03151c;
+  box-shadow: 0 0 18px var(--neon-green-glow);
 }
 
 .upgrade-buy.too-expensive {
@@ -140,6 +158,6 @@
 
 .upgrade-buy.maxed {
   background: linear-gradient(135deg, var(--purple), var(--pink));
-  color: #12041a;
-  box-shadow: 0 0 16px var(--neon-purple-glow);
+  color: #14041c;
+  box-shadow: 0 0 18px var(--neon-purple-glow);
 }

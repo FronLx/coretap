@@ -8,8 +8,8 @@ const root = document.getElementById('root');
 if (window.Telegram?.WebApp) {
   window.Telegram.WebApp.ready();
   window.Telegram.WebApp.expand();
-  window.Telegram.WebApp.setHeaderColor('#0f0f0f');
-  window.Telegram.WebApp.setBackgroundColor('#0f0f0f');
+  window.Telegram.WebApp.setHeaderColor('#05070c');
+  window.Telegram.WebApp.setBackgroundColor('#05070c');
 }
 
 ReactDOM.createRoot(root).render(

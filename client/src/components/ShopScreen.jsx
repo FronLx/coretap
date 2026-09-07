@@ -12,10 +12,12 @@ export default function ShopScreen({ user, upgrades, userUpgrades, onBuyUpgrade 
 
   return (
     <div className="shop-screen">
-      <h2 className="screen-title"><ShopIcon size={22} className="screen-title-icon" /> Магазин</h2>
-      <p className="shop-balance">Баланс: <strong>{coins.toLocaleString('ru-RU')}</strong> <CoinIcon size={15} className="inline-coin" /></p>
+      <div className="shop-header">
+        <h2 className="screen-title"><ShopIcon size={22} className="screen-title-icon" /> Магазин</h2>
+        <p className="shop-balance"><CoinIcon size={15} className="inline-coin" /><strong>{coins.toLocaleString('ru-RU')}</strong></p>
+      </div>
 
-      <div className="upgrades-list">
+      <div className="upgrades-grid">
         {upgrades.map(upgrade => {
           const level = getLevel(upgrade.id);
           const maxed = level >= upgrade.max_level;
@@ -23,16 +25,16 @@ export default function ShopScreen({ user, upgrades, userUpgrades, onBuyUpgrade 
           const affordable = coins >= cost;
 
           return (
-            <div key={upgrade.id} className="card upgrade-card">
-              <div className="upgrade-icon">{upgrade.icon}</div>
-              <div className="upgrade-info">
-                <h3>{upgrade.name}</h3>
-                <p>{upgrade.description}</p>
-                <div className="upgrade-level">
-                  <span className="purchased">Уровень: {level} / {upgrade.max_level}</span>
-                  <div className="level-track">
-                    <div className="level-fill" style={{ width: `${Math.min(100, (level / upgrade.max_level) * 100)}%` }} />
-                  </div>
+            <div key={upgrade.id} className="card upgrade-cell">
+              <div className="upgrade-head">
+                <span className="upgrade-icon">{upgrade.icon}</span>
+                <span className="upgrade-level-chip">Lv {level}<em>/{upgrade.max_level}</em></span>
+              </div>
+              <h3 className="upgrade-name">{upgrade.name}</h3>
+              <p className="upgrade-desc">{upgrade.description}</p>
+              <div className="upgrade-track">
+                <div className="level-track">
+                  <div className="level-fill" style={{ width: `${Math.min(100, (level / upgrade.max_level) * 100)}%` }} />
                 </div>
               </div>
               <button
@@ -40,7 +42,7 @@ export default function ShopScreen({ user, upgrades, userUpgrades, onBuyUpgrade 
                 onClick={() => onBuyUpgrade(upgrade.id)}
                 disabled={maxed}
               >
-                {maxed ? 'MAX' : <><CoinIcon size={14} className="inline-coin" />{cost.toLocaleString('ru-RU')}</>}
+                {maxed ? 'MAX' : <><CoinIcon size={13} className="inline-coin" />{cost.toLocaleString('ru-RU')}</>}
               </button>
             </div>
           );

@@ -126,12 +126,15 @@ export default function App() {
         maxEnergy: data.user.maxEnergy,
         globalMultiplier: data.user.globalMultiplier || 1,
         tapMultiplier: data.user.tapMultiplier || 1,
-        luckyChance: data.user.luckyChance || 0
+        luckyChance: data.user.luckyChance || 0,
+        autoTap: data.user.autoTap || 0,
+        frenzyActive: !!data.user.frenzyActive,
       };
       const d = { coins: data.user.coins, energy: data.user.energy };
       displayRef.current = d;
       setDisplay(d);
       setLoading(false);
+      if (data.offlineCoins > 0) showNotice(`Пока тебя не было: +${data.offlineCoins} монет (автотап)`);
     } catch (e) {
       if (e.blocked) {
         setError('Вы в черном списке. Доступ к игре ограничен.');
@@ -181,7 +184,7 @@ export default function App() {
       if (data.stats) statsRef.current = { ...statsRef.current, ...data.stats };
       if (data.leveledUp) {
         setUser(prev => prev ? { ...prev, xp: data.xp, level: data.level } : prev);
-        showNotice(`Новый уровень ${data.level}! +${data.levelReward} монет`);
+        showNotice(`Уровень ${data.level}! +${data.levelReward} монет`);
       }
     } catch (e) {
       tapBufRef.current += n;
@@ -214,30 +217,7 @@ export default function App() {
       });
       statsRef.current = { ...statsRef.current, ...data.stats };
       setUser(prev => prev ? { ...prev, coins: data.coins, ...data.stats } : prev);
-    } catch (e) { showError(e.message); }
-  };
-
-  const handleClaimDaily = async () => {
-    try {
-      const data = await api('/api/daily', { method: 'POST', body: '{}' });
-      if (data.error) { showError(data.error); return; }
-      const d = { ...displayRef.current, coins: data.coins };
-      displayRef.current = d;
-      setDisplay(d);
-      setUser(prev => prev ? { ...prev, coins: data.coins, daily: data.daily } : prev);
-      showNotice(`Дневная награда +${data.reward} монет (стрик ${data.streak})`);
-    } catch (e) { showError(e.message); }
-  };
-
-  const handleRefill = async () => {
-    try {
-      const data = await api('/api/boost/refill', { method: 'POST', body: '{}' });
-      if (data.error) { showError(data.error); return; }
-      const d = { ...displayRef.current, energy: data.energy };
-      displayRef.current = d;
-      setDisplay(d);
-      setUser(prev => prev ? { ...prev, refillAvailable: false } : prev);
-      showNotice('Энергия полностью восстановлена');
+      if (data.stats?.frenzyActive) showNotice('🔥 Tap Frenzy активен 30 сек!');
     } catch (e) { showError(e.message); }
   };
 
@@ -249,9 +229,18 @@ export default function App() {
   if (loading) {
     return (
       <div className="loading-screen">
-        <CoinIcon size={64} className="loading-logo" />
-        <h1>CORETAP</h1>
-        <p>Загрузка...</p>
+        <div className="loader-ring">
+          <div className="loader-ring-inner"></div>
+        </div>
+        <div className="loader-coin-wrapper">
+          <CoinIcon size={48} className="loader-coin" />
+        </div>
+        <h1 className="loader-title">CORETAP</h1>
+        <div className="loader-dots">
+          <span className="loader-dot"></span>
+          <span className="loader-dot"></span>
+          <span className="loader-dot"></span>
+        </div>
       </div>
     );
   }
@@ -294,8 +283,6 @@ export default function App() {
             stats={statsRef.current}
             user={user}
             onTap={handleTap}
-            onClaimDaily={handleClaimDaily}
-            onRefill={handleRefill}
           />
         )}
         {activeTab === TABS.shop && (

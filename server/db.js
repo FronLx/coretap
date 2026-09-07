@@ -87,24 +87,14 @@ db.exec(`
     created_at TEXT DEFAULT (datetime('now'))
   );
 
-  CREATE TABLE IF NOT EXISTS daily_claims (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    claim_date TEXT NOT NULL,
-    streak INTEGER DEFAULT 1,
-    reward REAL DEFAULT 0,
-    UNIQUE(user_id, claim_date)
-  );
-`);
+  `);
 
 const USER_COLUMNS = {
   blocked: "ALTER TABLE users ADD COLUMN blocked INTEGER DEFAULT 0",
   referrer_id: "ALTER TABLE users ADD COLUMN referrer_id INTEGER DEFAULT 0",
   total_taps: "ALTER TABLE users ADD COLUMN total_taps INTEGER DEFAULT 0",
   last_seen: "ALTER TABLE users ADD COLUMN last_seen TEXT DEFAULT ''",
-  last_daily: "ALTER TABLE users ADD COLUMN last_daily TEXT DEFAULT ''",
-  daily_streak: "ALTER TABLE users ADD COLUMN daily_streak INTEGER DEFAULT 0",
-  last_refill: "ALTER TABLE users ADD COLUMN last_refill TEXT DEFAULT ''",
+  frenzy_until: "ALTER TABLE users ADD COLUMN frenzy_until TEXT DEFAULT ''",
 };
 
 function ensureUserColumns() {
@@ -283,7 +273,7 @@ export function setUserXp(telegramId, xp) {
 export function resetUser(telegramId) {
   const user = getUser(telegramId);
   if (!user) return { error: 'User not found' };
-  db.prepare('UPDATE users SET coins = 0, xp = 0, level = 1, energy = max_energy, daily_streak = 0, last_daily = \'\' WHERE id = ?').run(user.id);
+  db.prepare('UPDATE users SET coins = 0, xp = 0, level = 1, energy = max_energy, frenzy_until = \'\' WHERE id = ?').run(user.id);
   db.prepare('DELETE FROM user_upgrades WHERE user_id = ?').run(user.id);
   return getUser(telegramId);
 }
@@ -295,14 +285,14 @@ export function adminStats() {
   const admins = db.prepare('SELECT COUNT(*) as c FROM admins').get().c;
   const taps = db.prepare('SELECT COALESCE(SUM(total_taps),0) as s FROM users').get().s;
   const today = new Date().toISOString().slice(0, 10);
-  const activeToday = db.prepare('SELECT COUNT(DISTINCT user_id) as c FROM daily_claims WHERE claim_date = ?').get(today).c;
+  const activeToday = db.prepare('SELECT COUNT(*) as c FROM users WHERE last_seen LIKE ?').get(today + '%').c;
   return { users, blocked, coins, admins, taps, activeToday };
 }
 
 export function searchUsers(query, offset, limit) {
   const q = `%${(query || '').trim()}%`;
   const rows = db.prepare(`
-    SELECT id, telegram_id, username, first_name, coins, xp, level, blocked, total_taps, daily_streak, created_at,
+    SELECT id, telegram_id, username, first_name, coins, xp, level, blocked, total_taps, created_at,
       (SELECT COUNT(*) FROM users r WHERE r.referrer_id = users.id) AS referrals
     FROM users
     WHERE username LIKE ? OR first_name LIKE ? OR CAST(telegram_id AS TEXT) LIKE ?
@@ -331,57 +321,18 @@ export function getAdminLogs(limit = 50) {
   `).all(limit);
 }
 
-export const DAILY_REWARDS = [100, 200, 400, 800, 1500, 3000, 5000];
-
-export function dailyStatus(userId) {
-  const today = new Date().toISOString().slice(0, 10);
-  const last = db.prepare('SELECT * FROM daily_claims WHERE user_id = ? ORDER BY claim_date DESC LIMIT 1').get(userId);
-  const claimedToday = last && last.claim_date === today;
-  return { claimedToday, streak: last ? last.streak : 0, rewards: DAILY_REWARDS };
-}
-
-export function claimDaily(userId) {
-  const today = new Date().toISOString().slice(0, 10);
-  const existing = db.prepare('SELECT * FROM daily_claims WHERE user_id = ? AND claim_date = ?').get(userId, today);
-  if (existing) return { claimed: false, error: 'Already claimed today', streak: existing.streak };
-
-  const last = db.prepare('SELECT * FROM daily_claims WHERE user_id = ? ORDER BY claim_date DESC LIMIT 1').get(userId);
-  let streak = 1;
-  if (last) {
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-    if (last.claim_date === yesterday) streak = Math.min(7, last.streak + 1);
-  }
-  const reward = DAILY_REWARDS[streak - 1];
-  db.prepare('INSERT INTO daily_claims (user_id, claim_date, streak, reward) VALUES (?, ?, ?, ?)').run(userId, today, streak, reward);
-  const user = getUserById(userId);
-  db.prepare('UPDATE users SET coins = coins + ?, daily_streak = ?, last_daily = ? WHERE id = ?').run(reward, streak, today, userId);
-  return { claimed: true, streak, reward, coins: user.coins + reward };
-}
-
-export function isRefillAvailable(userId) {
-  const today = new Date().toISOString().slice(0, 10);
-  const user = getUserById(userId);
-  return user.last_refill !== today;
-}
-
-export function doRefill(userId) {
-  const user = getUserById(userId);
-  const today = new Date().toISOString().slice(0, 10);
-  if (user.last_refill === today) return { error: 'Already refilled today' };
-  db.prepare('UPDATE users SET energy = max_energy, last_refill = ? WHERE id = ?').run(today, userId);
-  const updated = getUserById(userId);
-  return { energy: updated.energy, maxEnergy: updated.max_energy };
-}
+export const LEVEL_XP = 100;
+export const LEVEL_REWARD = 100;
 
 export function computeLevel(xp) {
-  return Math.floor(xp / 100) + 1;
+  return Math.floor((xp || 0) / LEVEL_XP) + 1;
 }
 
 export function applyLevelUp(userId) {
   const user = getUserById(userId);
   const newLevel = computeLevel(user.xp);
   if (newLevel <= user.level) return { leveled: false, level: user.level, reward: 0 };
-  const reward = newLevel * 50;
+  const reward = LEVEL_REWARD;
   db.prepare('UPDATE users SET level = ?, coins = coins + ? WHERE id = ?').run(newLevel, reward, userId);
   return { leveled: true, level: newLevel, reward };
 }
@@ -393,8 +344,8 @@ export function applyReferral(userTgId, referrerTgId) {
   const referrer = getUser(referrerTgId);
   if (!referrer) return null;
   db.prepare('UPDATE users SET referrer_id = ? WHERE id = ?').run(referrer.id, user.id);
-  db.prepare('UPDATE users SET coins = coins + 5000 WHERE id = ?').run(referrer.id);
-  return { referrerName: referrer.first_name || referrer.username || ('#' + referrerTgId), bonus: 5000 };
+  db.prepare('UPDATE users SET coins = coins + 1000 WHERE id = ?').run(referrer.id);
+  return { referrerName: referrer.first_name || referrer.username || ('#' + referrerTgId), bonus: 1000 };
 }
 
 export function userPublicInfo(userId) {

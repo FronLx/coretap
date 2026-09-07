@@ -47,18 +47,19 @@
 .rank-bronze { color: #d99a5b; filter: drop-shadow(0 0 10px rgba(217, 154, 91, 0.4)); }
 
 .screen-title-icon {
-  color: var(--gold);
+  color: var(--coin);
   display: inline-flex;
   vertical-align: -3px;
   margin-right: 6px;
-  filter: drop-shadow(0 0 10px rgba(255, 209, 102, 0.4));
+  filter: drop-shadow(0 0 12px var(--neon-white-glow));
 }
 
 .inline-coin {
-  color: var(--gold);
+  color: var(--coin);
   display: inline-flex;
   vertical-align: -3px;
   margin-right: 4px;
+  filter: drop-shadow(0 0 8px var(--neon-white-glow));
 }
 
 .leaderboard-coins {
