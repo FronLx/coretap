@@ -191,8 +191,8 @@ export default function App() {
       displayRef.current = d;
       setDisplay(d);
       if (data.stats) statsRef.current = { ...statsRef.current, ...data.stats };
+      setUser(prev => prev ? { ...prev, xp: data.xp ?? prev.xp, level: data.level ?? prev.level } : prev);
       if (data.leveledUp) {
-        setUser(prev => prev ? { ...prev, xp: data.xp, level: data.level } : prev);
         showNotice(`Уровень ${data.level}! +${data.levelReward} монет`);
       }
     } catch (e) {
