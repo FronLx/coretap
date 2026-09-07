@@ -41,17 +41,16 @@ export async function sendStartMessage(chatId, startParam) {
   const isRef = startParam && startParam.startsWith('ref_');
   let text = '';
   if (isRef) {
-    text = `✨ <b>CoreTap</b> ✨\n\n`
-      + `🎁 Ты приглашён другом!\n`
-      + `Монеты на старте ждут 🪙\n\n`
-      + `<i>Жми «Играть» и в топ 🚀</i>`;
+    text = `🌟 <b>CoreTap</b> 🚀\n\n`
+      + `🎁 Тебя пригласил друг!\n`
+      + `💰 На старте ждут монеты\n\n`
+      + `<i>Жми «Играть» — и погнали!</i>`;
   } else {
-    text = `✨ <b>CoreTap</b> ✨\n\n`
+    text = `🌟 <b>CoreTap</b> 🚀\n\n`
       + `👆 Тапай — копи 🪙\n`
-      + `⚡️ Энергия — следи\n`
-      + `🛒 Магазин — прокачивай\n`
-      + `👥 Друзья — +1000 🪙 за друга\n\n`
-      + `<i>Жми «Играть» и в топ 🚀</i>`;
+      + `⚡️ Энергия восстановится сама\n`
+      + `👥 Зови друзей — +1000 🪙\n\n`
+      + `<i>Жми «Играть» и войди в топ!</i>`;
   }
 
   await apiCall('sendMessage', {
