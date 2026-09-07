@@ -104,14 +104,14 @@ export default function App() {
 
   const startEnergyRegen = useCallback(() => {
     if (regenTimerRef.current) clearInterval(regenTimerRef.current);
-    regenTimerRef.current = setInterval(async () => {
-      try {
-        const data = await api('/api/regen', { method: 'POST', body: '{}' });
-        const d = { ...displayRef.current, energy: data.energy };
-        displayRef.current = d;
-        setDisplay(d);
-      } catch (e) {}
-    }, 2000);
+    regenTimerRef.current = setInterval(() => {
+      const cur = displayRef.current;
+      const s = statsRef.current;
+      if (cur.energy >= (s.maxEnergy || 0)) return;
+      const d = { ...cur, energy: Math.min((s.maxEnergy || 0), cur.energy + (s.energyRegen || 1)) };
+      displayRef.current = d;
+      setDisplay(d);
+    }, 1000);
   }, []);
 
   const loadGame = async () => {

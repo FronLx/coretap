@@ -194,6 +194,8 @@ app.post('/api/auth', (req, res) => {
     if (parsed.error) return res.status(401).json({ error: parsed.error });
     const data = parsed.user;
 
+    console.log(`AUTH tgid=${data.id} first_name=${data.first_name || ''} isAdmin=${!!isAdmin(data.id)}`);
+
     let user = getUser(data.id);
     const isNew = !user;
     if (!user) user = createUser(data.id, data.username || '', data.first_name || '');
@@ -230,8 +232,11 @@ app.post('/api/auth', (req, res) => {
 });
 
 app.post('/api/tap', auth, (req, res) => {
-  const user = req.dbUser || getUser(req.telegramUser.id);
+  let user = req.dbUser || getUser(req.telegramUser.id);
   if (!user) return res.status(404).json({ error: 'User not found' });
+
+  applyOfflineEnergy(user);
+  user = getUser(req.telegramUser.id);
 
   const userUpgrades = getUserUpgrades(user.id);
   const s = stats(user, userUpgrades);
