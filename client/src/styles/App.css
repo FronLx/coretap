@@ -16,8 +16,10 @@
 }
 
 .coin-icon {
-  font-size: 28px;
+  color: var(--gold);
   filter: drop-shadow(0 0 12px var(--neon-cyan-glow));
+  display: flex;
+  align-items: center;
 }
 
 .coin-amount {
@@ -156,9 +158,20 @@
 }
 
 .nav-icon {
-  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: transform 0.2s;
+}
+
+.nav-btn .nav-icon svg {
+  color: var(--text-dim);
   filter: drop-shadow(0 0 6px var(--neon-cyan-glow));
+  transition: color 0.2s;
+}
+
+.nav-btn.active .nav-icon svg {
+  color: var(--cyan);
 }
 
 .nav-btn.active .nav-icon {
@@ -175,7 +188,10 @@
 }
 
 .loading-logo {
-  font-size: 64px;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   animation: coinSpin 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   filter: drop-shadow(0 0 28px var(--neon-cyan-glow));
 }

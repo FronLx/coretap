@@ -12,6 +12,17 @@
   font-weight: 800;
   text-align: center;
   color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.screen-title-icon {
+  color: var(--gold);
+  display: inline-flex;
+  vertical-align: -3px;
+  filter: drop-shadow(0 0 10px var(--neon-cyan-glow));
 }
 
 .admin-tabs {
@@ -22,6 +33,9 @@
 }
 
 .admin-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 14px;
   border-radius: 12px;
   font-size: 13px;
@@ -30,6 +44,21 @@
   background: var(--card);
   border: 1px solid var(--card-border);
   transition: all 0.15s;
+}
+
+.admin-tab svg {
+  color: var(--cyan);
+}
+
+.admin-tab.active svg {
+  color: #041018;
+}
+
+.inline-ico {
+  color: var(--gold);
+  display: inline-flex;
+  vertical-align: -3px;
+  margin-left: 3px;
 }
 
 .admin-tab.active {

@@ -78,9 +78,23 @@
 }
 
 .stat-icon {
-  font-size: 21px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 32px;
   text-align: center;
+}
+
+.stat-icon svg {
+  color: var(--cyan);
+  filter: drop-shadow(0 0 8px var(--neon-cyan-glow));
+}
+
+.inline-ico {
+  color: var(--gold);
+  display: inline-flex;
+  vertical-align: -3px;
+  margin-right: 6px;
 }
 
 .stat-text {

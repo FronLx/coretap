@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BoltIcon, CoinIcon, GemIcon, StarIcon, UsersIcon, TrophyIcon, GiftIcon, FlameIcon } from './Icons.jsx';
 import './ProfileScreen.css';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -24,7 +25,7 @@ export default function ProfileScreen({ user, userUpgrades, isPremium }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Ошибка');
-      setPromoMsg(`+${data.coins.toLocaleString('ru-RU')} 🪙`);
+      setPromoMsg(`+${data.coins.toLocaleString('ru-RU')} монет`);
       setPromoCode('');
     } catch (e) {
       setPromoMsg(e.message);
@@ -35,35 +36,35 @@ export default function ProfileScreen({ user, userUpgrades, isPremium }) {
   return (
     <div className="profile-screen">
       <div className="profile-avatar">
-        {user?.first_name?.[0]?.toUpperCase() || '⚡'}
-        {isPremium && <span className="premium-badge">⭐</span>}
+        {user?.first_name?.[0]?.toUpperCase() || <BoltIcon size={34} />}
+        {isPremium && <span className="premium-badge"><StarIcon size={16} /></span>}
       </div>
       <h2 className="profile-name">{user?.first_name || 'Игрок'}{isPremium && <span className="premium-tag">PREMIUM</span>}</h2>
       <p className="profile-username">@{user?.username || 'no_username'}</p>
 
       <div className="card profile-stats-card">
         <div className="stat">
-          <span className="stat-icon">📊</span>
+          <span className="stat-icon"><TrophyIcon size={22} /></span>
           <div className="stat-text"><span>Уровень</span><strong>{user?.level || 1}</strong></div>
         </div>
         <div className="stat">
-          <span className="stat-icon">🎯</span>
+          <span className="stat-icon"><CoinIcon size={22} /></span>
           <div className="stat-text"><span>Монеты</span><strong>{user ? Math.floor(user.coins).toLocaleString('ru-RU') : 0}</strong></div>
         </div>
         <div className="stat">
-          <span className="stat-icon">👆</span>
+          <span className="stat-icon"><GemIcon size={22} /></span>
           <div className="stat-text"><span>Монет за тап</span><strong>{cpt > Math.floor(cpt) ? `+${cpt}` : `+${Math.floor(cpt)}`}</strong></div>
         </div>
         <div className="stat">
-          <span className="stat-icon">⚡</span>
+          <span className="stat-icon"><BoltIcon size={22} /></span>
           <div className="stat-text"><span>Энергия</span><strong>{user?.energy || 0} / {user?.maxEnergy || 0}</strong></div>
         </div>
         <div className="stat">
-          <span className="stat-icon">🔋</span>
+          <span className="stat-icon"><FlameIcon size={22} /></span>
           <div className="stat-text"><span>Регенерация</span><strong>{user?.energyRegen || 1}/сек</strong></div>
         </div>
         <div className="stat">
-          <span className="stat-icon">⚔️</span>
+          <span className="stat-icon"><GiftIcon size={22} /></span>
           <div className="stat-text"><span>Сила улучшений</span><strong>{totalPower}</strong></div>
         </div>
       </div>
@@ -74,12 +75,12 @@ export default function ProfileScreen({ user, userUpgrades, isPremium }) {
       </div>
 
       <div className="card upgrade-count">
-        <h3>📈 Улучшения</h3>
+        <h3><UsersIcon size={16} className="inline-ico" /> Улучшения</h3>
         <p>Всего уровней: <strong>{userUpgrades.reduce((s, u) => s + u.level, 0)}</strong></p>
       </div>
 
       <div className="card promo-card">
-        <h3>🎟 Промокод</h3>
+        <h3><GiftIcon size={16} className="inline-ico" /> Промокод</h3>
         <div className="promo-input-row">
           <input
             className="promo-input"
@@ -90,7 +91,7 @@ export default function ProfileScreen({ user, userUpgrades, isPremium }) {
           />
           <button className="promo-btn" onClick={redeemPromo}>Активировать</button>
         </div>
-        {promoMsg && <p className={`promo-msg ${promoMsg.includes('🪙') ? 'ok' : 'err'}`}>{promoMsg}</p>}
+        {promoMsg && <p className={`promo-msg ${promoMsg.includes('монет') ? 'ok' : 'err'}`}>{promoMsg}</p>}
       </div>
     </div>
   );

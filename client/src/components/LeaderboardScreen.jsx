@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { TrophyIcon, CoinIcon } from './Icons.jsx';
 import './LeaderboardScreen.css';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -21,15 +22,15 @@ export default function LeaderboardScreen() {
   }, []);
 
   const getMedal = (index) => {
-    if (index === 0) return '🥇';
-    if (index === 1) return '🥈';
-    if (index === 2) return '🥉';
+    if (index === 0) return <TrophyIcon size={22} className="rank-gold" />;
+    if (index === 1) return <TrophyIcon size={22} className="rank-silver" />;
+    if (index === 2) return <TrophyIcon size={22} className="rank-bronze" />;
     return index + 1;
   };
 
   return (
     <div className="leaderboard-screen">
-      <h2 className="leaderboard-title">🏆 Топ игроков</h2>
+      <h2 className="leaderboard-title"><TrophyIcon size={22} className="screen-title-icon" /> Топ игроков</h2>
 
       {loading ? (
         <p className="leaderboard-loading">Загрузка топ-игроков...</p>
@@ -44,7 +45,8 @@ export default function LeaderboardScreen() {
                 <span className="leaderboard-level">LVL {player.level || 1}</span>
               </div>
               <span className="leaderboard-coins">
-                {Math.floor(player.coins).toLocaleString('ru-RU')} 🪙
+                <CoinIcon size={15} className="inline-coin" />
+                {Math.floor(player.coins).toLocaleString('ru-RU')}
               </span>
             </div>
           ))}

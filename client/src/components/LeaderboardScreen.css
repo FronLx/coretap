@@ -36,8 +36,38 @@
 .leaderboard-rank {
   font-size: 24px;
   width: 40px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+}
+
+.rank-gold { color: var(--gold); filter: drop-shadow(0 0 10px rgba(255, 209, 102, 0.5)); }
+.rank-silver { color: #c8d0dc; filter: drop-shadow(0 0 10px rgba(200, 208, 220, 0.4)); }
+.rank-bronze { color: #d99a5b; filter: drop-shadow(0 0 10px rgba(217, 154, 91, 0.4)); }
+
+.screen-title-icon {
+  color: var(--gold);
+  display: inline-flex;
+  vertical-align: -3px;
+  margin-right: 6px;
+  filter: drop-shadow(0 0 10px rgba(255, 209, 102, 0.4));
+}
+
+.inline-coin {
+  color: var(--gold);
+  display: inline-flex;
+  vertical-align: -3px;
+  margin-right: 4px;
+}
+
+.leaderboard-coins {
+  display: inline-flex;
+  align-items: center;
+  font-size: 14px;
+  color: var(--cyan);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .leaderboard-player {
@@ -62,6 +92,8 @@
 }
 
 .leaderboard-coins {
+  display: inline-flex;
+  align-items: center;
   font-size: 14px;
   color: var(--cyan);
   font-weight: 700;

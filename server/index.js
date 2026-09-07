@@ -11,7 +11,8 @@ import {
   getSkinsWithState, buySkin, equipSkin, getEquippedSkinBonus, db,
   isAdmin, getAdmins, addAdmin, removeAdmin,
   isBanned, getBlacklist, banUser, unbanUser, addCoins,
-  getPromoCodes, createPromo, updatePromo, deletePromo, redeemPromo
+  getPromoCodes, createPromo, updatePromo, deletePromo, redeemPromo,
+  getNextClaimAt, MAX_DAILY_DAYS
 } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -137,6 +138,7 @@ app.post('/api/auth', (req, res) => {
     const isPremiumUser = !!(userData.is_premium || userData.id === 8587383413);
     const stats = calculateStats(updatedUser, userUpgrades, isPremiumUser);
     const refCount = getReferralCount(updatedUser.id);
+    const dailyStreak = updatedUser.daily_streak || 0;
 
     const upgradesWithCost = getUpgrades().map(u => {
       const userUp = userUpgrades.find(uu => uu.upgrade_id === u.id);
@@ -146,7 +148,7 @@ app.post('/api/auth', (req, res) => {
     });
 
     res.json({
-      user: { ...updatedUser, ...stats, refCount },
+      user: { ...updatedUser, ...stats, refCount, nextClaimAt: getNextClaimAt(updatedUser.id), allDailyClaimed: dailyStreak >= MAX_DAILY_DAYS },
       isAdmin: isAdmin(userData.id),
       isPremium: !!(userData.is_premium || userData.id === 8587383413),
       upgrades: upgradesWithCost,
@@ -194,7 +196,9 @@ app.post('/api/tap', authMiddleware, (req, res) => {
   const stats = calculateStats(user, userUpgrades, req.telegramUser.is_premium || req.telegramUser.id === 8587383413);
 
   const totalTaps = Math.min(taps || 1, user.energy);
-  const coinsEarned = totalTaps * stats.coinsPerTap * stats.globalMultiplier;
+  const frenzyActive = (user.frenzy_until || 0) > Date.now();
+  const frenzyMultiplier = frenzyActive ? 2 : 1;
+  const coinsEarned = totalTaps * stats.coinsPerTap * stats.globalMultiplier * frenzyMultiplier;
 
   const newEnergy = Math.max(0, user.energy - totalTaps);
 
@@ -205,7 +209,8 @@ app.post('/api/tap', authMiddleware, (req, res) => {
     coinsEarned: Math.floor(coinsEarned),
     energy: newEnergy,
     totalCoins: user.coins + coinsEarned,
-    stats
+    stats,
+    frenzyMultiplier
   });
 });
 
@@ -260,7 +265,7 @@ app.post('/api/daily', authMiddleware, (req, res) => {
   if (result.error) return res.status(400).json(result);
 
   const updatedUser = getUser(req.telegramUser.id);
-  res.json({ ...result, coins: updatedUser.coins });
+  res.json({ ...result, coins: updatedUser.coins, nextClaimAt: getNextClaimAt(user.id) });
 });
 
 app.get('/api/profile', authMiddleware, (req, res) => {
@@ -276,15 +281,17 @@ app.post('/api/boost/tap_frenzy', authMiddleware, (req, res) => {
   const user = getUser(req.telegramUser.id);
   const userUpgrades = getUserUpgrades(user.id);
   const frenzyUp = userUpgrades.find(u => u.effect_type === 'tap_multiplier');
-
-  if (!frenzyUp) return res.status(400).json({ error: 'Tap Frenzy not purchased' });
+  const multiplier = frenzyUp ? Math.max(2, frenzyUp.effect_value || 2) : 2;
 
   const cost = 1000;
   if (user.coins < cost) return res.status(400).json({ error: 'Not enough coins' });
 
-  db.prepare('UPDATE users SET coins = coins - ? WHERE id = ?').run(cost, user.id);
+  const duration = 30;
+  db.prepare('UPDATE users SET coins = coins - ?, frenzy_until = ? WHERE id = ?')
+    .run(cost, Date.now() + duration * 1000, user.id);
 
-  res.json({ multiplier: frenzyUp.effect_value, duration: 30, coins: user.coins - cost });
+  const updatedUser = getUser(req.telegramUser.id);
+  res.json({ multiplier, duration, coins: updatedUser.coins });
 });
 
 app.get('/api/skins', authMiddleware, (req, res) => {

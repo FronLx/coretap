@@ -115,6 +115,9 @@ const userColumns = db.prepare(`PRAGMA table_info(users)`).all().map(c => c.name
 if (!userColumns.includes('equipped_skin_id')) {
   db.exec(`ALTER TABLE users ADD COLUMN equipped_skin_id INTEGER DEFAULT 1`);
 }
+if (!userColumns.includes('frenzy_until')) {
+  db.exec(`ALTER TABLE users ADD COLUMN frenzy_until INTEGER DEFAULT 0`);
+}
 
 const defaultUpgrades = [
   { name: 'Energy Cap', description: 'Max energy +50', icon: '⚡', category: 'energy', base_cost: 500, cost_multiplier: 1.3, effect_type: 'max_energy', effect_value: 50, max_level: 50 },
@@ -316,9 +319,26 @@ export function getLeaderboard(limit = 50) {
   return db.prepare('SELECT u.telegram_id, u.username, u.first_name, u.coins, u.level, u.xp FROM users u LEFT JOIN blacklist b ON b.user_id = u.id WHERE b.id IS NULL ORDER BY u.coins DESC LIMIT ?').all(limit);
 }
 
+export const MAX_DAILY_DAYS = 7;
+
+export function getNextClaimAt(userId) {
+  const user = getUserById(userId);
+  if (!user) return Date.now();
+  if (user.daily_streak >= MAX_DAILY_DAYS) return null;
+  if (!user.last_daily_claim) return Date.now();
+  const lastDate = new Date(user.last_daily_claim.replace(' ', 'T'));
+  const today = new Date();
+  const lastMid = Date.UTC(lastDate.getUTCFullYear(), lastDate.getUTCMonth(), lastDate.getUTCDate());
+  const todayMid = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  if (lastMid < todayMid) return Date.now();
+  return lastMid + 24 * 60 * 60 * 1000;
+}
+
 export function claimDaily(userId) {
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
   const today = new Date().toISOString().split('T')[0];
+
+  if (user.daily_streak >= MAX_DAILY_DAYS) return { error: 'All rewards collected', allCollected: true };
 
   if (user.last_daily_claim) {
     const lastDate = new Date(user.last_daily_claim.replace(' ', 'T'));
@@ -330,9 +350,11 @@ export function claimDaily(userId) {
   if (user.last_daily_claim) {
     const lastDate = new Date(user.last_daily_claim.replace(' ', 'T'));
     const diff = Math.floor((Date.now() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
-    if (diff === 1) nextDay = (user.daily_streak % 7) + 1;
+    if (diff === 1) nextDay = Math.min(user.daily_streak + 1, MAX_DAILY_DAYS);
     else if (diff > 1) nextDay = 1;
   }
+
+  if (nextDay > MAX_DAILY_DAYS) return { error: 'All rewards collected', allCollected: true };
 
   const reward = db.prepare('SELECT reward FROM daily_rewards WHERE day = ?').get(nextDay);
   db.prepare("UPDATE users SET coins = coins + ?, daily_streak = ?, last_daily_claim = datetime('now') WHERE id = ?").run(reward.reward, nextDay, userId);

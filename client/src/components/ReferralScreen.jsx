@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { UsersIcon, CoinIcon, UserIcon, SendIcon, CopyIcon, CheckIcon } from './Icons.jsx';
 import './ReferralScreen.css';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -20,7 +21,7 @@ export default function ReferralScreen({ user }) {
 
   const share = () => {
     if (window.Telegram?.WebApp?.openTelegramLink) {
-      const shareText = `Присоединяйся к CoreTap! Лучшая тапалка заработает для тебя монеты! 🪙 ${referralLink}`;
+      const shareText = `Присоединяйся к CoreTap! Лучшая тапалка заработает для тебя монеты! ${referralLink}`;
       window.Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(shareText)}`);
     } else {
       copyLink();
@@ -29,7 +30,7 @@ export default function ReferralScreen({ user }) {
 
   return (
     <div className="referral-screen">
-      <h2 className="referral-title">👥 Реферальная система</h2>
+      <h2 className="referral-title"><UsersIcon size={22} className="screen-title-icon" /> Реферальная система</h2>
       <p className="referral-subtitle">
         Пригласи друзей и получай <strong>5000 монет</strong> за каждого!
       </p>
@@ -37,11 +38,11 @@ export default function ReferralScreen({ user }) {
       <div className="referral-stats">
         <div className="referral-stat">
           <span>Приглашено</span>
-          <strong>{user?.refCount || 0} 👤</strong>
+          <strong>{user?.refCount || 0} <UserIcon size={17} className="inline-ico" /></strong>
         </div>
         <div className="referral-stat">
           <span>Заработано</span>
-          <strong>{(user?.refCount || 0) * 5000} 🪙</strong>
+          <strong>{(user?.refCount || 0) * 5000} <CoinIcon size={17} className="inline-ico" /></strong>
         </div>
       </div>
 
@@ -50,13 +51,13 @@ export default function ReferralScreen({ user }) {
         <div className="referral-link">
           <span className="referral-link-text">{referralLink}</span>
           <button className="copy-btn" onClick={copyLink}>
-            {copied ? '✓' : '📋'}
+            {copied ? <CheckIcon size={20} className="copy-ok" /> : <CopyIcon size={20} />}
           </button>
         </div>
       </div>
 
       <button className="share-btn" onClick={share}>
-        📤 Поделиться с друзьями
+        <SendIcon size={20} /> Поделиться с друзьями
       </button>
 
       <div className="referral-how">

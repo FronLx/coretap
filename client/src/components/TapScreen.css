@@ -32,10 +32,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 5px;
   font-size: 12px;
   font-weight: 700;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
   font-variant-numeric: tabular-nums;
+}
+
+.energy-label svg {
+  color: var(--cyan);
+  filter: drop-shadow(0 0 4px var(--neon-cyan-glow));
 }
 
 .tap-arena {
@@ -169,11 +175,13 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px 34px;
+  padding: 14px 22px;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 62, 240, 0.5);
   font-weight: 800;
+  max-width: 100%;
+  min-width: 0;
   transition: background 0.15s, transform 0.15s, border-color 0.15s;
 }
 
@@ -197,11 +205,18 @@
 }
 
 .boost-cost {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-size: 13px;
   opacity: 0.85;
 }
 
-.boost-btn.active .boost-cost {
+.boost-cost svg {
+  color: var(--gold);
+}
+
+.boost-btn.active .boost-cost svg {
   color: #2a0a33;
 }
 
@@ -213,11 +228,20 @@
 }
 
 .chip {
-  padding: 7px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
   border-radius: 14px;
   background: var(--card);
   border: 1px solid var(--card-border);
   font-size: 12px;
   font-weight: 600;
   color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.chip svg {
+  color: var(--cyan);
+  flex-shrink: 0;
 }

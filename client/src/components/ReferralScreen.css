@@ -81,6 +81,70 @@
   flex-shrink: 0;
   color: #00222e;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.copy-btn svg {
+  stroke-width: 2.5;
+}
+
+.copy-ok {
+  color: #041018;
+}
+
+.share-btn {
+  width: 100%;
+  max-width: 360px;
+  padding: 15px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--green), var(--cyan));
+  color: #041018;
+  font-size: 15px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-bottom: 14px;
+  box-shadow: 0 0 18px var(--neon-green-glow);
+  transition: transform 0.15s;
+}
+
+.share-btn:active {
+  transform: scale(0.97);
+}
+
+.share-btn svg {
+  stroke-width: 2.4;
+}
+
+.screen-title-icon {
+  color: var(--gold);
+  display: inline-flex;
+  vertical-align: -3px;
+  margin-right: 6px;
+  filter: drop-shadow(0 0 10px var(--neon-cyan-glow));
+}
+
+.referral-title {
+  display: flex;
+  align-items: center;
+}
+
+.inline-ico {
+  color: var(--gold);
+  display: inline-flex;
+  vertical-align: -3px;
+  margin-left: 4px;
+}
+
+.referral-stat strong {
+  display: inline-flex;
+  align-items: center;
+  font-size: 18px;
+  color: var(--cyan);
 }
 
 .referral-how {

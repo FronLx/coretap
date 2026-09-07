@@ -6,6 +6,7 @@ import DailyScreen from './components/DailyScreen.jsx';
 import ReferralScreen from './components/ReferralScreen.jsx';
 import LeaderboardScreen from './components/LeaderboardScreen.jsx';
 import AdminScreen from './components/AdminScreen.jsx';
+import { BoltIcon, ShopIcon, GiftIcon, UsersIcon, TrophyIcon, UserIcon, GearIcon, FlameIcon, CoinIcon } from './components/Icons.jsx';
 import './styles/App.css';
 
 const TABS = { tap: 'tap', shop: 'shop', profile: 'profile', daily: 'daily', refer: 'refer', rating: 'rating', admin: 'admin' };
@@ -146,6 +147,11 @@ export default function App() {
       const d = { coins: data.user.coins, energy: data.user.energy };
       displayRef.current = d;
       setDisplay(d);
+      const fin = data.user.frenzy_until || 0;
+      if (fin > Date.now()) {
+        frenzyRef.current = true;
+        setActiveBoosts({ tapFrenzy: true, tapFrenzyDuration: Math.ceil((fin - Date.now()) / 1000) });
+      }
       setLoading(false);
     } catch (e) {
       setError(e.message);
@@ -218,7 +224,8 @@ export default function App() {
       setDisplay(d);
       setUserUpgrades(prev => {
         const ex = prev.find(u => u.upgrade_id === upgradeId);
-        return ex ? prev.map(u => u.upgrade_id === upgradeId ? { ...u, level: u.level + 1 } : u) : [...prev, data.upgrade];
+        if (ex) return prev.map(u => u.upgrade_id === upgradeId ? { ...u, level: u.level + 1 } : u);
+        return [...prev, { ...data.upgrade, upgrade_id: upgradeId, level: data.newLevel || 1 }];
       });
       statsRef.current = { ...statsRef.current, ...data.stats };
       setUser(prev => prev ? { ...prev, coins: data.coins, ...data.stats } : prev);
@@ -279,7 +286,7 @@ export default function App() {
   if (loading) {
     return (
       <div className="loading-screen">
-        <div className="loading-logo">🪙</div>
+        <CoinIcon size={64} className="loading-logo" />
         <h1>CORETAP</h1>
         <p>Загрузка...</p>
       </div>
@@ -289,7 +296,7 @@ export default function App() {
   if (error && !user) {
     return (
       <div className="error-screen">
-        <h1>⚠️ CoreTap</h1>
+        <h1>CoreTap</h1>
         <p>Не удалось подключиться к серверу.</p>
         <p>{error}</p>
         <button className="btn-primary" onClick={() => { setLoading(true); loadGame(); }}>Повторить</button>
@@ -302,14 +309,14 @@ export default function App() {
   return (
     <div className="app">
       <div className="coin-display">
-        <span className="coin-icon">🪙</span>
+        <CoinIcon size={30} className="coin-icon" />
         <span className="coin-amount">{Math.floor(display.coins).toLocaleString('ru-RU')}</span>
       </div>
 
       {error && <div className="error-banner">{error}</div>}
 
       {activeBoosts.tapFrenzy && (
-        <div className="frenzy-banner">🔥 TAP FRENZY ×2 — АКТИВЕН!</div>
+        <div className="frenzy-banner"><FlameIcon size={16} /> TAP FRENZY ×2 — АКТИВЕН!</div>
       )}
 
       <div className="screen-container">
@@ -352,13 +359,13 @@ export default function App() {
 
       <nav className="bottom-nav">
         {[
-          { id: TABS.tap, icon: '⚡', label: 'Тап' },
-          { id: TABS.shop, icon: '🛒', label: 'Магазин' },
-          { id: TABS.daily, icon: '🎁', label: 'Награды' },
-          { id: TABS.refer, icon: '👥', label: 'Друзья' },
-          { id: TABS.rating, icon: '🏆', label: 'Топ' },
-          { id: TABS.profile, icon: '👤', label: 'Профиль' },
-          ...(isAdmin ? [{ id: TABS.admin, icon: '🛠', label: 'Админ' }] : [])
+          { id: TABS.tap, icon: <BoltIcon size={24} />, label: 'Тап' },
+          { id: TABS.shop, icon: <ShopIcon size={24} />, label: 'Магазин' },
+          { id: TABS.daily, icon: <GiftIcon size={24} />, label: 'Награды' },
+          { id: TABS.refer, icon: <UsersIcon size={24} />, label: 'Друзья' },
+          { id: TABS.rating, icon: <TrophyIcon size={24} />, label: 'Топ' },
+          { id: TABS.profile, icon: <UserIcon size={24} />, label: 'Профиль' },
+          ...(isAdmin ? [{ id: TABS.admin, icon: <GearIcon size={24} />, label: 'Админ' }] : [])
         ].map(tab => (
           <button key={tab.id} className={`nav-btn ${activeTab === tab.id ? 'active' : ''}`} onClick={() => setActiveTab(tab.id)}>
             <span className="nav-icon">{tab.icon}</span>

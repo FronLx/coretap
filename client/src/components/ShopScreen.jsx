@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
+import { BoltIcon, FlameIcon, GemIcon, GearIcon, ShopIcon, CoinIcon } from './Icons.jsx';
 import './ShopScreen.css';
 
 const CATEGORIES = [
   { id: 'all', name: 'Все' },
-  { id: 'energy', name: '⚡ Энергия' },
-  { id: 'tap', name: '👆 Тап' },
-  { id: 'passive', name: '🤖 Пассив' },
-  { id: 'boost', name: '🔥 Бусты' }
+  { id: 'energy', name: 'Энергия', icon: <BoltIcon size={15} /> },
+  { id: 'tap', name: 'Тап', icon: <GemIcon size={15} /> },
+  { id: 'passive', name: 'Пассив', icon: <GearIcon size={15} /> },
+  { id: 'boost', name: 'Бусты', icon: <FlameIcon size={15} /> }
 ];
 
 const RARITY = { common: 'Обычный', rare: 'Редкий', epic: 'Эпический', legendary: 'Легендарный' };
@@ -26,8 +27,8 @@ export default function ShopScreen({ user, upgrades, userUpgrades, skins, onBuyU
 
   return (
     <div className="shop-screen">
-      <h2 className="screen-title">🛒 Магазин</h2>
-      <p className="shop-balance">Баланс: <strong>{coins.toLocaleString('ru-RU')}</strong> 🪙</p>
+      <h2 className="screen-title"><ShopIcon size={22} className="screen-title-icon" /> Магазин</h2>
+      <p className="shop-balance">Баланс: <strong>{coins.toLocaleString('ru-RU')}</strong> <CoinIcon size={15} className="inline-coin" /></p>
 
       <div className="section-tabs">
         <button className={`section-tab ${section === 'upgrades' ? 'active' : ''}`} onClick={() => setSection('upgrades')}>
@@ -43,6 +44,7 @@ export default function ShopScreen({ user, upgrades, userUpgrades, skins, onBuyU
           <div className="category-tabs">
             {CATEGORIES.map(cat => (
               <button key={cat.id} className={`category-btn ${category === cat.id ? 'active' : ''}`} onClick={() => setCategory(cat.id)}>
+                {cat.icon && <span className="category-btn-icon">{cat.icon}</span>}
                 {cat.name}
               </button>
             ))}
@@ -52,7 +54,8 @@ export default function ShopScreen({ user, upgrades, userUpgrades, skins, onBuyU
             {filteredUpgrades.map(upgrade => {
               const level = getLevel(upgrade.id);
               const maxed = level >= upgrade.max_level;
-              const affordable = coins >= upgrade.cost;
+              const cost = Math.floor(upgrade.base_cost * Math.pow(upgrade.cost_multiplier, level));
+              const affordable = coins >= cost;
 
               return (
                 <div key={upgrade.id} className="card upgrade-card">
@@ -63,7 +66,7 @@ export default function ShopScreen({ user, upgrades, userUpgrades, skins, onBuyU
                     <div className="upgrade-level">
                       <span className="purchased">Куплено: {level} / {upgrade.max_level}</span>
                       <div className="level-track">
-                        <div className="level-fill" style={{ width: `${(level / upgrade.max_level) * 100}%` }} />
+                        <div className="level-fill" style={{ width: `${Math.min(100, (level / upgrade.max_level) * 100)}%` }} />
                       </div>
                     </div>
                   </div>
@@ -72,7 +75,7 @@ export default function ShopScreen({ user, upgrades, userUpgrades, skins, onBuyU
                     onClick={() => onBuyUpgrade(upgrade.id)}
                     disabled={maxed}
                   >
-                    {maxed ? 'MAX' : `${Math.floor(upgrade.cost).toLocaleString('ru-RU')} 🪙`}
+                    {maxed ? 'MAX' : <><CoinIcon size={14} className="inline-coin" />{cost.toLocaleString('ru-RU')}</>}
                   </button>
                 </div>
               );
@@ -94,7 +97,7 @@ export default function ShopScreen({ user, upgrades, userUpgrades, skins, onBuyU
                     <h3>{skin.name}</h3>
                     <span className={`rarity rarity-${skin.rarity}`}>{RARITY[skin.rarity]}</span>
                   </div>
-                  <p className="skin-bonus">+{skin.bonus_per_tap} 🪙 к тапу</p>
+                  <p className="skin-bonus"><CoinIcon size={14} className="inline-coin" /> +{skin.bonus_per_tap} к тапу</p>
                 </div>
                 <div className="skin-action">
                   {skin.equipped ? (
@@ -107,7 +110,7 @@ export default function ShopScreen({ user, upgrades, userUpgrades, skins, onBuyU
                       onClick={() => onBuySkin(skin.id)}
                       disabled={skin.price === 0}
                     >
-                      {skin.price === 0 ? 'Бесплатно' : `${skin.price.toLocaleString('ru-RU')} 🪙`}
+                      {skin.price === 0 ? 'Бесплатно' : <><CoinIcon size={14} className="inline-coin" />{skin.price.toLocaleString('ru-RU')}</>}
                     </button>
                   )}
                 </div>

@@ -6,6 +6,24 @@
   color: var(--text-dim);
   font-size: 14px;
   margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inline-coin {
+  color: var(--gold);
+  display: inline-flex;
+  vertical-align: -3px;
+  margin-right: 3px;
+}
+
+.screen-title-icon {
+  color: var(--gold);
+  display: inline-flex;
+  vertical-align: -3px;
+  margin-right: 6px;
+  filter: drop-shadow(0 0 10px var(--neon-cyan-glow));
 }
 
 .shop-balance strong {
@@ -54,7 +72,10 @@
 }
 
 .category-btn {
-  padding: 9px 17px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 15px;
   border-radius: 22px;
   background: var(--card);
   border: 1px solid var(--card-border);
@@ -64,6 +85,19 @@
   white-space: nowrap;
   flex-shrink: 0;
   transition: all 0.2s;
+}
+
+.category-btn-icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.category-btn-icon svg {
+  color: var(--text-dim);
+}
+
+.category-btn.active .category-btn-icon svg {
+  color: var(--cyan);
 }
 
 .category-btn.active {
@@ -146,13 +180,17 @@
 }
 
 .upgrade-buy {
-  padding: 14px 13px;
+  padding: 14px 10px;
   border-radius: 14px;
   font-weight: 800;
   font-size: 12px;
   flex-shrink: 0;
   text-align: center;
-  min-width: 96px;
+  min-width: 88px;
+  max-width: 118px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   transition: all 0.2s;
 }
 
@@ -264,10 +302,14 @@
 }
 
 .skin-buy {
-  padding: 12px 15px;
+  padding: 12px 12px;
   border-radius: 14px;
   font-weight: 800;
   font-size: 12px;
+  max-width: 130px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   transition: all 0.2s;
 }
 

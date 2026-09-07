@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { GearIcon, CrownIcon, UsersIcon, CoinIcon, TicketIcon, ShieldIcon, BanIcon } from './Icons.jsx';
 import './AdminScreen.css';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -70,10 +71,15 @@ export default function AdminScreen() {
 
   return (
     <div className="admin-screen">
-      <h2 className="admin-title">🛠 Админ-панель</h2>
+      <h2 className="admin-title"><GearIcon size={22} className="screen-title-icon" /> Админ-панель</h2>
 
       <div className="admin-tabs">
-        {[['admins','👑 Админы'],['blacklist','🚫 ЧС'],['coins','🪙 Монеты'],['promos','🎟 Промокоды']].map(([id,label]) => (
+        {[
+          ['admins', <><CrownIcon size={16} /> Админы</>],
+          ['blacklist', <><BanIcon size={16} /> ЧС</>],
+          ['coins', <><CoinIcon size={16} /> Монеты</>],
+          ['promos', <><TicketIcon size={16} /> Промокоды</>]
+        ].map(([id, label]) => (
           <button key={id} className={`admin-tab ${tab === id ? 'active' : ''}`} onClick={() => setTab(id)}>{label}</button>
         ))}
       </div>
@@ -132,7 +138,7 @@ export default function AdminScreen() {
                 if (!coinsId || !coinsAmount) return;
                 try {
                   const d = await api('/api/admin/coins', { method: 'POST', body: JSON.stringify({ telegramId: coinsId, amount: coinsAmount }) });
-                  showMsg(`Готово, баланс: ${d.coins.toLocaleString('ru-RU')} 🪙`);
+                  showMsg(`Готово, баланс: ${d.coins.toLocaleString('ru-RU')} монет`);
                   setCoinsId(''); setCoinsAmount('');
                 } catch (e) { showMsg(e.message, true); }
               }}>Применить</button>
@@ -149,7 +155,7 @@ export default function AdminScreen() {
                 <div className="promo-row" key={p.id}>
                   <div className="promo-info">
                     <strong>{p.code}</strong>
-                    <span>{p.coins.toLocaleString('ru-RU')} 🪙 · использован {p.used_count}{p.max_uses > 0 ? `/${p.max_uses}` : ''}</span>
+                    <span>{p.coins.toLocaleString('ru-RU')} <CoinIcon size={13} className="inline-ico" /> · использован {p.used_count}{p.max_uses > 0 ? `/${p.max_uses}` : ''}</span>
                     <span className={p.active ? 'badge-on' : 'badge-off'}>{p.active ? 'Активен' : 'Выключен'}</span>
                   </div>
                   <div className="promo-actions">
