@@ -107,20 +107,6 @@
   transform-style: preserve-3d;
 }
 
-.tap-coin.premium {
-  background:
-    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.25), transparent 42%),
-    linear-gradient(145deg, #16202e, #0a1220);
-  border-width: 3px;
-  border-style: solid;
-  animation: premiumGlow 1.8s ease-in-out infinite;
-}
-
-@keyframes premiumGlow {
-  0%, 100% { box-shadow: 0 0 40px var(--neon-cyan-glow); }
-  50% { box-shadow: 0 0 90px var(--neon-purple-glow); }
-}
-
 .tap-coin:active {
   transform: scale(0.94);
 }
@@ -164,60 +150,6 @@
   flex-direction: column;
   gap: 12px;
   padding: 6px 0 18px;
-}
-
-.boost-row {
-  display: flex;
-  justify-content: center;
-}
-
-.boost-btn {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 22px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 62, 240, 0.5);
-  font-weight: 800;
-  max-width: 100%;
-  min-width: 0;
-  transition: background 0.15s, transform 0.15s, border-color 0.15s;
-}
-
-.boost-btn.active {
-  background: linear-gradient(135deg, var(--pink), var(--purple));
-  border-color: transparent;
-  color: #12041a;
-  box-shadow: 0 0 22px var(--neon-purple-glow);
-}
-
-.boost-btn:active {
-  transform: scale(0.96);
-}
-
-.boost-icon {
-  font-size: 26px;
-}
-
-.boost-title {
-  font-size: 16px;
-}
-
-.boost-cost {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 13px;
-  opacity: 0.85;
-}
-
-.boost-cost svg {
-  color: var(--gold);
-}
-
-.boost-btn.active .boost-cost svg {
-  color: #2a0a33;
 }
 
 .stats-chips {

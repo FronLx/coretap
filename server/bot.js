@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { getUser } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -39,20 +38,10 @@ async function apiCall(method, params = {}) {
 }
 
 export async function sendStartMessage(chatId, startParam) {
-  let text = '🔥 <b>CoreTap</b> — неоновая тапалка!\n\n';
-  text += '⚡ Тапай монету — копи бабки\n';
-  text += '🛒 Покупай улучшения и скины\n';
-  text += '🏆 Взбирайся на вершину топа\n\n';
-
+  let text = '<b>CoreTap</b> - тапалка на монету!';
   if (startParam && startParam.startsWith('ref_')) {
-    const referrerTelegramId = parseInt(startParam.replace('ref_', ''));
-    if (referrerTelegramId && getUser(referrerTelegramId)) {
-      text += '🎁 Ты пришёл по ссылке друга!\n';
-      text += '👥 Вам обоим начислим бонус.\n\n';
-    }
+    text = '<b>CoreTap</b> - тапалка на монету!';
   }
-
-  text += '\n👇 Жми и поехали!';
 
   await apiCall('sendMessage', {
     chat_id: chatId,
@@ -60,7 +49,7 @@ export async function sendStartMessage(chatId, startParam) {
     parse_mode: 'HTML',
     reply_markup: {
       inline_keyboard: [[{
-        text: '⚡ Играть в CoreTap',
+        text: 'Играть',
         web_app: { url: WEBAPP_URL }
       }]]
     }
@@ -72,12 +61,10 @@ async function handleUpdate(update) {
   if (!message || !message.text) return;
 
   const chatId = message.chat.id;
-  const user = message.from;
 
   if (message.text.startsWith('/start')) {
     const parts = message.text.split(' ');
-    const startParam = parts[1] || '';
-    await sendStartMessage(chatId, startParam);
+    await sendStartMessage(chatId, parts[1] || '');
   }
 }
 
@@ -103,9 +90,6 @@ async function poll() {
       }
     }
   } catch (e) {
-    try {
-      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getMe`, { signal: AbortSignal.timeout(20000) });
-    } catch (e2) {}
   } finally {
     polling = false;
   }

@@ -45,24 +45,6 @@
   white-space: nowrap;
 }
 
-.frenzy-banner {
-  text-align: center;
-  background: linear-gradient(90deg, var(--pink), var(--purple));
-  color: #12041a;
-  padding: 9px;
-  font-weight: 800;
-  font-size: 14px;
-  letter-spacing: 1px;
-  animation: pulse 1s infinite;
-  z-index: 15;
-  box-shadow: 0 0 24px var(--neon-purple-glow);
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.75; }
-}
-
 @keyframes slideDown {
   from { transform: translate(-50%, -20px); opacity: 0; }
   to { transform: translate(-50%, 0); opacity: 1; }

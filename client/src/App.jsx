@@ -1,15 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import TapScreen from './components/TapScreen.jsx';
 import ShopScreen from './components/ShopScreen.jsx';
-import ProfileScreen from './components/ProfileScreen.jsx';
-import DailyScreen from './components/DailyScreen.jsx';
-import ReferralScreen from './components/ReferralScreen.jsx';
 import LeaderboardScreen from './components/LeaderboardScreen.jsx';
-import AdminScreen from './components/AdminScreen.jsx';
-import { BoltIcon, ShopIcon, GiftIcon, UsersIcon, TrophyIcon, UserIcon, GearIcon, FlameIcon, CoinIcon } from './components/Icons.jsx';
+import { BoltIcon, ShopIcon, TrophyIcon, CoinIcon } from './components/Icons.jsx';
 import './styles/App.css';
 
-const TABS = { tap: 'tap', shop: 'shop', profile: 'profile', daily: 'daily', refer: 'refer', rating: 'rating', admin: 'admin' };
+const TABS = { tap: 'tap', shop: 'shop', rating: 'rating' };
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -17,10 +13,6 @@ function getInitData() {
   if (window.Telegram?.WebApp?.initData) return window.Telegram.WebApp.initData;
   const params = new URLSearchParams(window.location.hash.substring(1) || window.location.search);
   return params.get('tgWebAppData') || '';
-}
-
-function getWASafe() {
-  return window.Telegram?.WebApp;
 }
 
 async function api(path, options = {}) {
@@ -62,13 +54,9 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [upgrades, setUpgrades] = useState([]);
   const [userUpgrades, setUserUpgrades] = useState([]);
-  const [skins, setSkins] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeBoosts, setActiveBoosts] = useState({});
   const [display, setDisplay] = useState({ coins: 0, energy: 0 });
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isPremium, setIsPremium] = useState(false);
 
   const popupsRef = useRef([]);
   const [popups, setPopups] = useState([]);
@@ -76,7 +64,6 @@ export default function App() {
   const displayRef = useRef({ coins: 0, energy: 0 });
   const statsRef = useRef({});
   const rafRef = useRef(null);
-  const frenzyRef = useRef(false);
   const regenTimerRef = useRef(null);
 
   useEffect(() => {
@@ -100,20 +87,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (activeBoosts.tapFrenzy) {
-      frenzyRef.current = true;
-      const t = setTimeout(() => {
-        frenzyRef.current = false;
-        setActiveBoosts(prev => ({ ...prev, tapFrenzy: false }));
-      }, activeBoosts.tapFrenzyDuration * 1000);
-      return () => clearTimeout(t);
-    }
-  }, [activeBoosts.tapFrenzy, activeBoosts.tapFrenzyDuration]);
-
-  useEffect(() => {
-    if (user) {
-      startEnergyRegen();
-    }
+    if (user) startEnergyRegen();
     return () => clearInterval(regenTimerRef.current);
   }, [user?.id]);
 
@@ -132,26 +106,19 @@ export default function App() {
   const loadGame = async () => {
     try {
       const data = await api('/api/auth', { method: 'POST', body: JSON.stringify({ initData: getInitData() }) });
-      setIsPremium(!!(data.isPremium || getWASafe()?.initDataUnsafe?.user?.is_premium));
-      setIsAdmin(!!data.isAdmin);
       setUser(data.user);
       setUpgrades(data.upgrades);
       setUserUpgrades(data.userUpgrades);
-      setSkins(data.skins || []);
       statsRef.current = {
         coinsPerTap: data.user.coinsPerTap,
         energyRegen: data.user.energyRegen || 1,
         maxEnergy: data.user.maxEnergy,
-        globalMultiplier: data.user.globalMultiplier || 1
+        globalMultiplier: data.user.globalMultiplier || 1,
+        luckyChance: data.user.luckyChance || 0
       };
       const d = { coins: data.user.coins, energy: data.user.energy };
       displayRef.current = d;
       setDisplay(d);
-      const fin = data.user.frenzy_until || 0;
-      if (fin > Date.now()) {
-        frenzyRef.current = true;
-        setActiveBoosts({ tapFrenzy: true, tapFrenzyDuration: Math.ceil((fin - Date.now()) / 1000) });
-      }
       setLoading(false);
     } catch (e) {
       setError(e.message);
@@ -172,8 +139,7 @@ export default function App() {
   const handleTap = useCallback(() => {
     const cur = displayRef.current;
     if (cur.energy <= 0) return;
-    const multi = frenzyRef.current ? 2 : 1;
-    const gained = statsRef.current.coinsPerTap * statsRef.current.globalMultiplier * multi;
+    const gained = statsRef.current.coinsPerTap * statsRef.current.globalMultiplier;
     const d = { coins: cur.coins + gained, energy: cur.energy - 1 };
     displayRef.current = d;
     tapBufRef.current += 1;
@@ -196,8 +162,6 @@ export default function App() {
       displayRef.current = d;
       setDisplay(d);
       if (data.stats) statsRef.current = { ...statsRef.current, ...data.stats };
-      const addedXp = n;
-      setUser(prev => prev ? { ...prev, xp: (prev.xp || 0) + addedXp } : prev);
     } catch (e) {
       tapBufRef.current += n;
     }
@@ -232,52 +196,6 @@ export default function App() {
     } catch (e) { showError(e.message); }
   };
 
-  const handleBuySkin = async (skinId) => {
-    try {
-      const data = await api(`/api/skins/${skinId}/buy`, { method: 'POST', body: '{}' });
-      if (data.error) { showError(data.error); return; }
-      const d = { ...displayRef.current, coins: data.coins };
-      displayRef.current = d;
-      setDisplay(d);
-      setSkins(data.skins);
-      setUser(prev => prev ? { ...prev, coins: data.coins } : prev);
-    } catch (e) { showError(e.message); }
-  };
-
-  const handleEquipSkin = async (skinId) => {
-    try {
-      const data = await api(`/api/skins/${skinId}/equip`, { method: 'POST', body: '{}' });
-      if (data.error) { showError(data.error); return; }
-      setSkins(data.skins);
-      statsRef.current = { ...statsRef.current, coinsPerTap: data.coinsPerTap };
-      setUser(prev => prev ? { ...prev, coinsPerTap: data.coinsPerTap } : prev);
-    } catch (e) { showError(e.message); }
-  };
-
-  const handleClaimDaily = async () => {
-    try {
-      const data = await api('/api/daily', { method: 'POST', body: '{}' });
-      if (data.error) { showError(data.error); return; }
-      const d = { ...displayRef.current, coins: data.coins };
-      displayRef.current = d;
-      setDisplay(d);
-      setUser(prev => prev ? { ...prev, coins: data.coins, daily_streak: data.streak } : prev);
-      return data;
-    } catch (e) { showError(e.message); }
-  };
-
-  const handleFrenzy = async () => {
-    try {
-      const data = await api('/api/boost/tap_frenzy', { method: 'POST', body: '{}' });
-      if (data.error) { showError(data.error); return; }
-      const d = { ...displayRef.current, coins: data.coins };
-      displayRef.current = d;
-      setDisplay(d);
-      setUser(prev => prev ? { ...prev, coins: data.coins } : prev);
-      setActiveBoosts({ tapFrenzy: true, tapFrenzyDuration: data.duration });
-    } catch (e) { showError(e.message); }
-  };
-
   const showError = (msg) => {
     setError(msg);
     setTimeout(() => setError(''), 3000);
@@ -304,8 +222,6 @@ export default function App() {
     );
   }
 
-  const equippedSkin = (skins || []).find(s => s.equipped) || skins?.[0];
-
   return (
     <div className="app">
       <div className="coin-display">
@@ -315,20 +231,12 @@ export default function App() {
 
       {error && <div className="error-banner">{error}</div>}
 
-      {activeBoosts.tapFrenzy && (
-        <div className="frenzy-banner"><FlameIcon size={16} /> TAP FRENZY ×2 — АКТИВЕН!</div>
-      )}
-
       <div className="screen-container">
         {activeTab === TABS.tap && (
           <TapScreen
             display={display}
             stats={statsRef.current}
-            equippedSkin={equippedSkin}
             onTap={handleTap}
-            frenzy={activeBoosts.tapFrenzy}
-            onFrenzy={handleFrenzy}
-            isPremium={isPremium}
           />
         )}
         {activeTab === TABS.shop && (
@@ -336,17 +244,10 @@ export default function App() {
             user={{ ...user, coins: display.coins }}
             upgrades={upgrades}
             userUpgrades={userUpgrades}
-            skins={skins}
             onBuyUpgrade={handleBuyUpgrade}
-            onBuySkin={handleBuySkin}
-            onEquipSkin={handleEquipSkin}
           />
         )}
-        {activeTab === TABS.profile && <ProfileScreen user={{ ...user, coins: display.coins }} userUpgrades={userUpgrades} isPremium={isPremium} />}
-        {activeTab === TABS.daily && <DailyScreen user={user} onClaim={handleClaimDaily} />}
-        {activeTab === TABS.refer && <ReferralScreen user={user} />}
         {activeTab === TABS.rating && <LeaderboardScreen />}
-        {activeTab === TABS.admin && <AdminScreen />}
       </div>
 
       <div className="popup-layer">
@@ -361,11 +262,7 @@ export default function App() {
         {[
           { id: TABS.tap, icon: <BoltIcon size={24} />, label: 'Тап' },
           { id: TABS.shop, icon: <ShopIcon size={24} />, label: 'Магазин' },
-          { id: TABS.daily, icon: <GiftIcon size={24} />, label: 'Награды' },
-          { id: TABS.refer, icon: <UsersIcon size={24} />, label: 'Друзья' },
-          { id: TABS.rating, icon: <TrophyIcon size={24} />, label: 'Топ' },
-          { id: TABS.profile, icon: <UserIcon size={24} />, label: 'Профиль' },
-          ...(isAdmin ? [{ id: TABS.admin, icon: <GearIcon size={24} />, label: 'Админ' }] : [])
+          { id: TABS.rating, icon: <TrophyIcon size={24} />, label: 'Топ' }
         ].map(tab => (
           <button key={tab.id} className={`nav-btn ${activeTab === tab.id ? 'active' : ''}`} onClick={() => setActiveTab(tab.id)}>
             <span className="nav-icon">{tab.icon}</span>
