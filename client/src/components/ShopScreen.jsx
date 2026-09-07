@@ -13,7 +13,7 @@ export default function ShopScreen({ user, upgrades, userUpgrades, onBuyUpgrade 
   return (
     <div className="shop-screen">
       <div className="shop-header">
-        <h2 className="screen-title"><ShopIcon size={22} className="screen-title-icon" /> Магазин</h2>
+        <h2 className="screen-title"><ShopIcon size={22} className="screen-title-icon" /> 🛒 Магазин</h2>
         <p className="shop-balance"><CoinIcon size={15} className="inline-coin" /><strong>{coins.toLocaleString('ru-RU')}</strong></p>
       </div>
 

@@ -170,6 +170,8 @@ function syncUpgrades() {
 
 syncUpgrades();
 
+const DISABLED_EFFECT_TYPES = ['tap_multiplier', 'offline_regen'];
+
 export function getUser(telegramId) {
   return db.prepare('SELECT * FROM users WHERE telegram_id = ?').get(telegramId);
 }
@@ -186,7 +188,8 @@ export function createUser(telegramId, username, firstName) {
 }
 
 export function getUpgrades() {
-  return db.prepare('SELECT * FROM upgrades').all();
+  const placeholders = DISABLED_EFFECT_TYPES.map(() => '?').join(',');
+  return db.prepare(`SELECT * FROM upgrades WHERE effect_type NOT IN (${placeholders})`).all(...DISABLED_EFFECT_TYPES);
 }
 
 export function getUserUpgrades(userId) {

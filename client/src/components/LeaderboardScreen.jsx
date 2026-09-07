@@ -30,7 +30,7 @@ export default function LeaderboardScreen() {
 
   return (
     <div className="leaderboard-screen">
-      <h2 className="leaderboard-title"><TrophyIcon size={22} className="screen-title-icon" /> Топ игроков</h2>
+      <h2 className="leaderboard-title"><TrophyIcon size={22} className="screen-title-icon" /> 👑 Топ игроков</h2>
 
       {loading ? (
         <p className="leaderboard-loading">Загрузка топ-игроков...</p>
