@@ -52,28 +52,17 @@ export async function sendStartMessage(chatId, startParam) {
     }
   }
 
-  text += '👇 Выбери раздел и поехали!';
-
-  const base = WEBAPP_URL.endsWith('/') ? WEBAPP_URL : `${WEBAPP_URL}/`;
-  const tabUrl = (tab) => `${base}?tab=${tab}`;
+  text += '\n👇 Жми и поехали!';
 
   await apiCall('sendMessage', {
     chat_id: chatId,
     text,
     parse_mode: 'HTML',
     reply_markup: {
-      inline_keyboard: [
-        [{ text: '⚡ Играть', web_app: { url: base } }],
-        [
-          { text: '🛒 Магазин', web_app: { url: tabUrl('shop') } },
-          { text: '👑 Профиль', web_app: { url: tabUrl('profile') } }
-        ],
-        [
-          { text: '🎁 Награды', web_app: { url: tabUrl('daily') } },
-          { text: '🏆 Топ', web_app: { url: tabUrl('rating') } }
-        ],
-        [{ text: '👥 Друзья', web_app: { url: tabUrl('refer') } }]
-      ]
+      inline_keyboard: [[{
+        text: '⚡ Играть в CoreTap',
+        web_app: { url: WEBAPP_URL }
+      }]]
     }
   });
 }
