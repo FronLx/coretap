@@ -3,6 +3,7 @@ import TapScreen from './components/TapScreen.jsx';
 import ShopScreen from './components/ShopScreen.jsx';
 import LeaderboardScreen from './components/LeaderboardScreen.jsx';
 import AdminScreen from './components/AdminScreen.jsx';
+import WelcomeScreen from './components/WelcomeScreen.jsx';
 import { BoltIcon, ShopIcon, TrophyIcon, CoinIcon, ShieldIcon } from './components/Icons.jsx';
 import './styles/App.css';
 
@@ -63,6 +64,8 @@ export default function App() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [display, setDisplay] = useState({ coins: 0, energy: 0 });
+  const [welcomeOpen, setWelcomeOpen] = useState(false);
+  const [welcomeMeta, setWelcomeMeta] = useState({ firstName: '', isNew: false });
 
   const popupsRef = useRef([]);
   const [popups, setPopups] = useState([]);
@@ -134,6 +137,12 @@ export default function App() {
       displayRef.current = d;
       setDisplay(d);
       setLoading(false);
+      const welcomed = localStorage.getItem('coretap_welcomed_v1');
+      const needWelcome = !welcomed || !!data.isNew;
+      if (needWelcome) {
+        setWelcomeMeta({ firstName: data.user.first_name, isNew: !!data.isNew });
+        setWelcomeOpen(true);
+      }
       if (data.offlineCoins > 0) showNotice(`Пока тебя не было: +${data.offlineCoins} монет (автотап)`);
     } catch (e) {
       if (e.blocked) {
@@ -313,6 +322,17 @@ export default function App() {
           </button>
         ))}
       </nav>
+
+      {welcomeOpen && (
+        <WelcomeScreen
+          firstName={welcomeMeta.firstName}
+          isNew={welcomeMeta.isNew}
+          onStart={() => {
+            localStorage.setItem('coretap_welcomed_v1', '1');
+            setWelcomeOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }

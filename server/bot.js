@@ -38,9 +38,22 @@ async function apiCall(method, params = {}) {
 }
 
 export async function sendStartMessage(chatId, startParam) {
-  let text = '<b>CoreTap</b> - тапалка на монету!';
-  if (startParam && startParam.startsWith('ref_')) {
-    text = '<b>CoreTap</b> - тапалка на монету!';
+  const isRef = startParam && startParam.startsWith('ref_');
+  let text = '';
+  if (isRef) {
+    text = `🌟 <b>CoreTap — премиум-тапалка!</b> 🌟\n\n`
+      + `Тебя пригласили в игру! 🎁\n`
+      + `Тапай монету, качай уровень и зарабатывай. Помни: на старте ты получишь бонусные монеты! 🪙\n\n`
+      + `<i>Запусти игру и погнали! 🚀</i>`;
+  } else {
+    text = `🌟 <b>CoreTap — премиум-тапалка!</b> 🌟\n\n`
+      + `👆 Тапай по монете — каждое касание приносит монеты\n`
+      + `⚡ Следи за энергией и её регенерацией\n`
+      + `🛒 Покупай апгрейды в магазине\n`
+      + `🔥 Tap Frenzy — x2 монет на 30 секунд\n`
+      + `🤖 Auto Tapper — майнит монеты даже офлайн\n`
+      + `👥 Зови друзей — получай +1000 монет за каждого!\n\n`
+      + `<i>Жми «Играть» и стань самым богатым! 😎</i>`;
   }
 
   await apiCall('sendMessage', {
@@ -49,7 +62,7 @@ export async function sendStartMessage(chatId, startParam) {
     parse_mode: 'HTML',
     reply_markup: {
       inline_keyboard: [[{
-        text: 'Играть',
+        text: '🚀 Играть в CoreTap',
         web_app: { url: WEBAPP_URL }
       }]]
     }

@@ -219,6 +219,7 @@ app.post('/api/auth', (req, res) => {
     user = getUser(data.id);
 
     res.json({
+      isNew,
       user: userPayload(user),
       upgrades: upgradesResponse(user.id),
       userUpgrades: getUserUpgrades(user.id),
