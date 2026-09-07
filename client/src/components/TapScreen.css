@@ -127,22 +127,6 @@
   border-color: var(--cyan);
 }
 
-.action-btn.frenzy-active {
-  border-color: var(--cyan);
-  background: rgba(34, 231, 255, 0.12);
-  box-shadow: 0 0 18px var(--neon-cyan-glow);
-}
-
-.frenzy-badge {
-  font-size: 16px;
-  animation: frenzyPulse 0.9s ease-in-out infinite;
-}
-
-@keyframes frenzyPulse {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px var(--neon-cyan-glow)); }
-  50% { transform: scale(1.25); filter: drop-shadow(0 0 12px var(--neon-cyan-glow)); }
-}
-
 .tap-arena {
   flex: 1;
   display: flex;
@@ -205,11 +189,6 @@
   cursor: pointer;
   transform-style: preserve-3d;
   box-shadow: 0 0 30px var(--neon-white-glow), 0 0 60px rgba(34, 231, 255, 0.15), inset 0 0 18px rgba(185, 194, 212, 0.15);
-}
-
-.tap-coin.frenzy-glow {
-  border-color: var(--cyan);
-  box-shadow: 0 0 40px var(--neon-cyan-glow), inset 0 0 24px rgba(34, 231, 255, 0.3);
 }
 
 .tap-coin:active {

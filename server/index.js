@@ -8,7 +8,7 @@ import {
   getUser, getUserById, createUser, getUpgrades, getUserUpgrades, purchaseUpgrade, getLeaderboard,
   isAdmin, grantAdmin, revokeAdmin, getAdmins, setBlocked, giveCoins, setUserXp, resetUser,
   adminStats, searchUsers, logAdmin, getAdminLogs, applyLevelUp, applyReferral, userPublicInfo, computeLevel,
-  LEVEL_XP, LEVEL_REWARD, OWNER_ID, db,
+  LEVEL_XP, OWNER_ID, db,
 } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -291,17 +291,6 @@ app.post('/api/upgrade/:id', auth, (req, res) => {
   const user = req.dbUser || getUser(req.telegramUser.id);
   const result = purchaseUpgrade(user.id, parseInt(req.params.id));
   if (result.error) return res.status(400).json(result);
-
-  const upgrade = getUpgrades().find(u => u.id === parseInt(req.params.id));
-
-  if (upgrade && upgrade.effect_type === 'tap_multiplier') {
-    const now = Date.now();
-    const currentFrenzyEnd = user.frenzy_until ? new Date(user.frenzy_until).getTime() : 0;
-    const base = Math.max(now, currentFrenzyEnd);
-    const until = new Date(base + 30000).toISOString();
-    db.prepare('UPDATE users SET frenzy_until = ? WHERE id = ?').run(until, user.id);
-    result.frenzyUntil = until;
-  }
 
   const updatedUser = getUser(req.telegramUser.id);
   const userUpgrades = getUserUpgrades(user.id);

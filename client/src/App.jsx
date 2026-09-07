@@ -70,6 +70,7 @@ export default function App() {
   const popupsRef = useRef([]);
   const [popups, setPopups] = useState([]);
   const tapBufRef = useRef(0);
+  const xpRef = useRef({ server: 0, buf: 0 });
   const displayRef = useRef({ coins: 0, energy: 0 });
   const statsRef = useRef({});
   const rafRef = useRef(null);
@@ -136,6 +137,7 @@ export default function App() {
       const d = { coins: data.user.coins, energy: data.user.energy };
       displayRef.current = d;
       setDisplay(d);
+      xpRef.current = { server: data.user.xp || 0, buf: 0 };
       setLoading(false);
       const welcomed = localStorage.getItem('coretap_welcomed_v1');
       const needWelcome = !welcomed || !!data.isNew;
@@ -172,6 +174,8 @@ export default function App() {
     const d = { coins: cur.coins + gained, energy: cur.energy - 1 };
     displayRef.current = d;
     tapBufRef.current += 1;
+    xpRef.current.buf += 1;
+    setUser(prev => prev ? { ...prev, xp: xpRef.current.server + xpRef.current.buf } : prev);
     pushPopups(gained);
     if (!rafRef.current) {
       rafRef.current = requestAnimationFrame(() => {
@@ -190,10 +194,11 @@ export default function App() {
       const d = { coins: data.totalCoins, energy: data.energy };
       displayRef.current = d;
       setDisplay(d);
+      xpRef.current = { server: data.xp ?? xpRef.current.server, buf: 0 };
       if (data.stats) statsRef.current = { ...statsRef.current, ...data.stats };
       setUser(prev => prev ? { ...prev, xp: data.xp ?? prev.xp, level: data.level ?? prev.level } : prev);
       if (data.leveledUp) {
-        showNotice(`Уровень ${data.level}! +${data.levelReward} монет`);
+        showNotice(`⭐️ Уровень ${data.level}!`);
       }
     } catch (e) {
       tapBufRef.current += n;
@@ -226,7 +231,6 @@ export default function App() {
       });
       statsRef.current = { ...statsRef.current, ...data.stats };
       setUser(prev => prev ? { ...prev, coins: data.coins, ...data.stats } : prev);
-      if (data.stats?.frenzyActive) showNotice('🔥 Tap Frenzy активен 30 сек!');
     } catch (e) { showError(e.message); }
   };
 

@@ -127,14 +127,12 @@ function seedOwnerAdmin() {
 seedOwnerAdmin();
 
 const defaultUpgrades = [
-  { name: 'Energy Cap', description: 'Max energy +50', icon: '⚡', category: 'energy', base_cost: 500, cost_multiplier: 1.3, effect_type: 'max_energy', effect_value: 50, max_level: 50 },
-  { name: 'Energy Regen', description: 'Regen +1/sec', icon: '🔋', category: 'energy', base_cost: 1000, cost_multiplier: 1.5, effect_type: 'energy_regen', effect_value: 1, max_level: 30 },
-  { name: 'Tap Power', description: 'Coins per tap +1', icon: '👆', category: 'tap', base_cost: 2000, cost_multiplier: 1.4, effect_type: 'coins_per_tap', effect_value: 1, max_level: 100 },
-  { name: 'Tap Frenzy', description: 'Tap x2 for 30s', icon: '🔥', category: 'boost', base_cost: 5000, cost_multiplier: 2, effect_type: 'tap_multiplier', effect_value: 2, max_level: 20 },
-  { name: 'Auto Tapper', description: 'Auto taps while offline', icon: '🤖', category: 'passive', base_cost: 15000, cost_multiplier: 2, effect_type: 'auto_tap', effect_value: 1, max_level: 10 },
-  { name: 'Coin Multiplier', description: 'x1.1 all coins', icon: '💎', category: 'boost', base_cost: 20000, cost_multiplier: 2.5, effect_type: 'global_multiplier', effect_value: 10, max_level: 15 },
-  { name: 'Lucky Tap', description: 'Chance for x10 tap', icon: '🍀', category: 'tap', base_cost: 8000, cost_multiplier: 1.8, effect_type: 'lucky_chance', effect_value: 5, max_level: 20 },
-  { name: 'Energy Reserve', description: 'Regen while offline', icon: '🔌', category: 'energy', base_cost: 15000, cost_multiplier: 2, effect_type: 'offline_regen', effect_value: 1, max_level: 10 },
+  { name: 'Energy Cap', description: '+100 макс. энергии', icon: '⚡️', category: 'energy', base_cost: 250, cost_multiplier: 1.25, effect_type: 'max_energy', effect_value: 100, max_level: 30 },
+  { name: 'Energy Regen', description: '+2 энергии/сек', icon: '🔋', category: 'energy', base_cost: 400, cost_multiplier: 1.35, effect_type: 'energy_regen', effect_value: 2, max_level: 50 },
+  { name: 'Tap Power', description: '+2 монеты/тап', icon: '👆', category: 'tap', base_cost: 600, cost_multiplier: 1.3, effect_type: 'coins_per_tap', effect_value: 2, max_level: 50 },
+  { name: 'Lucky Tap', description: '+5% шанс x10', icon: '🍀', category: 'tap', base_cost: 4500, cost_multiplier: 1.6, effect_type: 'lucky_chance', effect_value: 5, max_level: 20 },
+  { name: 'Auto Tapper', description: 'Автотап офлайн', icon: '🤖', category: 'passive', base_cost: 8000, cost_multiplier: 1.8, effect_type: 'auto_tap', effect_value: 1, max_level: 15 },
+  { name: 'Coin Multiplier', description: '+15% ко всем монетам', icon: '💎', category: 'boost', base_cost: 12000, cost_multiplier: 2, effect_type: 'global_multiplier', effect_value: 15, max_level: 10 },
 ];
 
 function ensureUpgradeColumn() {
@@ -322,7 +320,6 @@ export function getAdminLogs(limit = 50) {
 }
 
 export const LEVEL_XP = 100;
-export const LEVEL_REWARD = 100;
 
 export function computeLevel(xp) {
   return Math.floor((xp || 0) / LEVEL_XP) + 1;
@@ -332,9 +329,8 @@ export function applyLevelUp(userId) {
   const user = getUserById(userId);
   const newLevel = computeLevel(user.xp);
   if (newLevel <= user.level) return { leveled: false, level: user.level, reward: 0 };
-  const reward = LEVEL_REWARD;
-  db.prepare('UPDATE users SET level = ?, coins = coins + ? WHERE id = ?').run(newLevel, reward, userId);
-  return { leveled: true, level: newLevel, reward };
+  db.prepare('UPDATE users SET level = ? WHERE id = ?').run(newLevel, userId);
+  return { leveled: true, level: newLevel, reward: 0 };
 }
 
 export function applyReferral(userTgId, referrerTgId) {

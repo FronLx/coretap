@@ -46,17 +46,15 @@ export default function WelcomeScreen({ firstName, isNew, onStart }) {
 
         <h1 className="welcome-title">CoreTap</h1>
         <p className="welcome-greeting">
-          {isNew
-            ? (firstName ? `С возвращением в игру, ${firstName}!` : 'Добро пожаловать!')
-            : (firstName ? `Привет, ${firstName}!` : 'Привет!')}
+          {firstName ? (isNew ? `Добро пожаловать, ${firstName}!` : `С возвращением, ${firstName}!`) : 'Добро пожаловать!'}
         </p>
-        <p className="welcome-sub">Всё, что нужно знать:</p>
+        <p className="welcome-sub">Что нужно знать 👇</p>
 
         <div className="welcome-features">
-          <div className="welcome-feature"><span className="wf-emoji">👆</span><div><b>Тапай</b><em>+1 к энергии, каждый тап — коины!</em></div></div>
-          <div className="welcome-feature"><span className="wf-emoji">⚡</span><div><b>Энергия</b><em>регенится сама, следи за шкалой</em></div></div>
-          <div className="welcome-feature"><span className="wf-emoji">🛒</span><div><b>Магазин</b><em>8 апгрейдов — от Frenzy до Auto Tapper</em></div></div>
-          <div className="welcome-feature"><span className="wf-emoji">👥</span><div><b>Друзья</b><em>+1000 монет за каждого друга!</em></div></div>
+          <div className="welcome-feature"><span className="wf-emoji">👆</span><div><b>Тапай</b><em>каждый тап = монеты</em></div></div>
+          <div className="welcome-feature"><span className="wf-emoji">⚡️</span><div><b>Энергия</b><em>регенится сама</em></div></div>
+          <div className="welcome-feature"><span className="wf-emoji">🛒</span><div><b>Магазин</b><em>6 апгрейдов</em></div></div>
+          <div className="welcome-feature"><span className="wf-emoji">👥</span><div><b>Друзья</b><em>+1000 🪙 за друга</em></div></div>
         </div>
 
         <button className="welcome-start btn-primary" onClick={start}>

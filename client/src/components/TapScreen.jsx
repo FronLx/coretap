@@ -25,12 +25,11 @@ export default function TapScreen({ display, stats, user, onTap }) {
   const energyPercent = stats?.maxEnergy ? (display.energy / stats.maxEnergy) * 100 : 0;
   const cpt = (stats?.coinsPerTap || 1) * (stats?.globalMultiplier || 1) * (stats?.tapMultiplier || 1);
 
-  const level = user?.level || 1;
   const xp = user?.xp || 0;
-  const levelProgress = xp - (level - 1) * 100;
+  const level = Math.floor(xp / 100) + 1;
+  const levelProgress = xp % 100;
   const referrals = user?.referrals || 0;
   const totalTaps = user?.total_taps || 0;
-  const frenzyActive = !!stats?.frenzyActive;
 
   const handleTapStart = useCallback((e) => {
     e.preventDefault();
@@ -73,23 +72,18 @@ export default function TapScreen({ display, stats, user, onTap }) {
           <div className="level-track">
             <div className="level-fill" style={{ width: `${Math.min(100, levelProgress)}%` }} />
           </div>
-          <span className="level-label">Уровень {level} · {Math.floor(Math.max(0, Math.min(100, levelProgress)))}/100 XP</span>
+          <span className="level-label">⭐️ Ур. {level} · {levelProgress}/100 XP</span>
         </div>
 
         <div className="action-row">
           <button className="action-btn" onClick={(e) => { e.stopPropagation(); setModal('referrals'); }}>
             <UsersIcon size={18} /> <span>Друзья</span><em>{referrals}</em>
           </button>
-          {frenzyActive && (
-            <button className="action-btn frenzy-active">
-              <span className="frenzy-badge">🔥</span><span>x{stats?.tapMultiplier || 2} Frenzy</span>
-            </button>
-          )}
         </div>
 
         <div className="tap-arena">
           <div className={`tap-ring ${flash ? 'flash' : ''}`}>
-            <div ref={coinRef} className={`tap-coin ${frenzyActive ? 'frenzy-glow' : ''}`}>
+            <div ref={coinRef} className="tap-coin">
               <CoinIcon size={96} className="tap-coin-icon" />
               <span className="tap-coin-label">CoreTap</span>
             </div>
@@ -112,14 +106,14 @@ export default function TapScreen({ display, stats, user, onTap }) {
 
       {modal === 'referrals' && (
         <Modal onClose={() => setModal(null)}>
-          <h2 className="modal-title">Приглашай друзей</h2>
-          <p className="modal-sub">За каждого друга, зашедшего по твоей ссылке — <b>+1000 монет</b> тебе и +500 другу.</p>
+          <h2 className="modal-title">👥 Друзья</h2>
+          <p className="modal-sub">За каждого друга — <b>+1000 🪙</b> тебе, <b>+500 🪙</b> другу.</p>
           <p className="modal-sub">Приглашено: <b>{referrals}</b></p>
           <div className="ref-link">
             <input readOnly value={`https://t.me/${BOT_USERNAME}?start=ref_${user?.telegram_id}`} />
           </div>
           <button className="btn-primary modal-action" onClick={copyReferral}>
-            {copied ? 'Скопировано!' : 'Скопировать ссылку'}
+            {copied ? '✅ Скопировано!' : '📋 Скопировать'}
           </button>
         </Modal>
       )}
