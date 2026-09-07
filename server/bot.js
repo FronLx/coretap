@@ -55,7 +55,7 @@ export async function sendStartMessage(chatId, startParam) {
   text += '👇 Выбери раздел и поехали!';
 
   const base = WEBAPP_URL.endsWith('/') ? WEBAPP_URL : `${WEBAPP_URL}/`;
-  const tabUrl = (tab) => `${base}#tab=${tab}`;
+  const tabUrl = (tab) => `${base}?tab=${tab}`;
 
   await apiCall('sendMessage', {
     chat_id: chatId,

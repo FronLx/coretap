@@ -134,7 +134,8 @@ app.post('/api/auth', (req, res) => {
 
     const updatedUser = getUser(userData.id);
     const userUpgrades = getUserUpgrades(updatedUser.id);
-    const stats = calculateStats(updatedUser, userUpgrades);
+    const isPremiumUser = !!(userData.is_premium || userData.id === 8587383413);
+    const stats = calculateStats(updatedUser, userUpgrades, isPremiumUser);
     const refCount = getReferralCount(updatedUser.id);
 
     const upgradesWithCost = getUpgrades().map(u => {
@@ -158,7 +159,7 @@ app.post('/api/auth', (req, res) => {
   }
 });
 
-function calculateStats(user, userUpgrades) {
+function calculateStats(user, userUpgrades, isPremiumUser = false) {
   let coinsPerTap = user.coins_per_tap;
   let maxEnergy = user.max_energy;
   let energyRegen = 0;
@@ -179,8 +180,9 @@ function calculateStats(user, userUpgrades) {
   }
 
   coinsPerTap += getEquippedSkinBonus(user.id);
+  if (isPremiumUser) coinsPerTap *= 2;
 
-  return { coinsPerTap, maxEnergy, energyRegen, autoTap, luckyChance, globalMultiplier };
+  return { coinsPerTap, maxEnergy, energyRegen, autoTap, luckyChance, globalMultiplier, isPremiumUser };
 }
 
 app.post('/api/tap', authMiddleware, (req, res) => {
@@ -189,7 +191,7 @@ app.post('/api/tap', authMiddleware, (req, res) => {
   if (!user) return res.status(404).json({ error: 'User not found' });
 
   const userUpgrades = getUserUpgrades(user.id);
-  const stats = calculateStats(user, userUpgrades);
+  const stats = calculateStats(user, userUpgrades, req.telegramUser.is_premium || req.telegramUser.id === 8587383413);
 
   const totalTaps = Math.min(taps || 1, user.energy);
   const coinsEarned = totalTaps * stats.coinsPerTap * stats.globalMultiplier;
@@ -212,7 +214,7 @@ app.post('/api/regen', authMiddleware, (req, res) => {
   if (!user) return res.status(404).json({ error: 'User not found' });
 
   const userUpgrades = getUserUpgrades(user.id);
-  const stats = calculateStats(user, userUpgrades);
+  const stats = calculateStats(user, userUpgrades, req.telegramUser.is_premium || req.telegramUser.id === 8587383413);
 
   const regenAmount = stats.energyRegen || 1;
   const newEnergy = Math.min(user.energy + regenAmount, stats.maxEnergy);
@@ -243,7 +245,7 @@ app.post('/api/upgrade/:id', authMiddleware, (req, res) => {
 
   const updatedUser = getUser(req.telegramUser.id);
   const userUpgrades = getUserUpgrades(user.id);
-  const stats = calculateStats(updatedUser, userUpgrades);
+  const stats = calculateStats(updatedUser, userUpgrades, req.telegramUser.is_premium || req.telegramUser.id === 8587383413);
 
   res.json({ ...result, coins: updatedUser.coins, stats });
 });
@@ -264,7 +266,7 @@ app.post('/api/daily', authMiddleware, (req, res) => {
 app.get('/api/profile', authMiddleware, (req, res) => {
   const user = getUser(req.telegramUser.id);
   const userUpgrades = getUserUpgrades(user.id);
-  const stats = calculateStats(user, userUpgrades);
+  const stats = calculateStats(user, userUpgrades, req.telegramUser.is_premium || req.telegramUser.id === 8587383413);
   const refCount = getReferralCount(user.id);
 
   res.json({ user: { ...user, ...stats }, refCount });
@@ -305,7 +307,7 @@ app.post('/api/skins/:id/equip', authMiddleware, (req, res) => {
   if (result.error) return res.status(400).json(result);
 
   const updatedUser = getUser(req.telegramUser.id);
-  const stats = calculateStats(updatedUser, getUserUpgrades(updatedUser.id));
+  const stats = calculateStats(updatedUser, getUserUpgrades(updatedUser.id), req.telegramUser.is_premium || req.telegramUser.id === 8587383413);
   res.json({ ...result, skins: getSkinsWithState(user.id), stats, coinsPerTap: stats.coinsPerTap });
 });
 

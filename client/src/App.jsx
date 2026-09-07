@@ -50,7 +50,7 @@ async function api(path, options = {}) {
 const SYNC_MS = 1500;
 
 function initialTab() {
-  const params = new URLSearchParams(window.location.hash.substring(1).replace(/^\/+/, '') || window.location.search);
+  const params = new URLSearchParams(window.location.hash.substring(1) || window.location.search);
   const t = params.get('tab');
   if (t && TABS[t]) return t;
   return TABS.tap;
