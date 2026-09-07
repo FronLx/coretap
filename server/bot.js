@@ -40,16 +40,20 @@ async function apiCall(method, params = {}) {
 export async function sendStartMessage(chatId, startParam) {
   const isRef = startParam && startParam.startsWith('ref_');
   let text = '';
+  const TAP = '<tg-emoji emoji-id="5420363154070707696">👆</tg-emoji>';
+  const OK = '<tg-emoji emoji-id="5368324170671202286">👍</tg-emoji>';
+  const CLAP = '<tg-emoji emoji-id="5381888390356541373">👏</tg-emoji>';
+
   if (isRef) {
-    text = `🌟 <b>CoreTap</b> 🚀\n\n`
-      + `🎁 Тебя пригласил друг!\n`
+    text = `<b>CoreTap</b> ${OK}\n\n`
+      + `${OK} Тебя пригласил друг!\n`
       + `💰 На старте ждут монеты\n\n`
       + `<i>Жми «Играть» — и погнали!</i>`;
   } else {
-    text = `🌟 <b>CoreTap</b> 🚀\n\n`
-      + `👆 Тапай — копи 🪙\n`
-      + `⚡️ Энергия восстановится сама\n`
-      + `👥 Зови друзей — +1000 🪙\n\n`
+    text = `<b>CoreTap</b> ${OK}\n\n`
+      + `${TAP} Тапай — копи 🪙\n`
+      + `${CLAP} Энергия восстановится сама\n`
+      + `${OK} Зови друзей — +1000 🪙\n\n`
       + `<i>Жми «Играть» и войди в топ!</i>`;
   }
 

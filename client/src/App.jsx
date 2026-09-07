@@ -122,7 +122,8 @@ export default function App() {
     try {
       const data = await api('/api/auth', { method: 'POST', body: JSON.stringify({ initData: getInitData() }) });
       setUser(data.user);
-      setUpgrades(data.upgrades);
+      const DISABLED_TYPES = ['tap_multiplier', 'offline_regen'];
+      setUpgrades((data.upgrades || []).filter(u => !DISABLED_TYPES.includes(u.effect_type)));
       setUserUpgrades(data.userUpgrades);
       statsRef.current = {
         coinsPerTap: data.user.coinsPerTap,
