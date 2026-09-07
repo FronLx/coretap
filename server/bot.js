@@ -39,28 +39,41 @@ async function apiCall(method, params = {}) {
 }
 
 export async function sendStartMessage(chatId, startParam) {
-  let text = '⚡ Добро пожаловать в <b>CoreTap</b>!\n\n';
-  text += 'Тапай, прокачивайся и зарабатывай монеты! 🪙\n\n';
+  let text = '🔥 <b>CoreTap</b> — неоновая тапалка!\n\n';
+  text += '⚡ Тапай монету — копи бабки\n';
+  text += '🛒 Покупай улучшения и скины\n';
+  text += '🏆 Взбирайся на вершину топа\n\n';
 
   if (startParam && startParam.startsWith('ref_')) {
     const referrerTelegramId = parseInt(startParam.replace('ref_', ''));
     if (referrerTelegramId && getUser(referrerTelegramId)) {
-      text += 'Ты пришёл по ссылке друга! 🎉\n';
-      text += 'Вам обоим начислим бонус за реферала. 👥\n\n';
+      text += '🎁 Ты пришёл по ссылке друга!\n';
+      text += '👥 Вам обоим начислим бонус.\n\n';
     }
   }
 
-  text += 'Нажми кнопку ниже, чтобы начать играть! 👇';
+  text += '👇 Выбери раздел и поехали!';
+
+  const base = WEBAPP_URL.endsWith('/') ? WEBAPP_URL : `${WEBAPP_URL}/`;
+  const tabUrl = (tab) => `${base}#tab=${tab}`;
 
   await apiCall('sendMessage', {
     chat_id: chatId,
     text,
     parse_mode: 'HTML',
     reply_markup: {
-      inline_keyboard: [[{
-        text: '🕹️ Открыть CoreTap',
-        web_app: { url: WEBAPP_URL }
-      }]]
+      inline_keyboard: [
+        [{ text: '⚡ Играть', web_app: { url: base } }],
+        [
+          { text: '🛒 Магазин', web_app: { url: tabUrl('shop') } },
+          { text: '👑 Профиль', web_app: { url: tabUrl('profile') } }
+        ],
+        [
+          { text: '🎁 Награды', web_app: { url: tabUrl('daily') } },
+          { text: '🏆 Топ', web_app: { url: tabUrl('rating') } }
+        ],
+        [{ text: '👥 Друзья', web_app: { url: tabUrl('refer') } }]
+      ]
     }
   });
 }
@@ -86,7 +99,7 @@ async function poll() {
   try {
     const data = await apiCall('getUpdates', {
       offset: updateOffset,
-      timeout: 30,
+      timeout: 25,
       allowed_updates: ['message']
     });
 
@@ -101,7 +114,9 @@ async function poll() {
       }
     }
   } catch (e) {
-    console.error('Poll error:', e.message);
+    try {
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getMe`, { signal: AbortSignal.timeout(20000) });
+    } catch (e2) {}
   } finally {
     polling = false;
   }

@@ -53,7 +53,7 @@
 }
 
 .leaderboard-name.me {
-  color: var(--gold);
+  color: var(--cyan);
 }
 
 .leaderboard-level {
@@ -63,7 +63,7 @@
 
 .leaderboard-coins {
   font-size: 14px;
-  color: var(--gold);
+  color: var(--cyan);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }

@@ -101,6 +101,20 @@
   transform-style: preserve-3d;
 }
 
+.tap-coin.premium {
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.25), transparent 42%),
+    linear-gradient(145deg, #16202e, #0a1220);
+  border-width: 3px;
+  border-style: solid;
+  animation: premiumGlow 1.8s ease-in-out infinite;
+}
+
+@keyframes premiumGlow {
+  0%, 100% { box-shadow: 0 0 40px var(--neon-cyan-glow); }
+  50% { box-shadow: 0 0 90px var(--neon-purple-glow); }
+}
+
 .tap-coin:active {
   transform: scale(0.94);
 }
@@ -154,19 +168,20 @@
 .boost-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 13px 26px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 94, 58, 0.35);
-  font-weight: 700;
+  gap: 12px;
+  padding: 16px 34px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 62, 240, 0.5);
+  font-weight: 800;
   transition: background 0.15s, transform 0.15s, border-color 0.15s;
 }
 
 .boost-btn.active {
-  background: linear-gradient(135deg, var(--gold), var(--gold-2));
+  background: linear-gradient(135deg, var(--pink), var(--purple));
   border-color: transparent;
-  color: #1a1200;
+  color: #12041a;
+  box-shadow: 0 0 22px var(--neon-purple-glow);
 }
 
 .boost-btn:active {
@@ -174,20 +189,20 @@
 }
 
 .boost-icon {
-  font-size: 22px;
+  font-size: 26px;
 }
 
 .boost-title {
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .boost-cost {
-  font-size: 12px;
-  opacity: 0.75;
+  font-size: 13px;
+  opacity: 0.85;
 }
 
 .boost-btn.active .boost-cost {
-  color: #4a3b00;
+  color: #2a0a33;
 }
 
 .stats-chips {
@@ -198,8 +213,8 @@
 }
 
 .chip {
-  padding: 6px 12px;
-  border-radius: 12px;
+  padding: 7px 14px;
+  border-radius: 14px;
   background: var(--card);
   border: 1px solid var(--card-border);
   font-size: 12px;

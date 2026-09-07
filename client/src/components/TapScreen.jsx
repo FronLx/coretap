@@ -1,14 +1,14 @@
 import React, { useState, useRef, useCallback } from 'react';
 import './TapScreen.css';
 
-export default function TapScreen({ display, stats, equippedSkin, onTap, frenzy, onFrenzy }) {
+export default function TapScreen({ display, stats, equippedSkin, onTap, frenzy, onFrenzy, isPremium }) {
   const [flash, setFlash] = useState(false);
   const flashTimer = useRef(null);
   const coinRef = useRef(null);
 
   const energyPercent = stats?.maxEnergy ? (display.energy / stats.maxEnergy) * 100 : 0;
   const cpt = (stats?.coinsPerTap || 1) * (stats?.globalMultiplier || 1) * (frenzy ? 2 : 1);
-  const skinColor = equippedSkin?.color || '#e8c34a';
+  const skinColor = equippedSkin?.color || (isPremium ? '#ffd700' : '#e8c34a');
 
   const handleTapStart = useCallback((e) => {
     e.preventDefault();
@@ -44,11 +44,11 @@ export default function TapScreen({ display, stats, equippedSkin, onTap, frenzy,
         <div className={`tap-ring ${flash ? 'flash' : ''}`} style={{ '--skin': skinColor }}>
           <div
             ref={coinRef}
-            className="tap-coin"
-            style={{ borderColor: skinColor, boxShadow: `0 0 60px ${skinColor}55, inset 0 0 30px ${skinColor}22` }}
+            className={`tap-coin ${isPremium ? 'premium' : ''}`}
+            style={{ borderColor: skinColor, boxShadow: isPremium ? `0 0 60px #ffd70066, inset 0 0 30px #ffd70033` : `0 0 60px ${skinColor}55, inset 0 0 30px ${skinColor}22` }}
           >
-            <span className="tap-coin-icon">{equippedSkin?.icon || '🪙'}</span>
-            <span className="tap-coin-label">{equippedSkin?.name || 'Classic'}</span>
+            <span className="tap-coin-icon">{isPremium ? '👑' : (equippedSkin?.icon || '🪙')}</span>
+            <span className="tap-coin-label">{isPremium ? (equippedSkin?.name || 'Classic') + ' ⭐' : (equippedSkin?.name || 'Classic')}</span>
           </div>
         </div>
         <p className="tap-hint">Жми, пока энергия есть!</p>

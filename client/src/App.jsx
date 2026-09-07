@@ -5,9 +5,10 @@ import ProfileScreen from './components/ProfileScreen.jsx';
 import DailyScreen from './components/DailyScreen.jsx';
 import ReferralScreen from './components/ReferralScreen.jsx';
 import LeaderboardScreen from './components/LeaderboardScreen.jsx';
+import AdminScreen from './components/AdminScreen.jsx';
 import './styles/App.css';
 
-const TABS = { tap: 'tap', shop: 'shop', profile: 'profile', daily: 'daily', refer: 'refer', rating: 'rating' };
+const TABS = { tap: 'tap', shop: 'shop', profile: 'profile', daily: 'daily', refer: 'refer', rating: 'rating', admin: 'admin' };
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -17,20 +18,46 @@ function getInitData() {
   return params.get('tgWebAppData') || '';
 }
 
+function getWASafe() {
+  return window.Telegram?.WebApp;
+}
+
 async function api(path, options = {}) {
   const headers = { 'Content-Type': 'application/json', 'X-Telegram-Init-Data': getInitData(), ...options.headers };
-  const res = await fetch(`${API_URL}${path}`, { ...options, headers });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || 'API error');
+  const retries = options.retries ?? 2;
+  const timeout = options.timeout ?? 8000;
+  let lastErr;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeout);
+    try {
+      const res = await fetch(`${API_URL}${path}`, { ...options, headers, signal: ctrl.signal });
+      clearTimeout(t);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'API error');
+      }
+      return res.json();
+    } catch (e) {
+      clearTimeout(t);
+      lastErr = e;
+      if (attempt < retries) await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
+    }
   }
-  return res.json();
+  throw lastErr || new Error('API error');
 }
 
 const SYNC_MS = 1500;
 
+function initialTab() {
+  const params = new URLSearchParams(window.location.hash.substring(1).replace(/^\/+/, '') || window.location.search);
+  const t = params.get('tab');
+  if (t && TABS[t]) return t;
+  return TABS.tap;
+}
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState(TABS.tap);
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [user, setUser] = useState(null);
   const [upgrades, setUpgrades] = useState([]);
   const [userUpgrades, setUserUpgrades] = useState([]);
@@ -39,6 +66,8 @@ export default function App() {
   const [error, setError] = useState('');
   const [activeBoosts, setActiveBoosts] = useState({});
   const [display, setDisplay] = useState({ coins: 0, energy: 0 });
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
 
   const popupsRef = useRef([]);
   const [popups, setPopups] = useState([]);
@@ -102,6 +131,8 @@ export default function App() {
   const loadGame = async () => {
     try {
       const data = await api('/api/auth', { method: 'POST', body: JSON.stringify({ initData: getInitData() }) });
+      setIsPremium(!!(data.isPremium || getWASafe()?.initDataUnsafe?.user?.is_premium));
+      setIsAdmin(!!data.isAdmin);
       setUser(data.user);
       setUpgrades(data.upgrades);
       setUserUpgrades(data.userUpgrades);
@@ -290,6 +321,7 @@ export default function App() {
             onTap={handleTap}
             frenzy={activeBoosts.tapFrenzy}
             onFrenzy={handleFrenzy}
+            isPremium={isPremium}
           />
         )}
         {activeTab === TABS.shop && (
@@ -303,10 +335,11 @@ export default function App() {
             onEquipSkin={handleEquipSkin}
           />
         )}
-        {activeTab === TABS.profile && <ProfileScreen user={{ ...user, coins: display.coins }} userUpgrades={userUpgrades} />}
+        {activeTab === TABS.profile && <ProfileScreen user={{ ...user, coins: display.coins }} userUpgrades={userUpgrades} isPremium={isPremium} />}
         {activeTab === TABS.daily && <DailyScreen user={user} onClaim={handleClaimDaily} />}
         {activeTab === TABS.refer && <ReferralScreen user={user} />}
         {activeTab === TABS.rating && <LeaderboardScreen />}
+        {activeTab === TABS.admin && <AdminScreen />}
       </div>
 
       <div className="popup-layer">
@@ -319,12 +352,13 @@ export default function App() {
 
       <nav className="bottom-nav">
         {[
-          { id: TABS.tap, icon: '👆', label: 'Тап' },
+          { id: TABS.tap, icon: '⚡', label: 'Тап' },
           { id: TABS.shop, icon: '🛒', label: 'Магазин' },
           { id: TABS.daily, icon: '🎁', label: 'Награды' },
           { id: TABS.refer, icon: '👥', label: 'Друзья' },
           { id: TABS.rating, icon: '🏆', label: 'Топ' },
-          { id: TABS.profile, icon: '👤', label: 'Профиль' }
+          { id: TABS.profile, icon: '👤', label: 'Профиль' },
+          ...(isAdmin ? [{ id: TABS.admin, icon: '🛠', label: 'Админ' }] : [])
         ].map(tab => (
           <button key={tab.id} className={`nav-btn ${activeTab === tab.id ? 'active' : ''}`} onClick={() => setActiveTab(tab.id)}>
             <span className="nav-icon">{tab.icon}</span>

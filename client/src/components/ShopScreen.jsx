@@ -61,7 +61,7 @@ export default function ShopScreen({ user, upgrades, userUpgrades, skins, onBuyU
                     <h3>{upgrade.name}</h3>
                     <p>{upgrade.description}</p>
                     <div className="upgrade-level">
-                      Уровень {level}/{upgrade.max_level}
+                      <span className="purchased">Куплено: {level} / {upgrade.max_level}</span>
                       <div className="level-track">
                         <div className="level-fill" style={{ width: `${(level / upgrade.max_level) * 100}%` }} />
                       </div>

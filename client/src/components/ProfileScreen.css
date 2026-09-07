@@ -9,19 +9,51 @@
   width: 84px;
   height: 84px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--gold), var(--gold-2));
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 38px;
   font-weight: 800;
   margin-bottom: 12px;
-  box-shadow: 0 8px 30px rgba(255, 159, 28, 0.35);
+  box-shadow: 0 8px 30px rgba(0, 240, 255, 0.35);
+  position: relative;
+}
+
+.premium-badge {
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  border: 2px solid #0a0c10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  box-shadow: 0 0 12px var(--neon-cyan-glow);
 }
 
 .profile-name {
   font-size: 24px;
   margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.premium-tag {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: linear-gradient(90deg, var(--cyan), var(--purple));
+  color: #041018;
+  box-shadow: 0 0 14px var(--neon-cyan-glow);
+  text-transform: uppercase;
 }
 
 .profile-username {
@@ -63,7 +95,7 @@
 }
 
 .stat-text strong {
-  color: var(--gold);
+  color: var(--cyan);
 }
 
 .xp-bar {
@@ -80,8 +112,9 @@
 
 .xp-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--gold), var(--gold-2));
+  background: linear-gradient(90deg, var(--cyan), var(--purple));
   border-radius: 8px;
+  box-shadow: 0 0 12px var(--neon-cyan-glow);
   transition: width 0.3s;
 }
 
@@ -114,5 +147,66 @@
 }
 
 .upgrade-count strong {
-  color: var(--gold);
+  color: var(--cyan);
+}
+.promo-card h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.promo-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.promo-input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--card-border);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  text-transform: uppercase;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.promo-input::placeholder {
+  text-transform: none;
+  color: var(--text-dim);
+}
+
+.promo-input:focus {
+  border-color: var(--cyan);
+}
+
+.promo-btn {
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #041018;
+  background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 100%);
+  box-shadow: 0 0 14px var(--neon-cyan-glow);
+}
+
+.promo-btn:active {
+  transform: scale(0.96);
+}
+
+.promo-msg {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.promo-msg.ok {
+  color: var(--green);
+}
+
+.promo-msg.err {
+  color: var(--danger);
 }

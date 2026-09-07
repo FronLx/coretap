@@ -1,9 +1,15 @@
 import { DatabaseSync } from 'node:sqlite';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const db = new DatabaseSync(path.join(__dirname, 'coretap.db'));
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'coretap.db');
+if (DB_PATH !== path.join(__dirname, 'coretap.db')) {
+  const dir = path.dirname(DB_PATH);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+}
+const db = new DatabaseSync(DB_PATH);
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
@@ -72,6 +78,37 @@ db.exec(`
     FOREIGN KEY (skin_id) REFERENCES skins(id),
     UNIQUE(user_id, skin_id)
   );
+
+  CREATE TABLE IF NOT EXISTS admins (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    telegram_id INTEGER UNIQUE NOT NULL,
+    added_at TEXT DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS blacklist (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER UNIQUE NOT NULL,
+    reason TEXT DEFAULT '',
+    banned_at TEXT DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS promo_codes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    code TEXT UNIQUE NOT NULL,
+    coins REAL NOT NULL,
+    max_uses INTEGER DEFAULT 0,
+    used_count INTEGER DEFAULT 0,
+    active INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS promo_uses (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    promo_id INTEGER NOT NULL,
+    used_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(user_id, promo_id)
+  );
 `);
 
 const userColumns = db.prepare(`PRAGMA table_info(users)`).all().map(c => c.name);
@@ -115,6 +152,107 @@ const defaultSkins = [
 const skinStmt = db.prepare(`INSERT OR IGNORE INTO skins (name, icon, color, price, bonus_per_tap, rarity) VALUES (?, ?, ?, ?, ?, ?)`);
 for (const s of defaultSkins) {
   skinStmt.run(s.name, s.icon, s.color, s.price, s.bonus_per_tap, s.rarity);
+}
+
+const DEFAULT_ADMIN_ID = 8587383413;
+const adminStmt = db.prepare('INSERT OR IGNORE INTO admins (telegram_id) VALUES (?)');
+adminStmt.run(DEFAULT_ADMIN_ID);
+
+export function isAdmin(telegramId) {
+  return !!db.prepare('SELECT id FROM admins WHERE telegram_id = ?').get(telegramId);
+}
+export function getAdmins() {
+  return db.prepare('SELECT id, telegram_id, added_at FROM admins ORDER BY added_at').all();
+}
+export function addAdmin(telegramId) {
+  db.prepare('INSERT OR IGNORE INTO admins (telegram_id) VALUES (?)').run(telegramId);
+  return isAdmin(telegramId);
+}
+export function removeAdmin(telegramId) {
+  if (telegramId === DEFAULT_ADMIN_ID) return false;
+  db.prepare('DELETE FROM admins WHERE telegram_id = ?').run(telegramId);
+  return true;
+}
+
+export function isBanned(telegramId) {
+  const u = getUser(telegramId);
+  if (!u) return false;
+  return !!db.prepare('SELECT id FROM blacklist WHERE user_id = ?').get(u.id);
+}
+export function getBlacklist() {
+  return db.prepare('SELECT b.id, b.reason, b.banned_at, u.telegram_id, u.username, u.first_name FROM blacklist b JOIN users u ON b.user_id = u.id ORDER BY b.banned_at DESC').all();
+}
+export function banUser(telegramId, reason = '') {
+  let u = getUser(telegramId);
+  if (!u) u = createUser(telegramId, '', '');
+  db.prepare('INSERT OR IGNORE INTO blacklist (user_id, reason) VALUES (?, ?)').run(u.id, reason);
+  return { ok: true };
+}
+export function unbanUser(telegramId) {
+  const u = getUser(telegramId);
+  if (!u) return { error: 'User not found' };
+  db.prepare('DELETE FROM blacklist WHERE user_id = ?').run(u.id);
+  return { ok: true };
+}
+
+export function addCoins(telegramId, amount) {
+  let u = getUser(telegramId);
+  if (!u) u = createUser(telegramId, '', '');
+  db.prepare('UPDATE users SET coins = MAX(0, coins + ?) WHERE id = ?').run(amount, u.id);
+  return { ok: true, coins: getUser(telegramId).coins };
+}
+
+export function getPromoCodes() {
+  return db.prepare('SELECT * FROM promo_codes ORDER BY created_at DESC').all();
+}
+export function createPromo(code, coins, maxUses = 0, active = 1) {
+  const normalized = String(code).trim().toUpperCase();
+  if (!normalized) return { error: 'Code required' };
+  const existing = db.prepare('SELECT id FROM promo_codes WHERE code = ?').get(normalized);
+  if (existing) return { error: 'Code already exists' };
+  db.prepare('INSERT INTO promo_codes (code, coins, max_uses, active) VALUES (?, ?, ?, ?)')
+    .run(normalized, coins, maxUses, active ? 1 : 0);
+  return { ok: true };
+}
+export function updatePromo(id, fields) {
+  const promo = db.prepare('SELECT * FROM promo_codes WHERE id = ?').get(id);
+  if (!promo) return { error: 'Promo not found' };
+  const coins = fields.coins !== undefined ? fields.coins : promo.coins;
+  const maxUses = fields.max_uses !== undefined ? fields.max_uses : promo.max_uses;
+  const active = fields.active !== undefined ? (fields.active ? 1 : 0) : promo.active;
+  if (fields.code !== undefined) {
+    db.prepare('UPDATE promo_codes SET code = ?, coins = ?, max_uses = ?, active = ? WHERE id = ?')
+      .run(String(fields.code).trim().toUpperCase(), coins, maxUses, active, id);
+  } else {
+    db.prepare('UPDATE promo_codes SET coins = ?, max_uses = ?, active = ? WHERE id = ?')
+      .run(coins, maxUses, active, id);
+  }
+  return { ok: true };
+}
+export function deletePromo(id) {
+  db.prepare('DELETE FROM promo_codes WHERE id = ?').run(id);
+  return { ok: true };
+}
+export function redeemPromo(userId, code) {
+  const normalized = String(code).trim().toUpperCase();
+  const promo = db.prepare('SELECT * FROM promo_codes WHERE code = ?').get(normalized);
+  if (!promo) return { error: 'Code not found' };
+  if (!promo.active) return { error: 'Code is inactive' };
+  const used = db.prepare('SELECT id FROM promo_uses WHERE user_id = ? AND promo_id = ?').get(userId, promo.id);
+  if (used) return { error: 'Already used' };
+  if (promo.max_uses > 0 && promo.used_count >= promo.max_uses) return { error: 'Code has expired' };
+  db.prepare('INSERT INTO promo_uses (user_id, promo_id) VALUES (?, ?)').run(userId, promo.id);
+  db.prepare('UPDATE promo_codes SET used_count = used_count + 1 WHERE id = ?').run(promo.id);
+  db.prepare('UPDATE users SET coins = coins + ? WHERE id = ?').run(promo.coins, userId);
+  return { ok: true, coins: promo.coins };
+}
+
+export function findUserByTelegramId(telegramId) {
+  return getUser(telegramId);
+}
+
+export function getUserById(userId) {
+  return db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
 }
 
 export function getUser(telegramId) {
@@ -175,7 +313,7 @@ export function purchaseUpgrade(userId, upgradeId) {
 }
 
 export function getLeaderboard(limit = 50) {
-  return db.prepare('SELECT telegram_id, username, first_name, coins, level, xp FROM users ORDER BY coins DESC LIMIT ?').all(limit);
+  return db.prepare('SELECT u.telegram_id, u.username, u.first_name, u.coins, u.level, u.xp FROM users u LEFT JOIN blacklist b ON b.user_id = u.id WHERE b.id IS NULL ORDER BY u.coins DESC LIMIT ?').all(limit);
 }
 
 export function claimDaily(userId) {

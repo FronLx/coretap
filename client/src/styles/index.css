@@ -6,18 +6,24 @@
 }
 
 :root {
-  --bg-top: #1c1d21;
-  --bg-mid: #222327;
-  --bg-bottom: #16171a;
-  --card: rgba(255, 255, 255, 0.05);
-  --card-border: rgba(255, 255, 255, 0.08);
-  --text: #f2f3f5;
-  --text-dim: #8b8d93;
+  --bg-top: #12141a;
+  --bg-mid: #161920;
+  --bg-bottom: #0a0c10;
+  --card: rgba(255, 255, 255, 0.04);
+  --card-border: rgba(255, 255, 255, 0.09);
+  --text: #f2f3f7;
+  --text-dim: #7f8698;
   --gold: #ffd166;
-  --gold-2: #ff9f1c;
-  --cyan: #00e5ff;
-  --danger: #ff5e5e;
-  --green: #34d399;
+  --gold-2: #ffb020;
+  --cyan: #00f0ff;
+  --blue: #3ea6ff;
+  --purple: #b26bff;
+  --pink: #ff3ef0;
+  --green: #3dff88;
+  --danger: #ff5e7a;
+  --neon-cyan-glow: rgba(0, 240, 255, 0.55);
+  --neon-purple-glow: rgba(178, 107, 255, 0.55);
+  --neon-green-glow: rgba(61, 255, 136, 0.4);
 }
 
 body {
@@ -49,14 +55,15 @@ button {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px 20px;
-  border-radius: 16px;
-  font-size: 15px;
-  font-weight: 700;
-  color: #1a1200;
-  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%);
-  box-shadow: 0 6px 20px rgba(255, 159, 28, 0.25);
+  padding: 16px 24px;
+  border-radius: 18px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #041018;
+  background: linear-gradient(135deg, var(--cyan) 0%, var(--blue) 100%);
+  box-shadow: 0 0 22px var(--neon-cyan-glow), 0 4px 18px rgba(0, 180, 255, 0.35);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  letter-spacing: 0.3px;
 }
 
 .btn-primary:active {
@@ -70,14 +77,15 @@ button {
 }
 
 .btn-ghost {
-  padding: 12px 18px;
-  border-radius: 14px;
-  font-size: 14px;
+  padding: 13px 20px;
+  border-radius: 16px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--text);
-  background: var(--card);
-  border: 1px solid var(--card-border);
-  transition: background 0.15s;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.03);
+  transition: background 0.15s, border-color 0.15s;
 }
 
 .btn-ghost:active {

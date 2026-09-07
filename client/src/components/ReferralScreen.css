@@ -6,7 +6,7 @@
 }
 
 .referral-subtitle strong {
-  color: var(--gold);
+  color: var(--cyan);
 }
 
 .referral-stats {
@@ -36,7 +36,7 @@
 
 .referral-stat strong {
   font-size: 18px;
-  color: var(--gold);
+  color: var(--cyan);
 }
 
 .referral-link-box {
