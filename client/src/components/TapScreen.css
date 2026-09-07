@@ -10,20 +10,20 @@
   width: 100%;
   max-width: 360px;
   height: 26px;
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(40, 90, 200, 0.1);
   border-radius: 13px;
   overflow: hidden;
   position: relative;
-  margin: 6px 0 10px;
+  margin: 6px 0 8px;
   border: 1px solid var(--card-border);
 }
 
 .energy-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--cyan), #009dff);
+  background: linear-gradient(90deg, var(--blue), var(--cyan));
   border-radius: 13px;
   transition: width 0.25s ease;
-  box-shadow: 0 0 18px rgba(0, 229, 255, 0.35);
+  box-shadow: 0 0 18px rgba(46, 123, 255, 0.5);
 }
 
 .energy-label {
@@ -42,6 +42,89 @@
 .energy-label svg {
   color: var(--cyan);
   filter: drop-shadow(0 0 4px var(--neon-cyan-glow));
+}
+
+.level-bar {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.level-track {
+  flex: 1;
+  height: 8px;
+  background: rgba(40, 90, 200, 0.12);
+  border: 1px solid rgba(70, 130, 255, 0.2);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.level-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue-2), var(--cyan));
+  border-radius: 5px;
+  box-shadow: 0 0 10px var(--neon-blue-glow);
+  transition: width 0.3s;
+}
+
+.level-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.action-row {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  border-radius: 16px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.action-btn svg {
+  color: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--neon-blue-glow));
+}
+
+.action-btn em {
+  font-style: normal;
+  color: var(--cyan);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.action-btn.done {
+  opacity: 0.55;
+}
+
+.action-btn.done em {
+  color: var(--green);
+  text-shadow: 0 0 8px var(--neon-green-glow);
+}
+
+.action-btn:active {
+  border-color: var(--cyan);
 }
 
 .tap-arena {
@@ -95,8 +178,8 @@
   height: 196px;
   border-radius: 50%;
   background:
-    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.22), transparent 42%),
-    linear-gradient(145deg, #2b2c31, #18191d);
+    radial-gradient(circle at 30% 28%, rgba(110, 170, 255, 0.28), transparent 42%),
+    linear-gradient(145deg, #1a2540, #0a1020);
   border: 3px solid var(--skin, #e8c34a);
   display: flex;
   flex-direction: column;
@@ -105,6 +188,7 @@
   gap: 6px;
   cursor: pointer;
   transform-style: preserve-3d;
+  box-shadow: 0 0 30px var(--neon-blue-glow), inset 0 0 18px rgba(46, 123, 255, 0.2);
 }
 
 .tap-coin:active {
@@ -116,6 +200,7 @@
   line-height: 1;
   filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.5));
   animation: coinBob 2.6s ease-in-out infinite;
+  color: var(--gold);
 }
 
 @keyframes coinBob {
@@ -176,4 +261,72 @@
 .chip svg {
   color: var(--cyan);
   flex-shrink: 0;
+}
+
+.daily-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.daily-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 2px;
+  border-radius: 12px;
+  background: rgba(40, 90, 200, 0.1);
+  border: 1px solid rgba(70, 130, 255, 0.2);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.daily-day .daily-day-coin {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.daily-day-coin svg {
+  color: var(--gold);
+}
+
+.daily-day.done {
+  background: rgba(61, 255, 154, 0.08);
+  border-color: rgba(61, 255, 154, 0.35);
+}
+
+.daily-day.done .daily-day-coin {
+  color: var(--green);
+}
+
+.daily-day.today {
+  border-color: var(--cyan);
+  background: rgba(46, 123, 255, 0.2);
+  box-shadow: 0 0 14px var(--neon-blue-glow);
+}
+
+.daily-day.today .daily-day-coin {
+  color: var(--cyan);
+}
+
+.daily-day-num {
+  font-weight: 700;
+}
+
+.ref-link input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(20, 50, 120, 0.15);
+  border: 1px solid rgba(80, 140, 255, 0.35);
+  color: var(--cyan);
+  font-size: 12px;
+  outline: none;
+  user-select: all;
+  -webkit-user-select: all;
 }

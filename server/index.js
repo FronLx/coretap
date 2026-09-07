@@ -4,7 +4,12 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { getUser, createUser, getUpgrades, getUserUpgrades, purchaseUpgrade, getLeaderboard, db } from './db.js';
+import {
+  getUser, getUserById, createUser, getUpgrades, getUserUpgrades, purchaseUpgrade, getLeaderboard,
+  isAdmin, grantAdmin, revokeAdmin, getAdmins, setBlocked, giveCoins, setUserXp, resetUser,
+  adminStats, searchUsers, logAdmin, getAdminLogs, dailyStatus, claimDaily, isRefillAvailable,
+  doRefill, applyLevelUp, applyReferral, userPublicInfo, OWNER_ID, db,
+} from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -41,7 +46,7 @@ app.use((req, res, next) => {
   next();
 });
 
-const staticDir = path.join(__dirname, '../client2/dist');
+const staticDir = path.join(__dirname, '../client/dist');
 if (fs.existsSync(staticDir)) {
   app.use('/coretap', express.static(staticDir));
   app.get('/coretap*', (req, res) => res.sendFile(path.join(staticDir, 'index.html')));
@@ -49,20 +54,42 @@ if (fs.existsSync(staticDir)) {
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
+function parseInitData(initData) {
+  const params = new URLSearchParams(initData);
+  const userStr = params.get('user');
+  if (!userStr) return { error: 'No user data' };
+  let data;
+  try {
+    data = JSON.parse(userStr);
+  } catch (e) {
+    return { error: 'Invalid init data' };
+  }
+  if (!data || !data.id) return { error: 'Invalid init data' };
+  return { params, user: data };
+}
+
 function auth(req, res, next) {
   const initData = req.headers['x-telegram-init-data'];
   if (!initData) return res.status(401).json({ error: 'No init data' });
-  try {
-    const params = new URLSearchParams(initData);
-    const userStr = params.get('user');
-    if (!userStr) return res.status(401).json({ error: 'No user data' });
-    const data = JSON.parse(userStr);
-    if (!data || !data.id) return res.status(401).json({ error: 'Invalid init data' });
-    req.telegramUser = data;
-    next();
-  } catch (e) {
-    res.status(401).json({ error: 'Invalid init data' });
+  const parsed = parseInitData(initData);
+  if (parsed.error) return res.status(401).json({ error: parsed.error });
+
+  const dbUser = getUser(parsed.user.id);
+  if (dbUser && dbUser.blocked) {
+    return res.status(403).json({ error: 'Вы в черном списке', blocked: true });
   }
+  req.telegramUser = parsed.user;
+  req.dbUser = dbUser;
+  req.initData = initData;
+  next();
+}
+
+function requireAdmin(req, res, next) {
+  const admin = isAdmin(req.telegramUser.id);
+  if (!admin) return res.status(403).json({ error: 'Нет доступа' });
+  if (req.dbUser && req.dbUser.blocked) return res.status(403).json({ error: 'Вы в черном списке', blocked: true });
+  req.admin = admin;
+  next();
 }
 
 function stats(user, userUpgrades) {
@@ -71,6 +98,7 @@ function stats(user, userUpgrades) {
   let energyRegen = 0;
   let luckyChance = 0;
   let globalMultiplier = 1;
+  let tapMultiplier = 1;
 
   for (const up of userUpgrades) {
     const val = up.effect_value * up.level;
@@ -78,12 +106,14 @@ function stats(user, userUpgrades) {
       case 'coins_per_tap': coinsPerTap += val; break;
       case 'max_energy': maxEnergy += val; break;
       case 'energy_regen': energyRegen += val; break;
+      case 'offline_regen': energyRegen += val; break;
       case 'lucky_chance': luckyChance += val; break;
       case 'global_multiplier': globalMultiplier += val / 100; break;
+      case 'tap_multiplier': tapMultiplier += val; break;
     }
   }
 
-  return { coinsPerTap, maxEnergy, energyRegen, luckyChance, globalMultiplier };
+  return { coinsPerTap, maxEnergy, energyRegen, luckyChance, globalMultiplier, tapMultiplier };
 }
 
 export function calculateStats(user, userUpgrades) {
@@ -102,22 +132,74 @@ function upgradesResponse(userId) {
     });
 }
 
+function applyOfflineEnergy(user) {
+  const lastSeen = user.last_seen;
+  const now = Date.now();
+  if (!lastSeen) return user.energy;
+  const lastTs = new Date(lastSeen).getTime();
+  if (!lastTs) return user.energy;
+  const s = stats(user, getUserUpgrades(user.id));
+  const regen = s.energyRegen || 1;
+  const capped = Math.min(Math.floor((now - lastTs) / 1000), 3 * 3600);
+  const newEnergy = Math.min(user.energy + Math.floor(capped * regen), s.maxEnergy);
+  db.prepare('UPDATE users SET energy = ? WHERE id = ?').run(newEnergy, user.id);
+  return newEnergy;
+}
+
+function userPayload(user) {
+  const userUpgrades = getUserUpgrades(user.id);
+  const info = userPublicInfo(user.id);
+  return {
+    id: user.id,
+    telegram_id: user.telegram_id,
+    username: user.username,
+    first_name: user.first_name,
+    coins: user.coins,
+    energy: user.energy,
+    xp: user.xp,
+    level: user.level,
+    total_taps: user.total_taps,
+    referrals: info.referrals,
+    isAdmin: !!isAdmin(user.telegram_id),
+    daily: dailyStatus(user.id),
+    refillAvailable: isRefillAvailable(user.id),
+    ...stats(user, userUpgrades)
+  };
+}
+
 app.post('/api/auth', (req, res) => {
   try {
     const initData = req.body?.initData || '';
-    const params = new URLSearchParams(initData);
-    const userStr = params.get('user');
-    if (!userStr) return res.status(401).json({ error: 'No user data' });
-    const data = JSON.parse(userStr);
-    if (!data || !data.id) return res.status(401).json({ error: 'Invalid init data' });
+    const parsed = parseInitData(initData);
+    if (parsed.error) return res.status(401).json({ error: parsed.error });
+    const data = parsed.user;
 
-    const user = createUser(data.id, data.username || '', data.first_name || '');
-    const userUpgrades = getUserUpgrades(user.id);
+    let user = getUser(data.id);
+    const isNew = !user;
+    if (!user) user = createUser(data.id, data.username || '', data.first_name || '');
+
+    if (user.blocked) {
+      return res.status(403).json({ error: 'Вы в черном списке', blocked: true });
+    }
+
+    if (isNew) {
+      const startParam = parsed.params.get('start_param') || '';
+      let refTg = 0;
+      if (startParam.startsWith('ref_')) refTg = Number(startParam.slice(4));
+      if (refTg) {
+        const r = applyReferral(user.telegram_id, refTg);
+        if (r) db.prepare('UPDATE users SET coins = coins + 500 WHERE id = ?').run(user.id);
+      }
+    }
+
+    const offlineEnergy = applyOfflineEnergy(user);
+    user = getUser(data.id);
 
     res.json({
-      user: { id: user.id, telegram_id: user.telegram_id, username: user.username, first_name: user.first_name, coins: user.coins, energy: user.energy, xp: user.xp, level: user.level, ...stats(user, userUpgrades) },
+      user: userPayload(user),
       upgrades: upgradesResponse(user.id),
-      userUpgrades
+      userUpgrades: getUserUpgrades(user.id),
+      offlineEnergy
     });
   } catch (e) {
     console.log(`${new Date().toISOString()} AUTH ERR: ${e.message}`);
@@ -126,7 +208,7 @@ app.post('/api/auth', (req, res) => {
 });
 
 app.post('/api/tap', auth, (req, res) => {
-  const user = getUser(req.telegramUser.id);
+  const user = req.dbUser || getUser(req.telegramUser.id);
   if (!user) return res.status(404).json({ error: 'User not found' });
 
   const userUpgrades = getUserUpgrades(user.id);
@@ -137,27 +219,33 @@ app.post('/api/tap', auth, (req, res) => {
   let coinsEarned = 0;
   const tapsArray = Array.from({ length: totalTaps }, () => {
     const lucky = s.luckyChance > 0 && Math.random() * 100 < s.luckyChance;
-    return s.coinsPerTap * s.globalMultiplier * (lucky ? 10 : 1);
+    return s.coinsPerTap * s.globalMultiplier * s.tapMultiplier * (lucky ? 10 : 1);
   });
   coinsEarned = tapsArray.reduce((a, b) => a + b, 0);
 
   const newEnergy = Math.max(0, user.energy - totalTaps);
   const xp = totalTaps;
 
-  db.prepare('UPDATE users SET coins = coins + ?, energy = ?, xp = xp + ? WHERE id = ?')
-    .run(coinsEarned, newEnergy, xp, user.id);
+  db.prepare('UPDATE users SET coins = coins + ?, energy = ?, xp = xp + ?, total_taps = total_taps + ?, last_seen = ? WHERE id = ?')
+    .run(coinsEarned, newEnergy, xp, totalTaps, new Date().toISOString(), user.id);
 
+  const leveled = applyLevelUp(user.id);
   const updated = getUser(req.telegramUser.id);
+
   res.json({
     coinsEarned: Math.floor(coinsEarned),
     energy: newEnergy,
     totalCoins: updated.coins,
+    xp: updated.xp,
+    level: updated.level,
+    leveledUp: leveled.leveled,
+    levelReward: leveled.reward,
     stats: s
   });
 });
 
 app.post('/api/regen', auth, (req, res) => {
-  const user = getUser(req.telegramUser.id);
+  const user = req.dbUser || getUser(req.telegramUser.id);
   if (!user) return res.status(404).json({ error: 'User not found' });
 
   const userUpgrades = getUserUpgrades(user.id);
@@ -172,7 +260,7 @@ app.post('/api/regen', auth, (req, res) => {
 });
 
 app.post('/api/upgrade/:id', auth, (req, res) => {
-  const user = getUser(req.telegramUser.id);
+  const user = req.dbUser || getUser(req.telegramUser.id);
   const result = purchaseUpgrade(user.id, parseInt(req.params.id));
   if (result.error) return res.status(400).json(result);
 
@@ -184,6 +272,137 @@ app.post('/api/upgrade/:id', auth, (req, res) => {
 
 app.get('/api/leaderboard', (req, res) => {
   res.json({ leaderboard: getLeaderboard() });
+});
+
+app.post('/api/daily', auth, (req, res) => {
+  const user = req.dbUser || getUser(req.telegramUser.id);
+  const result = claimDaily(user.id);
+  if (result.error) return res.status(400).json(result);
+  res.json({ ...result, coins: result.coins, daily: dailyStatus(user.id) });
+});
+
+app.post('/api/boost/refill', auth, (req, res) => {
+  const user = req.dbUser || getUser(req.telegramUser.id);
+  const result = doRefill(user.id);
+  if (result.error) return res.status(400).json(result);
+  res.json({ ...result, refillAvailable: false });
+});
+
+app.get('/api/profile', auth, (req, res) => {
+  const user = getUser(req.telegramUser.id);
+  res.json({ user: userPayload(user) });
+});
+
+app.get('/api/admin/me', auth, (req, res) => {
+  res.json({ isAdmin: !!isAdmin(req.telegramUser.id) });
+});
+
+app.get('/api/admin/stats', auth, requireAdmin, (req, res) => {
+  res.json({ stats: adminStats(), admins: getAdmins() });
+});
+
+app.get('/api/admin/users', auth, requireAdmin, (req, res) => {
+  const q = req.query.q || '';
+  const offset = Math.max(0, parseInt(req.query.offset) || 0);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 30));
+  res.json(searchUsers(q, offset, limit));
+});
+
+app.get('/api/admin/users/:id', auth, requireAdmin, (req, res) => {
+  const target = getUser(parseInt(req.params.id));
+  if (!target) return res.status(404).json({ error: 'User not found' });
+  const userUpgrades = getUserUpgrades(target.id);
+  res.json({
+    user: { ...userPayload(target), stats: stats(target, userUpgrades) },
+    upgrades: userUpgrades,
+    admin: isAdmin(target.telegram_id)
+  });
+});
+
+app.post('/api/admin/users/:id/coins', auth, requireAdmin, (req, res) => {
+  const tgId = parseInt(req.params.id);
+  const amount = Math.round(Number(req.body?.amount) || 0);
+  if (amount === 0) return res.status(400).json({ error: 'Amount must not be zero' });
+
+  const target = getUser(tgId);
+  if (!target) return res.status(404).json({ error: 'User not found' });
+
+  const result = giveCoins(tgId, amount);
+  logAdmin(req.telegramUser.id, 'coins', tgId, `${amount > 0 ? '+' : ''}${amount}`);
+  res.json({ ...result, from: req.telegramUser.id });
+});
+
+app.post('/api/admin/users/:id/block', auth, requireAdmin, (req, res) => {
+  const tgId = parseInt(req.params.id);
+  const target = getUser(tgId);
+  if (!target) return res.status(404).json({ error: 'User not found' });
+  if (isAdmin(tgId)) return res.status(400).json({ error: 'Нельзя заблокировать администратора' });
+
+  const result = setBlocked(tgId, true);
+  logAdmin(req.telegramUser.id, 'block', tgId, '');
+  res.json({ blocked: true, user: result });
+});
+
+app.post('/api/admin/users/:id/unblock', auth, requireAdmin, (req, res) => {
+  const tgId = parseInt(req.params.id);
+  const target = getUser(tgId);
+  if (!target) return res.status(404).json({ error: 'User not found' });
+
+  const result = setBlocked(tgId, false);
+  logAdmin(req.telegramUser.id, 'unblock', tgId, '');
+  res.json({ blocked: false, user: result });
+});
+
+app.post('/api/admin/users/:id/admin', auth, requireAdmin, (req, res) => {
+  const tgId = parseInt(req.params.id);
+  const target = getUser(tgId);
+  if (!target) return res.status(404).json({ error: 'User not found' });
+
+  const protect = !!req.body?.protected;
+  if (protect && req.telegramUser.id !== OWNER_ID) {
+    return res.status(403).json({ error: 'Только владелец может назначить неудаляемого админа' });
+  }
+
+  const row = grantAdmin(tgId, !protect, req.telegramUser.id);
+  logAdmin(req.telegramUser.id, 'grant_admin', tgId, `protected=${protect}`);
+  res.json({ admin: row });
+});
+
+app.post('/api/admin/users/:id/remove-admin', auth, requireAdmin, (req, res) => {
+  const tgId = parseInt(req.params.id);
+  const targetAdmin = isAdmin(tgId);
+  if (!targetAdmin) return res.status(400).json({ error: 'Не является админом' });
+  if (targetAdmin.can_remove === 0) return res.status(403).json({ error: 'Этого админа нельзя удалить' });
+
+  revokeAdmin(tgId);
+  logAdmin(req.telegramUser.id, 'revoke_admin', tgId, '');
+  res.json({ removed: true });
+});
+
+app.post('/api/admin/users/:id/reset', auth, requireAdmin, (req, res) => {
+  const tgId = parseInt(req.params.id);
+  const target = getUser(tgId);
+  if (!target) return res.status(404).json({ error: 'User not found' });
+  if (isAdmin(tgId)) return res.status(400).json({ error: 'Нельзя сбросить администратора' });
+
+  const result = resetUser(tgId);
+  logAdmin(req.telegramUser.id, 'reset', tgId, '');
+  res.json({ user: result });
+});
+
+app.post('/api/admin/users/:id/level', auth, requireAdmin, (req, res) => {
+  const tgId = parseInt(req.params.id);
+  const xp = Math.round(Number(req.body?.xp) ?? NaN);
+  if (isNaN(xp) || xp < 0) return res.status(400).json({ error: 'Invalid xp' });
+
+  const result = setUserXp(tgId, xp);
+  if (result.error) return res.status(404).json(result);
+  logAdmin(req.telegramUser.id, 'set_level', tgId, `xp=${xp}`);
+  res.json(result);
+});
+
+app.get('/api/admin/logs', auth, requireAdmin, (req, res) => {
+  res.json({ logs: getAdminLogs(parseInt(req.query.limit) || 50) });
 });
 
 app.listen(PORT, () => {

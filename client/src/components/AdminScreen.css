@@ -1,0 +1,248 @@
+.admin-screen {
+  padding: 16px;
+}
+
+.admin-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.admin-title .screen-title-icon {
+  color: var(--cyan);
+  filter: drop-shadow(0 0 10px var(--neon-cyan-glow));
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.admin-tab {
+  flex: 1;
+  padding: 10px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dim);
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  transition: all 0.2s;
+}
+
+.admin-tab.active {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  background: rgba(46, 123, 255, 0.16);
+  box-shadow: 0 0 14px var(--neon-blue-glow);
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.admin-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 6px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+}
+
+.as-icon {
+  color: var(--cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 8px var(--neon-blue-glow));
+}
+
+.as-value {
+  font-size: 16px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.as-label {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.search-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.search-row .admin-input {
+  flex: 1;
+}
+
+.admin-hint {
+  color: var(--text-dim);
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.admin-user-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+}
+
+.admin-user-card.blocked {
+  border-color: rgba(255, 94, 122, 0.5);
+  background: rgba(255, 94, 122, 0.06);
+}
+
+.au-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.au-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  flex-wrap: wrap;
+}
+
+.au-id {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.au-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text-dim);
+  flex-wrap: wrap;
+}
+
+.au-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.au-meta svg {
+  color: var(--gold);
+}
+
+.au-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mini-btn {
+  padding: 7px 12px;
+  border-radius: 11px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  background: rgba(40, 90, 200, 0.12);
+  border: 1px solid rgba(70, 130, 255, 0.3);
+  transition: all 0.15s;
+}
+
+.mini-btn:active {
+  transform: scale(0.95);
+}
+
+.mini-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mini-btn.ok {
+  color: var(--green);
+  border-color: rgba(61, 255, 154, 0.4);
+}
+
+.mini-btn.warn {
+  color: #ffc23d;
+  border-color: rgba(255, 194, 61, 0.4);
+}
+
+.mini-btn.danger {
+  color: var(--danger);
+  border-color: rgba(255, 94, 122, 0.4);
+}
+
+.mini-btn.blue {
+  color: var(--cyan);
+  border-color: rgba(55, 224, 255, 0.4);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.tag-danger {
+  color: var(--danger);
+  background: rgba(255, 94, 122, 0.15);
+}
+
+.tag-prot {
+  color: var(--gold);
+  background: rgba(255, 209, 102, 0.15);
+}
+
+.tag-admin {
+  color: var(--cyan);
+  background: rgba(55, 224, 255, 0.12);
+}
+
+.tag-blue {
+  color: var(--blue-2);
+  background: rgba(106, 166, 255, 0.15);
+}
+
+.tag-border {
+  color: var(--text-dim);
+  background: rgba(132, 150, 194, 0.12);
+}
+
+.admin-log-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  font-size: 12px;
+}

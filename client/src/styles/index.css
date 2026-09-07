@@ -6,24 +6,26 @@
 }
 
 :root {
-  --bg-top: #12141a;
-  --bg-mid: #161920;
-  --bg-bottom: #0a0c10;
-  --card: rgba(255, 255, 255, 0.04);
-  --card-border: rgba(255, 255, 255, 0.09);
-  --text: #f2f3f7;
-  --text-dim: #7f8698;
+  --bg-top: #0b1226;
+  --bg-mid: #070d1d;
+  --bg-bottom: #02050d;
+  --card: rgba(28, 80, 214, 0.08);
+  --card-border: rgba(70, 130, 255, 0.25);
+  --text: #eaf1ff;
+  --text-dim: #8496c2;
   --gold: #ffd166;
   --gold-2: #ffb020;
-  --cyan: #00f0ff;
-  --blue: #3ea6ff;
-  --purple: #b26bff;
-  --pink: #ff3ef0;
-  --green: #3dff88;
+  --cyan: #37e0ff;
+  --blue: #2e7bff;
+  --blue-2: #6aa6ff;
+  --purple: #8b5cff;
+  --pink: #ff5ef0;
+  --green: #3dff9a;
   --danger: #ff5e7a;
-  --neon-cyan-glow: rgba(0, 240, 255, 0.55);
-  --neon-purple-glow: rgba(178, 107, 255, 0.55);
-  --neon-green-glow: rgba(61, 255, 136, 0.4);
+  --neon-cyan-glow: rgba(55, 224, 255, 0.45);
+  --neon-blue-glow: rgba(46, 123, 255, 0.55);
+  --neon-purple-glow: rgba(139, 92, 255, 0.45);
+  --neon-green-glow: rgba(61, 255, 154, 0.4);
 }
 
 body {
@@ -50,6 +52,10 @@ button {
   font-family: inherit;
 }
 
+input {
+  font-family: inherit;
+}
+
 .btn-primary {
   display: flex;
   align-items: center;
@@ -61,7 +67,7 @@ button {
   font-weight: 800;
   color: #041018;
   background: linear-gradient(135deg, var(--cyan) 0%, var(--blue) 100%);
-  box-shadow: 0 0 22px var(--neon-cyan-glow), 0 4px 18px rgba(0, 180, 255, 0.35);
+  box-shadow: 0 0 22px var(--neon-blue-glow), 0 4px 18px rgba(30, 110, 255, 0.4);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   letter-spacing: 0.3px;
 }
@@ -82,12 +88,134 @@ button {
   font-size: 15px;
   font-weight: 600;
   color: var(--text);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.03);
+  background: rgba(40, 90, 200, 0.12);
+  border: 1px solid rgba(80, 140, 255, 0.3);
+  box-shadow: inset 0 0 12px rgba(40, 90, 200, 0.08);
   transition: background 0.15s, border-color 0.15s;
 }
 
 .btn-ghost:active {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(40, 90, 200, 0.22);
+}
+
+.btn-danger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 22px;
+  border-radius: 16px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, #ff5e7a, #b1164a);
+  box-shadow: 0 0 18px rgba(255, 94, 122, 0.4);
+}
+
+.notice-banner {
+  position: absolute;
+  top: 110px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 70, 180, 0.95);
+  border: 1px solid rgba(90, 150, 255, 0.6);
+  padding: 8px 16px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 100;
+  animation: slideDown 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 0 18px var(--neon-blue-glow);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 5, 13, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  background: linear-gradient(160deg, #0c1730, #060b18);
+  border: 1px solid rgba(70, 130, 255, 0.4);
+  border-radius: 22px;
+  padding: 22px 18px 18px;
+  box-shadow: 0 0 40px var(--neon-blue-glow), 0 20px 50px rgba(0, 0, 0, 0.6);
+  animation: modalIn 0.25s ease;
+}
+
+@keyframes modalIn {
+  from { transform: translateY(24px) scale(0.96); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.modal-sub {
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.modal-sub b {
+  color: var(--cyan);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.modal-actions > * {
+  flex: 1;
+}
+
+.modal-action {
+  width: 100%;
+  margin-top: 14px;
+}
+
+.admin-input {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 14px;
+  background: rgba(20, 50, 120, 0.15);
+  border: 1px solid rgba(80, 140, 255, 0.35);
+  color: var(--text);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.admin-input:focus {
+  border-color: var(--cyan);
 }

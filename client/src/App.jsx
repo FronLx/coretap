@@ -2,10 +2,11 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import TapScreen from './components/TapScreen.jsx';
 import ShopScreen from './components/ShopScreen.jsx';
 import LeaderboardScreen from './components/LeaderboardScreen.jsx';
-import { BoltIcon, ShopIcon, TrophyIcon, CoinIcon } from './components/Icons.jsx';
+import AdminScreen from './components/AdminScreen.jsx';
+import { BoltIcon, ShopIcon, TrophyIcon, CoinIcon, ShieldIcon } from './components/Icons.jsx';
 import './styles/App.css';
 
-const TABS = { tap: 'tap', shop: 'shop', rating: 'rating' };
+const TABS = { tap: 'tap', shop: 'shop', rating: 'rating', admin: 'admin' };
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -28,13 +29,15 @@ async function api(path, options = {}) {
       clearTimeout(t);
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || 'API error');
+        const e = new Error(err.error || 'API error');
+        e.blocked = !!err.blocked;
+        throw e;
       }
       return res.json();
     } catch (e) {
       clearTimeout(t);
       lastErr = e;
-      if (attempt < retries) await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
+      if (attempt < retries && !e.blocked) await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
     }
   }
   throw lastErr || new Error('API error');
@@ -49,6 +52,8 @@ function initialTab() {
   return TABS.tap;
 }
 
+export { api };
+
 export default function App() {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [user, setUser] = useState(null);
@@ -56,6 +61,7 @@ export default function App() {
   const [userUpgrades, setUserUpgrades] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
   const [display, setDisplay] = useState({ coins: 0, energy: 0 });
 
   const popupsRef = useRef([]);
@@ -91,6 +97,11 @@ export default function App() {
     return () => clearInterval(regenTimerRef.current);
   }, [user?.id]);
 
+  const showNotice = useCallback((msg) => {
+    setNotice(msg);
+    setTimeout(() => setNotice(''), 3000);
+  }, []);
+
   const startEnergyRegen = useCallback(() => {
     if (regenTimerRef.current) clearInterval(regenTimerRef.current);
     regenTimerRef.current = setInterval(async () => {
@@ -114,6 +125,7 @@ export default function App() {
         energyRegen: data.user.energyRegen || 1,
         maxEnergy: data.user.maxEnergy,
         globalMultiplier: data.user.globalMultiplier || 1,
+        tapMultiplier: data.user.tapMultiplier || 1,
         luckyChance: data.user.luckyChance || 0
       };
       const d = { coins: data.user.coins, energy: data.user.energy };
@@ -121,6 +133,11 @@ export default function App() {
       setDisplay(d);
       setLoading(false);
     } catch (e) {
+      if (e.blocked) {
+        setError('Вы в черном списке. Доступ к игре ограничен.');
+        setLoading(false);
+        return;
+      }
       setError(e.message);
       setLoading(false);
     }
@@ -139,7 +156,7 @@ export default function App() {
   const handleTap = useCallback(() => {
     const cur = displayRef.current;
     if (cur.energy <= 0) return;
-    const gained = statsRef.current.coinsPerTap * statsRef.current.globalMultiplier;
+    const gained = statsRef.current.coinsPerTap * statsRef.current.globalMultiplier * (statsRef.current.tapMultiplier || 1);
     const d = { coins: cur.coins + gained, energy: cur.energy - 1 };
     displayRef.current = d;
     tapBufRef.current += 1;
@@ -162,10 +179,14 @@ export default function App() {
       displayRef.current = d;
       setDisplay(d);
       if (data.stats) statsRef.current = { ...statsRef.current, ...data.stats };
+      if (data.leveledUp) {
+        setUser(prev => prev ? { ...prev, xp: data.xp, level: data.level } : prev);
+        showNotice(`Новый уровень ${data.level}! +${data.levelReward} монет`);
+      }
     } catch (e) {
       tapBufRef.current += n;
     }
-  }, []);
+  }, [showNotice]);
 
   const flushTaps = useCallback(() => {
     const n = tapBufRef.current;
@@ -196,6 +217,30 @@ export default function App() {
     } catch (e) { showError(e.message); }
   };
 
+  const handleClaimDaily = async () => {
+    try {
+      const data = await api('/api/daily', { method: 'POST', body: '{}' });
+      if (data.error) { showError(data.error); return; }
+      const d = { ...displayRef.current, coins: data.coins };
+      displayRef.current = d;
+      setDisplay(d);
+      setUser(prev => prev ? { ...prev, coins: data.coins, daily: data.daily } : prev);
+      showNotice(`Дневная награда +${data.reward} монет (стрик ${data.streak})`);
+    } catch (e) { showError(e.message); }
+  };
+
+  const handleRefill = async () => {
+    try {
+      const data = await api('/api/boost/refill', { method: 'POST', body: '{}' });
+      if (data.error) { showError(data.error); return; }
+      const d = { ...displayRef.current, energy: data.energy };
+      displayRef.current = d;
+      setDisplay(d);
+      setUser(prev => prev ? { ...prev, refillAvailable: false } : prev);
+      showNotice('Энергия полностью восстановлена');
+    } catch (e) { showError(e.message); }
+  };
+
   const showError = (msg) => {
     setError(msg);
     setTimeout(() => setError(''), 3000);
@@ -215,12 +260,22 @@ export default function App() {
     return (
       <div className="error-screen">
         <h1>CoreTap</h1>
-        <p>Не удалось подключиться к серверу.</p>
         <p>{error}</p>
-        <button className="btn-primary" onClick={() => { setLoading(true); loadGame(); }}>Повторить</button>
+        {!error.startsWith('Вы в черном') ? (
+          <button className="btn-primary" onClick={() => { setLoading(true); loadGame(); }}>Повторить</button>
+        ) : (
+          <button className="btn-ghost" onClick={() => setError('')}>Ок</button>
+        )}
       </div>
     );
   }
+
+  const tabDefs = [
+    { id: TABS.tap, icon: <BoltIcon size={24} />, label: 'Тап' },
+    { id: TABS.shop, icon: <ShopIcon size={24} />, label: 'Магазин' },
+    { id: TABS.rating, icon: <TrophyIcon size={24} />, label: 'Топ' },
+  ];
+  if (user?.isAdmin) tabDefs.push({ id: TABS.admin, icon: <ShieldIcon size={24} />, label: 'Админ' });
 
   return (
     <div className="app">
@@ -230,13 +285,17 @@ export default function App() {
       </div>
 
       {error && <div className="error-banner">{error}</div>}
+      {notice && <div className="notice-banner">{notice}</div>}
 
       <div className="screen-container">
         {activeTab === TABS.tap && (
           <TapScreen
             display={display}
             stats={statsRef.current}
+            user={user}
             onTap={handleTap}
+            onClaimDaily={handleClaimDaily}
+            onRefill={handleRefill}
           />
         )}
         {activeTab === TABS.shop && (
@@ -248,6 +307,7 @@ export default function App() {
           />
         )}
         {activeTab === TABS.rating && <LeaderboardScreen />}
+        {activeTab === TABS.admin && user?.isAdmin && <AdminScreen showNotice={showNotice} />}
       </div>
 
       <div className="popup-layer">
@@ -259,11 +319,7 @@ export default function App() {
       </div>
 
       <nav className="bottom-nav">
-        {[
-          { id: TABS.tap, icon: <BoltIcon size={24} />, label: 'Тап' },
-          { id: TABS.shop, icon: <ShopIcon size={24} />, label: 'Магазин' },
-          { id: TABS.rating, icon: <TrophyIcon size={24} />, label: 'Топ' }
-        ].map(tab => (
+        {tabDefs.map(tab => (
           <button key={tab.id} className={`nav-btn ${activeTab === tab.id ? 'active' : ''}`} onClick={() => setActiveTab(tab.id)}>
             <span className="nav-icon">{tab.icon}</span>
             <span>{tab.label}</span>
