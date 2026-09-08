@@ -9,9 +9,9 @@
 .energy-bar {
   width: 100%;
   max-width: 360px;
-  height: 26px;
-  background: rgba(40, 90, 200, 0.1);
-  border-radius: 13px;
+  height: 22px;
+  background: var(--card);
+  border-radius: 11px;
   overflow: hidden;
   position: relative;
   margin: 6px 0 8px;
@@ -20,10 +20,9 @@
 
 .energy-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--blue), var(--cyan));
-  border-radius: 13px;
-  transition: width 0.25s ease;
-  box-shadow: 0 0 18px rgba(46, 123, 255, 0.5);
+  background: var(--accent);
+  border-radius: 11px;
+  transition: width 0.2s ease;
 }
 
 .energy-label {
@@ -34,14 +33,13 @@
   justify-content: center;
   gap: 5px;
   font-size: 12px;
-  font-weight: 700;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
+  color: #fff;
 }
 
 .energy-label svg {
-  color: var(--cyan);
-  filter: drop-shadow(0 0 4px var(--neon-cyan-glow));
+  color: #fff;
 }
 
 .level-bar {
@@ -56,23 +54,22 @@
 .level-track {
   flex: 1;
   height: 8px;
-  background: rgba(40, 90, 200, 0.12);
-  border: 1px solid rgba(70, 130, 255, 0.2);
-  border-radius: 5px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
   overflow: hidden;
 }
 
 .level-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--blue-2), var(--cyan));
-  border-radius: 5px;
-  box-shadow: 0 0 10px var(--neon-blue-glow);
+  background: var(--accent);
+  border-radius: 4px;
   transition: width 0.3s;
 }
 
 .level-label {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-dim);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
@@ -93,25 +90,24 @@
   align-items: center;
   gap: 4px;
   padding: 10px 6px;
-  border-radius: 16px;
+  border-radius: 12px;
   background: var(--card);
   border: 1px solid var(--card-border);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-dim);
-  transition: border-color 0.2s, color 0.2s;
+  transition: border-color 0.15s, color 0.15s;
 }
 
 .action-btn svg {
-  color: var(--cyan);
-  filter: drop-shadow(0 0 6px var(--neon-blue-glow));
+  color: var(--text-dim);
 }
 
 .action-btn em {
   font-style: normal;
-  color: var(--cyan);
+  color: var(--text);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .action-btn.done {
@@ -120,11 +116,10 @@
 
 .action-btn.done em {
   color: var(--green);
-  text-shadow: 0 0 8px var(--neon-green-glow);
 }
 
 .action-btn:active {
-  border-color: var(--cyan);
+  border-color: var(--accent);
 }
 
 .tap-arena {
@@ -138,57 +133,33 @@
 }
 
 .tap-ring {
-  width: 250px;
-  height: 250px;
+  width: 220px;
+  height: 220px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  transition: transform 0.13s ease;
-  animation: ringPulse 3s ease-in-out infinite;
-}
-
-@keyframes ringPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-}
-
-@keyframes orbit {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.tap-ring::before {
-  content: '';
-  position: absolute;
-  inset: -12px;
-  border-radius: 50%;
-  border: 2px dashed var(--coin);
-  opacity: 0.35;
-  animation: orbit 24s linear infinite;
+  transition: transform 0.1s ease;
 }
 
 .tap-ring.flash {
-  transform: scale(0.96);
+  transform: scale(0.95);
 }
 
 .tap-coin {
-  width: 196px;
-  height: 196px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
-  background:
-    radial-gradient(circle at 30% 28%, rgba(185, 194, 212, 0.22), transparent 42%),
-    linear-gradient(145deg, #273349, #0d1626);
-  border: 3px solid var(--coin);
+  background: linear-gradient(145deg, #252f42, #141b28);
+  border: 2px solid var(--card-border);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 6px;
   cursor: pointer;
-  transform-style: preserve-3d;
-  box-shadow: 0 0 30px var(--neon-white-glow), 0 0 60px rgba(34, 231, 255, 0.15), inset 0 0 18px rgba(185, 194, 212, 0.15);
+  transition: transform 0.1s ease;
 }
 
 .tap-coin:active {
@@ -196,36 +167,23 @@
 }
 
 .tap-coin-icon {
-  font-size: 74px;
+  font-size: 68px;
   line-height: 1;
-  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 14px var(--neon-white-glow));
-  animation: coinBob 2.6s ease-in-out infinite;
   color: var(--coin);
-}
-
-@keyframes coinBob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
 }
 
 .tap-coin-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
-  color: var(--coin);
+  color: var(--text-dim);
 }
 
 .tap-hint {
   margin-top: 22px;
   color: var(--text-dim);
   font-size: 13px;
-  animation: hintPulse 2.4s ease-in-out infinite;
-}
-
-@keyframes hintPulse {
-  0%, 100% { opacity: 0.55; }
-  50% { opacity: 1; }
 }
 
 .tap-bottom {
@@ -248,8 +206,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 13px;
-  border-radius: 14px;
+  padding: 6px 11px;
+  border-radius: 10px;
   background: var(--card);
   border: 1px solid var(--card-border);
   font-size: 12px;
@@ -259,23 +217,21 @@
 }
 
 .chip svg {
-  color: var(--cyan);
+  color: var(--text-dim);
   flex-shrink: 0;
 }
 
 .chip-neon {
-  border-color: rgba(34, 231, 255, 0.4);
-  color: var(--cyan);
-  box-shadow: 0 0 14px var(--neon-cyan-glow);
+  color: var(--text);
 }
 
 .ref-link input {
   width: 100%;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(20, 50, 120, 0.15);
-  border: 1px solid rgba(80, 140, 255, 0.35);
-  color: var(--cyan);
+  padding: 11px 12px;
+  border-radius: 10px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  color: var(--text);
   font-size: 12px;
   outline: none;
   user-select: all;

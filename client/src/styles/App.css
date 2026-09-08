@@ -10,24 +10,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   padding: 10px 16px 4px;
   z-index: 10;
 }
 
 .coin-icon {
   color: var(--coin);
-  filter: drop-shadow(0 0 14px var(--neon-white-glow));
   display: flex;
   align-items: center;
 }
 
 .coin-amount {
-  font-size: 32px;
-  font-weight: 800;
+  font-size: 28px;
+  font-weight: 700;
   letter-spacing: 0.5px;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 0 18px var(--neon-cyan-glow);
 }
 
 .error-banner {
@@ -35,19 +33,14 @@
   top: 74px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(255, 94, 94, 0.92);
+  background: rgba(255, 95, 110, 0.95);
   padding: 8px 16px;
-  border-radius: 14px;
+  border-radius: 10px;
   font-size: 13px;
   font-weight: 600;
   z-index: 100;
-  animation: slideDown 0.3s ease;
   white-space: nowrap;
-}
-
-@keyframes slideDown {
-  from { transform: translate(-50%, -20px); opacity: 0; }
-  to { transform: translate(-50%, 0); opacity: 1; }
+  animation: slideDown 0.3s ease;
 }
 
 .screen-container {
@@ -55,7 +48,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 92px;
+  padding-bottom: 84px;
   scrollbar-width: none;
 }
 
@@ -76,18 +69,15 @@
 
 .coin-popup {
   position: absolute;
-  color: var(--cyan);
-  font-weight: 800;
-  font-size: 20px;
-  text-shadow: 0 0 14px var(--neon-cyan-glow);
-  animation: floatUp 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-  will-change: transform, opacity;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 18px;
+  animation: floatUp 0.9s ease forwards;
 }
 
 @keyframes floatUp {
-  0% { transform: translateY(0) scale(0.85); opacity: 1; }
-  12% { transform: translateY(-14px) scale(1.12); }
-  100% { transform: translateY(-110px) scale(1); opacity: 0; }
+  0% { transform: translateY(0) scale(0.9); opacity: 1; }
+  100% { transform: translateY(-80px) scale(1); opacity: 0; }
 }
 
 .bottom-nav {
@@ -97,9 +87,7 @@
   right: 0;
   display: flex;
   justify-content: space-around;
-  background: rgba(3, 6, 12, 0.94);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--bg-elev);
   border-top: 1px solid var(--card-border);
   padding: 6px 4px;
   padding-bottom: calc(6px + env(safe-area-inset-bottom));
@@ -112,88 +100,29 @@
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-dim);
   padding: 9px 6px;
-  border-radius: 16px;
-  transition: color 0.2s, transform 0.15s, background 0.15s;
+  border-radius: 12px;
+  transition: color 0.15s, background 0.15s;
   flex: 1;
-  position: relative;
 }
 
 .nav-btn.active {
-  color: var(--cyan);
-  background: rgba(61, 123, 255, 0.16);
+  color: var(--accent);
+  background: var(--accent-soft);
 }
 
-.nav-btn.active::after {
-  content: '';
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 34px;
-  height: 3px;
-  border-radius: 3px;
-  background: linear-gradient(90deg, var(--cyan), var(--blue-2));
-  box-shadow: 0 0 12px var(--neon-cyan-glow);
-}
-
-.nav-icon {
+.nav-btn .nav-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s;
 }
 
 .nav-btn .nav-icon svg {
-  color: var(--text-dim);
-  filter: drop-shadow(0 0 8px var(--neon-blue-glow));
-  transition: color 0.2s;
+  color: currentColor;
 }
 
 .nav-btn.active .nav-icon svg {
-  color: var(--cyan);
-}
-
-.nav-btn.active .nav-icon {
-  transform: scale(1.15);
-}
-
-.error-screen {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 20px;
-  text-align: center;
-}
-
-.error-screen h1 {
-  font-size: 28px;
-}
-
-.error-screen p {
-  color: var(--text-dim);
-}
-
-.screen-title {
-  font-size: 22px;
-  font-weight: 800;
-  margin-bottom: 4px;
-}
-
-.screen-subtitle {
-  color: var(--text-dim);
-  font-size: 13px;
-  margin-bottom: 20px;
-}
-
-.card {
-  background: var(--card);
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
-  backdrop-filter: blur(8px);
+  color: var(--accent);
 }

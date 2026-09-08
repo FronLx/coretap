@@ -9,8 +9,7 @@
 }
 
 .admin-title .screen-title-icon {
-  color: var(--cyan);
-  filter: drop-shadow(0 0 10px var(--neon-cyan-glow));
+  color: var(--accent);
 }
 
 .admin-tabs {
@@ -22,20 +21,19 @@
 .admin-tab {
   flex: 1;
   padding: 10px;
-  border-radius: 14px;
+  border-radius: 12px;
   font-size: 13px;
   font-weight: 700;
   color: var(--text-dim);
   background: var(--card);
   border: 1px solid var(--card-border);
-  transition: all 0.2s;
+  transition: all 0.15s;
 }
 
 .admin-tab.active {
-  color: var(--cyan);
-  border-color: var(--cyan);
-  background: rgba(46, 123, 255, 0.16);
-  box-shadow: 0 0 14px var(--neon-blue-glow);
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .admin-stats {
@@ -51,17 +49,16 @@
   align-items: center;
   gap: 2px;
   padding: 12px 6px;
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--card);
   border: 1px solid var(--card-border);
 }
 
 .as-icon {
-  color: var(--cyan);
+  color: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 0 8px var(--neon-blue-glow));
 }
 
 .as-value {
@@ -105,14 +102,14 @@
   flex-direction: column;
   gap: 10px;
   padding: 12px 14px;
-  border-radius: 16px;
+  border-radius: 14px;
   background: var(--card);
   border: 1px solid var(--card-border);
 }
 
 .admin-user-card.blocked {
-  border-color: rgba(255, 94, 122, 0.5);
-  background: rgba(255, 94, 122, 0.06);
+  border-color: rgba(255, 95, 110, 0.5);
+  background: rgba(255, 95, 110, 0.06);
 }
 
 .au-info {
@@ -162,12 +159,12 @@
 
 .mini-btn {
   padding: 7px 12px;
-  border-radius: 11px;
+  border-radius: 10px;
   font-size: 12px;
   font-weight: 700;
   color: var(--text);
-  background: rgba(40, 90, 200, 0.12);
-  border: 1px solid rgba(70, 130, 255, 0.3);
+  background: var(--card);
+  border: 1px solid var(--card-border);
   transition: all 0.15s;
 }
 
@@ -182,7 +179,7 @@
 
 .mini-btn.ok {
   color: var(--green);
-  border-color: rgba(61, 255, 154, 0.4);
+  border-color: rgba(55, 194, 115, 0.4);
 }
 
 .mini-btn.warn {
@@ -192,12 +189,12 @@
 
 .mini-btn.danger {
   color: var(--danger);
-  border-color: rgba(255, 94, 122, 0.4);
+  border-color: rgba(255, 95, 110, 0.4);
 }
 
 .mini-btn.blue {
-  color: var(--cyan);
-  border-color: rgba(55, 224, 255, 0.4);
+  color: var(--accent);
+  border-color: rgba(78, 140, 255, 0.4);
 }
 
 .tag {
@@ -212,27 +209,27 @@
 
 .tag-danger {
   color: var(--danger);
-  background: rgba(255, 94, 122, 0.15);
+  background: rgba(255, 95, 110, 0.12);
 }
 
 .tag-prot {
   color: var(--gold);
-  background: rgba(255, 209, 102, 0.15);
+  background: rgba(247, 201, 72, 0.12);
 }
 
 .tag-admin {
-  color: var(--cyan);
-  background: rgba(55, 224, 255, 0.12);
+  color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .tag-blue {
-  color: var(--blue-2);
-  background: rgba(106, 166, 255, 0.15);
+  color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .tag-border {
   color: var(--text-dim);
-  background: rgba(132, 150, 194, 0.12);
+  background: rgba(150, 162, 184, 0.12);
 }
 
 .admin-log-row {
@@ -241,7 +238,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--card);
   border: 1px solid var(--card-border);
   font-size: 12px;
