@@ -45,15 +45,15 @@ export async function sendStartMessage(chatId, startParam) {
   const CLAP = '<tg-emoji emoji-id="5381888390356541373">👏</tg-emoji>';
 
   if (isRef) {
-    text = `<b>CoreTap</b> ${OK}\n\n`
-      + `${OK} Тебя пригласил друг!\n`
-      + `💰 На старте ждут монеты\n\n`
+    text = `<b>CoreTap</b>\n\n`
+      + `${TAP} Тебя пригласил друг\n`
+      + `${OK} Монеты ждут на старте\n\n`
       + `<i>Жми «Играть» — и погнали!</i>`;
   } else {
-    text = `<b>CoreTap</b> ${OK}\n\n`
-      + `${TAP} Тапай — копи 🪙\n`
-      + `${CLAP} Энергия восстановится сама\n`
-      + `${OK} Зови друзей — +1000 🪙\n\n`
+    text = `<b>CoreTap</b>\n\n`
+      + `${TAP} Тапай — зарабатывай\n`
+      + `${OK} Энергия восстановится\n`
+      + `${CLAP} Друзья — бонус за приглашение\n\n`
       + `<i>Жми «Играть» и войди в топ!</i>`;
   }
 
@@ -63,7 +63,7 @@ export async function sendStartMessage(chatId, startParam) {
     parse_mode: 'HTML',
     reply_markup: {
       inline_keyboard: [[{
-        text: '🚀 Играть в CoreTap',
+        text: 'Играть в CoreTap',
         web_app: { url: WEBAPP_URL }
       }]]
     }
