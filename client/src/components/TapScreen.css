@@ -151,7 +151,7 @@
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  background: linear-gradient(145deg, #252f42, #141b28);
+  background: linear-gradient(145deg, #1d1d23, #0e0e11);
   border: 2px solid var(--card-border);
   display: flex;
   flex-direction: column;
