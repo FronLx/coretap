@@ -44,11 +44,11 @@ export const TrophyIcon = ({ size, className }) => (
 );
 
 export const CoinIcon = ({ size = 28, className }) => (
-  <Svg size={size} className={className}>
-    <circle cx="12" cy="12" r="9" />
-    <circle cx="12" cy="12" r="5" />
-    <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
-  </Svg>
+  <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="10" fill="#1c1f26" stroke="currentColor" strokeWidth="1.6" />
+    <circle cx="12" cy="12" r="6.8" fill="#0b0c0f" stroke="currentColor" strokeWidth="1" opacity="0.9" />
+    <polygon points="13,4.6 7.2,12.6 11.4,12.6 11,19.4 16.8,11.4 12.6,11.4" fill="currentColor" />
+  </svg>
 );
 
 export const ShieldIcon = ({ size, className }) => (

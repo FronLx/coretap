@@ -10,12 +10,32 @@ function fmt(n) {
 export default function TapScreen({ display, stats, user, boss, onTap }) {
   const [flash, setFlash] = useState(false);
   const [now, setNow] = useState(Date.now());
+  const [sparks, setSparks] = useState([]);
   const flashTimer = useRef(null);
   const coinRef = useRef(null);
 
   useEffect(() => {
     const iv = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(iv);
+  }, []);
+
+  const spawnSparks = useCallback(() => {
+    const now = Date.now();
+    const arr = [];
+    for (let i = 0; i < 8; i++) {
+      const ang = (Math.PI * 2 * i) / 8 + Math.random() * 0.55;
+      const d0 = 60 + Math.random() * 70;
+      arr.push({
+        id: now + '-' + i,
+        dx: (Math.cos(ang) * d0).toFixed(1) + 'px',
+        dy: (Math.sin(ang) * d0).toFixed(1) + 'px',
+        s: (3 + Math.random() * 3).toFixed(1) + 'px'
+      });
+    }
+    setSparks(prev => [...prev.slice(-24), ...arr]);
+    setTimeout(() => {
+      setSparks(prev => prev.filter(s => !arr.some(a => a.id === s.id)));
+    }, 600);
   }, []);
 
   const energyPercent = stats?.maxEnergy ? (display.energy / stats.maxEnergy) * 100 : 0;
@@ -39,15 +59,15 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
 
     if (coinRef.current) {
       const el = coinRef.current;
-      el.style.animation = 'none';
-      void el.offsetWidth;
-      el.style.animation = '';
+      el.classList.add('tapped');
+      setTimeout(() => el.classList.remove('tapped'), 400);
     }
 
+    spawnSparks();
     setFlash(true);
     if (flashTimer.current) clearTimeout(flashTimer.current);
     flashTimer.current = setTimeout(() => setFlash(false), 130);
-  }, [display.energy, onTap]);
+  }, [display.energy, onTap, spawnSparks]);
 
   return (
     <>
@@ -94,6 +114,15 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
               <BoltIcon size={118} className="tap-coin-icon" />
               <span className="tap-coin-label">CoreTap</span>
             </div>
+          </div>
+          <div className="spark-layer">
+            {sparks.map(s => (
+              <span
+                key={s.id}
+                className="tap-spark"
+                style={{ '--dx': s.dx, '--dy': s.dy, '--s': s.s, left: '50%', top: '52%' }}
+              />
+            ))}
           </div>
           <p className="tap-hint">Жми, пока энергия есть!</p>
         </div>

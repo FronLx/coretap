@@ -17,3 +17,9 @@ ReactDOM.createRoot(root).render(
     <App />
   </React.StrictMode>
 );
+
+const splash = document.getElementById('boot-splash');
+if (splash) {
+  splash.classList.add('boot-hide');
+  setTimeout(() => splash.remove(), 550);
+}

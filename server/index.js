@@ -451,19 +451,6 @@ app.post('/api/admin/reset-me', auth, requireAdmin, (req, res) => {
   res.json({ user: result });
 });
 
-let coinPng = null;
-app.get('/api/coin.png', async (req, res) => {
-  try {
-    if (!coinPng) {
-      const { renderCoin } = await import('./coin.js');
-      coinPng = await renderCoin();
-    }
-    res.type('png').set('Cache-Control', 'public, max-age=86400').send(coinPng);
-  } catch (e) {
-    res.status(500).json({ error: 'Coin render failed' });
-  }
-});
-
 app.post('/api/admin/users/:id/level', auth, requireAdmin, (req, res) => {
   const tgId = parseInt(req.params.id);
   const xp = Math.round(Number(req.body?.xp) ?? NaN);

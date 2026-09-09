@@ -242,27 +242,6 @@ async function handleUpdate(update) {
       ? '🫥 Готово: ты скрыт из общего топа. Отправь /vanish, чтобы снова появиться.'
       : '👁 Готово: ты снова виден в общем топе.';
     await sendBotMessage(chatId, { text: reply });
-  } else if (message.text === '/coin') {
-    if (!isAdmin(chatId)) {
-      await sendBotMessage(chatId, { text: 'Это команда только для админов 🙅‍♂️' });
-      return;
-    }
-    let png = null;
-    try {
-      const { renderCoin } = await import('./coin.js');
-      png = await renderCoin();
-    } catch (e) {
-      console.error('Coin render error:', e.message);
-    }
-    if (!png) {
-      await sendBotMessage(chatId, { text: 'Не удалось отчеканить монетку 😔 Попробуй позже.' });
-      return;
-    }
-    await sendBotPhoto(chatId, {
-      photo: new Blob([png], { type: 'image/png' }),
-      filename: 'coretap-coin.png',
-      caption: '🎖 <b>Эксклюзивный коин CoreTap</b>\nСтавь его на аватар — и все сразу поймут, кто тут король монеты!'
-    });
   }
 }
 

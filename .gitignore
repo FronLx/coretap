@@ -6,3 +6,6 @@ dist/
 *.db-shm
 .env
 .DS_Store
+logo.png
+coins-preview.png
+coin-neon.png
