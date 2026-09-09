@@ -304,6 +304,8 @@ async function handleUpdate(update) {
   const chatId = message.chat.id;
 
   if (message.text.startsWith('/start')) {
+    const from = message.from || {};
+    createUser(from.id || chatId, from.username || '', from.first_name || '');
     const parts = message.text.split(' ');
     await sendStartMessage(chatId, parts[1] || '');
   } else if (message.text === '/card') {
