@@ -310,7 +310,7 @@ export function adminStats() {
 export function searchUsers(query, offset, limit) {
   const q = `%${(query || '').trim()}%`;
   const rows = db.prepare(`
-    SELECT id, telegram_id, username, first_name, coins, xp, level, blocked, total_taps, created_at,
+    SELECT id, telegram_id, username, first_name, coins, xp, level, blocked, total_taps, vanished, created_at,
       (SELECT COUNT(*) FROM users r WHERE r.referrer_id = users.id) AS referrals
     FROM users
     WHERE username LIKE ? OR first_name LIKE ? OR CAST(telegram_id AS TEXT) LIKE ?
@@ -503,6 +503,13 @@ export function setVanished(telegramId, vanished) {
   const user = getUser(telegramId);
   if (!user) return { error: 'User not found' };
   if (vanished && !isAdmin(telegramId)) return { error: 'Только администратор может скрыться' };
+  db.prepare('UPDATE users SET vanished = ? WHERE id = ?').run(vanished ? 1 : 0, user.id);
+  return getUser(telegramId);
+}
+
+export function adminSetVanished(telegramId, vanished) {
+  const user = getUser(telegramId);
+  if (!user) return { error: 'User not found' };
   db.prepare('UPDATE users SET vanished = ? WHERE id = ?').run(vanished ? 1 : 0, user.id);
   return getUser(telegramId);
 }

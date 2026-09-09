@@ -50,6 +50,7 @@ export default function AdminScreen({ showNotice }) {
 
   const [logs, setLogs] = useState([]);
   const [modal, setModal] = useState(null);
+  const [meVanished, setMeVanished] = useState(false);
 
   const loadStats = useCallback(async () => {
     try {
@@ -57,6 +58,7 @@ export default function AdminScreen({ showNotice }) {
       setStats(data.stats);
       setAdmins(data.admins);
       const me = await api('/api/admin/me');
+      setMeVanished(!!me.user?.vanished);
       setMyTg(Number(localStorage.getItem('coretap_me') || 0));
     } catch (e) {}
     try {
@@ -134,6 +136,17 @@ export default function AdminScreen({ showNotice }) {
     }
   };
 
+  const toggleMyVanish = async () => {
+    try {
+      const data = await api('/api/admin/vanish', { method: 'POST', body: JSON.stringify({ vanished: !meVanished }) });
+      if (data.error) { showNotice(data.error); return; }
+      setMeVanished(!!data.user?.vanished);
+      showNotice(data.user?.vanished ? 'Ты скрыт из общего топа' : 'Ты снова виден в общем топе');
+    } catch (e) {
+      showNotice(e.message);
+    }
+  };
+
   const actionLabel = {
     coins: 'Монеты',
     block: 'В ЧС',
@@ -143,6 +156,7 @@ export default function AdminScreen({ showNotice }) {
     reset: 'Сброс',
     set_level: 'Уровень',
     daily_claim: 'Дневная',
+    vanish: 'Ваниш',
   };
 
   const renderUsers = () => (
@@ -168,14 +182,15 @@ export default function AdminScreen({ showNotice }) {
           const isAdminRow = admins.some(a => a.telegram_id === u.telegram_id);
           return (
             <div key={u.telegram_id} className={`admin-user-card ${u.blocked ? 'blocked' : ''}`}>
-              <div className="au-info">
-                <div className="au-name">
-                  {u.first_name || u.username || `#${u.telegram_id}`}
-                  {u.blocked && <span className="tag tag-danger">ЧС</span>}
-                  {isProtAdmin && <span className="tag tag-prot">Владелец</span>}
-                  {isAdminRow && !isProtAdmin && <span className="tag tag-admin">Админ</span>}
-                  <span className="au-id">ID {u.telegram_id}</span>
-                </div>
+<div className="au-info">
+                  <div className="au-name">
+                    {u.first_name || u.username || `#${u.telegram_id}`}
+                    {u.blocked && <span className="tag tag-danger">ЧС</span>}
+                    {!!u.vanished && <span className="tag tag-blue">Скрыт</span>}
+                    {isProtAdmin && <span className="tag tag-prot">Владелец</span>}
+                    {isAdminRow && !isProtAdmin && <span className="tag tag-admin">Админ</span>}
+                    <span className="au-id">ID {u.telegram_id}</span>
+                  </div>
                 <div className="au-meta">
                   <span><CoinIcon size={13} /> {Math.floor(u.coins).toLocaleString('ru-RU')}</span>
                   <span>LVL {u.level}</span>
@@ -203,6 +218,11 @@ export default function AdminScreen({ showNotice }) {
                 )}
                 {!isAdminRow && (
                   <button className="mini-btn danger" onClick={() => setModal({ type: 'reset', user: u })}>Сброс</button>
+                )}
+                {!!u.vanished ? (
+                  <button className="mini-btn ok" onClick={() => doAction(`/api/admin/users/${u.telegram_id}/vanish`, { vanished: false })}>В топ</button>
+                ) : (
+                  <button className="mini-btn warn" onClick={() => doAction(`/api/admin/users/${u.telegram_id}/vanish`, { vanished: true })}>Скрыть</button>
                 )}
               </div>
             </div>
@@ -285,6 +305,10 @@ export default function AdminScreen({ showNotice }) {
       {tab === 'users' && !stats && <div className="admin-list"><p className="admin-hint">Загрузка...</p></div>}
 
       <div className="admin-actions">
+        <button className="admin-action" onClick={toggleMyVanish}>
+          <span className="admin-action-icon"><Emoji>👁</Emoji></span>
+          <span><b>{meVanished ? 'Вернуть себя в топ' : 'Скрыть себя из топа'}</b><em>{meVanished ? 'ваниш выключен, ты снова виден' : 'ваниш включён, тебя не видно'}</em></span>
+        </button>
         <button className="admin-action admin-action-danger" onClick={() => setModal({ type: 'resetMe' })}>
           <span className="admin-action-icon"><Emoji>🔄</Emoji></span>
           <span><b>Сбросить свою статистику</b><em>только для тебя</em></span>

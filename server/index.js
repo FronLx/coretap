@@ -10,6 +10,7 @@ import {
   adminStats, searchUsers, logAdmin, getAdminLogs, applyLevelUp, applyReferral, userPublicInfo, computeLevel,
   LEVEL_XP, OWNER_ID, db,
   getBossPublic, addBossDamage, getUserBossContribution, getBossTop, getUserLeaderboardRank,
+  setVanished, adminSetVanished,
 } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -348,7 +349,8 @@ app.get('/api/profile', auth, (req, res) => {
 });
 
 app.get('/api/admin/me', auth, (req, res) => {
-  res.json({ isAdmin: !!isAdmin(req.telegramUser.id) });
+  const u = req.dbUser || getUser(req.telegramUser.id);
+  res.json({ isAdmin: !!isAdmin(req.telegramUser.id), user: u ? userPayload(u) : null });
 });
 
 app.get('/api/admin/stats', auth, requireAdmin, (req, res) => {
@@ -448,6 +450,26 @@ app.post('/api/admin/reset-me', auth, requireAdmin, (req, res) => {
   const result = resetUser(req.telegramUser.id);
   if (result.error) return res.status(404).json(result);
   logAdmin(req.telegramUser.id, 'reset_me', req.telegramUser.id, '');
+  res.json({ user: result });
+});
+
+app.post('/api/admin/vanish', auth, requireAdmin, (req, res) => {
+  const want = req.body?.vanished;
+  const next = typeof want === 'boolean' ? want : !(req.dbUser && req.dbUser.vanished);
+  const result = setVanished(req.telegramUser.id, next);
+  if (result.error) return res.status(400).json(result);
+  logAdmin(req.telegramUser.id, 'vanish', req.telegramUser.id, next ? 'скрыт из топа' : 'показан в топе');
+  res.json({ user: result });
+});
+
+app.post('/api/admin/users/:id/vanish', auth, requireAdmin, (req, res) => {
+  const tgId = parseInt(req.params.id);
+  const target = getUser(tgId);
+  if (!target) return res.status(404).json({ error: 'User not found' });
+  const want = typeof req.body?.vanished === 'boolean' ? req.body.vanished : !target.vanished;
+  const result = adminSetVanished(tgId, want);
+  if (result.error) return res.status(400).json(result);
+  logAdmin(req.telegramUser.id, 'vanish', tgId, want ? 'скрыт из топа' : 'показан в топе');
   res.json({ user: result });
 });
 
