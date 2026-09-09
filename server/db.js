@@ -518,4 +518,35 @@ export function adminSetVanished(telegramId, vanished) {
   return getUser(telegramId);
 }
 
+const BACKUP_DIR = path.join(path.dirname(DB_PATH), 'backups');
+const BACKUP_KEEP = 12;
+let backupLock = false;
+
+export function backupDatabase() {
+  if (backupLock) return { error: 'Backup already running' };
+  backupLock = true;
+  try {
+    fs.mkdirSync(BACKUP_DIR, { recursive: true });
+    const ts = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+    const file = path.join(BACKUP_DIR, `coretap_${ts}.db`);
+    const safe = file.replace(/'/g, "''");
+    db.exec(`VACUUM INTO '${safe}'`);
+    const files = fs.readdirSync(BACKUP_DIR).filter(f => f.endsWith('.db')).sort();
+    while (files.length > BACKUP_KEEP) {
+      fs.unlinkSync(path.join(BACKUP_DIR, files.shift()));
+    }
+    return { file, count: Math.min(files.length, BACKUP_KEEP) };
+  } catch (e) {
+    return { error: e.message };
+  } finally {
+    backupLock = false;
+  }
+}
+
+export function autoBackup() {
+  const res = backupDatabase();
+  if (res.error) console.error('[db] backup failed:', res.error);
+  else console.log('[db] backup ok:', res.file);
+}
+
 export { db };

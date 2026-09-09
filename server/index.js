@@ -10,7 +10,7 @@ import {
   adminStats, searchUsers, logAdmin, getAdminLogs, applyLevelUp, applyReferral, userPublicInfo, computeLevel,
   LEVEL_XP, OWNER_ID, db,
   getBossPublic, addBossDamage, getUserBossContribution, getBossTop, getUserLeaderboardRank,
-  setVanished, adminSetVanished,
+  setVanished, adminSetVanished, autoBackup,
 } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -494,3 +494,6 @@ app.listen(PORT, () => {
 
 import { startBot } from './bot.js';
 startBot();
+
+autoBackup();
+setInterval(autoBackup, 6 * 60 * 60 * 1000);

@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import {
   getUser, createUser, getBossPublic, getUserBossContribution,
   getUserLeaderboardRank, userPublicInfo, BOSS_COOLDOWN_S, isAdmin, setVanished,
-  getAllActiveUserIds, logAdmin,
+  getAllActiveUserIds, logAdmin, backupDatabase,
 } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -314,6 +314,16 @@ async function handleUpdate(update) {
     await sendBossMessage(chatId);
   } else if (message.text.startsWith('/broadcast')) {
     await handleBroadcast(chatId, message.text);
+  } else if (message.text === '/backupdb') {
+    if (!isAdmin(chatId)) {
+      await sendBotMessage(chatId, { text: 'Это команда только для админов 🙅‍♂️' });
+      return;
+    }
+    const res = backupDatabase();
+    const reply = res.file
+      ? `✅ Бэкап создан:\n<code>${res.file}</code>`
+      : `Ошибка бэкапа: ${res.error}`;
+    await sendBotMessage(chatId, { text: reply, parse_mode: 'HTML' });
   } else if (message.text === '/vanish') {
     if (!isAdmin(chatId)) {
       await sendBotMessage(chatId, { text: 'Это команда только для админов 🙅‍♂️' });
