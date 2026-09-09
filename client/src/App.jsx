@@ -189,16 +189,6 @@ export default function App() {
     }
   };
 
-  const pushPopups = (amount) => {
-    const now = Date.now();
-    const popped = popupsRef.current.filter(p => now - p.ts < 900);
-    if (popped.length > 8) return;
-    const p = { id: now + Math.random(), ts: now, x: 15 + Math.random() * 190, y: window.innerHeight * 0.26 + Math.random() * 120, amount };
-    popped.push(p);
-    popupsRef.current = popped;
-    setPopups(popped);
-  };
-
   const handleTap = useCallback(() => {
     const cur = displayRef.current;
     if (cur.energy <= 0) return;
@@ -207,12 +197,20 @@ export default function App() {
     displayRef.current = d;
     tapBufRef.current += 1;
     xpRef.current.buf += 1;
-    setUser(prev => prev ? { ...prev, xp: xpRef.current.server + xpRef.current.buf } : prev);
-    pushPopups(gained);
+
+    const now = Date.now();
+    const popped = popupsRef.current.filter(p => now - p.ts < 900);
+    if (popped.length <= 8) {
+      popped.push({ id: now + Math.random(), ts: now, x: 15 + Math.random() * 190, y: window.innerHeight * 0.26 + Math.random() * 120, amount: gained });
+      popupsRef.current = popped;
+    }
+
     if (!rafRef.current) {
       rafRef.current = requestAnimationFrame(() => {
         rafRef.current = null;
         setDisplay(displayRef.current);
+        setPopups(popupsRef.current);
+        setUser(prev => (prev ? { ...prev, xp: xpRef.current.server + xpRef.current.buf } : prev));
       });
     }
   }, []);
