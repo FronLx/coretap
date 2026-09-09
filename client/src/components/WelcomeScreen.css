@@ -41,7 +41,7 @@
   position: absolute;
   border-radius: 50%;
   filter: blur(60px);
-  opacity: 0.65;
+  opacity: 0.6;
   animation: orbFloat 9s ease-in-out infinite alternate;
 }
 
@@ -50,7 +50,7 @@
   height: 340px;
   left: -140px;
   top: -70px;
-  background: radial-gradient(circle, rgba(255, 138, 53, 0.5), transparent 70%);
+  background: radial-gradient(circle, rgba(201, 207, 221, 0.28), transparent 70%);
 }
 
 .orb-2 {
@@ -58,7 +58,7 @@
   height: 300px;
   right: -120px;
   top: 26%;
-  background: radial-gradient(circle, rgba(139, 123, 255, 0.42), transparent 70%);
+  background: radial-gradient(circle, rgba(127, 135, 153, 0.25), transparent 70%);
   animation-delay: -3s;
 }
 
@@ -67,7 +67,7 @@
   height: 320px;
   left: 20%;
   bottom: -130px;
-  background: radial-gradient(circle, rgba(52, 211, 153, 0.3), transparent 70%);
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.14), transparent 70%);
   animation-delay: -6s;
 }
 
@@ -88,7 +88,7 @@
   font-size: 16px;
   opacity: 0;
   animation: emojiFloat 5s ease-in-out infinite;
-  filter: drop-shadow(0 0 8px rgba(255, 191, 77, 0.35));
+  filter: drop-shadow(0 0 8px rgba(218, 221, 229, 0.4));
 }
 
 @keyframes emojiFloat {
@@ -108,7 +108,7 @@
   border-radius: 24px;
   padding: 26px 20px 20px;
   text-align: center;
-  box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 0 60px -20px rgba(255, 138, 53, 0.35);
+  box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 0 60px -20px rgba(201, 207, 221, 0.3);
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
   z-index: 1;
@@ -123,7 +123,7 @@
   position: absolute;
   inset: 0 0 auto 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 138, 53, 0.6), transparent);
+  background: linear-gradient(90deg, transparent, var(--neon), transparent);
 }
 
 .welcome-card-in {
@@ -148,13 +148,13 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 1px dashed rgba(255, 207, 87, 0.35);
+  border: 1px dashed rgba(218, 221, 229, 0.32);
   animation: ringSpin 10s linear infinite;
 }
 
 .welcome-coin {
-  color: var(--gold);
-  filter: drop-shadow(0 0 18px rgba(255, 191, 77, 0.6));
+  color: var(--coin);
+  filter: drop-shadow(0 0 18px rgba(218, 221, 229, 0.55));
   animation: coinFloat 3.2s ease-in-out infinite;
 }
 
@@ -182,12 +182,12 @@
   letter-spacing: 6px;
   font-weight: 800;
   text-transform: uppercase;
-  background: linear-gradient(90deg, #ffd9a0, #fff 50%, #ffcf57);
+  background: linear-gradient(90deg, #c8cdd8, #f4f6fa 50%, #a8bec8);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   margin-bottom: 8px;
-  filter: drop-shadow(0 0 22px rgba(255, 191, 77, 0.25));
+  filter: drop-shadow(0 0 22px rgba(218, 221, 229, 0.25));
 }
 
 .welcome-greeting {
@@ -228,7 +228,7 @@
 
 .wf-emoji {
   font-size: 21px;
-  filter: drop-shadow(0 0 6px rgba(255, 191, 77, 0.3));
+  filter: drop-shadow(0 0 6px rgba(218, 221, 229, 0.35));
 }
 
 .welcome-feature div {

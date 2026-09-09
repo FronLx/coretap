@@ -10,29 +10,29 @@
   width: 100%;
   max-width: 360px;
   height: 24px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--card-border);
   border-radius: 999px;
   overflow: hidden;
   position: relative;
   margin: 8px 0 10px;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .energy-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #a3e635 0%, #34d399 55%, #22d3ee 100%);
+  background: linear-gradient(90deg, #4ade80 0%, #34d399 55%, #22d3ee 100%);
   border-radius: 999px;
   transition: width 0.18s ease;
   position: relative;
-  box-shadow: 0 0 18px rgba(52, 211, 153, 0.55);
+  box-shadow: 0 0 18px rgba(52, 211, 153, 0.5);
 }
 
 .energy-bar-fill::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
   transform: translateX(-100%);
   animation: barShine 2.6s ease-in-out infinite;
 }
@@ -73,7 +73,7 @@
 .level-track {
   flex: 1;
   height: 8px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--card-border);
   border-radius: 999px;
   overflow: hidden;
@@ -83,7 +83,7 @@
   height: 100%;
   background: linear-gradient(90deg, var(--gold), var(--accent));
   border-radius: 999px;
-  box-shadow: 0 0 12px rgba(255, 191, 77, 0.5);
+  box-shadow: 0 0 12px rgba(218, 221, 229, 0.5);
   transition: width 0.3s;
 }
 
@@ -102,9 +102,7 @@
   margin-bottom: 6px;
   border-radius: 16px;
   background: var(--card);
-  border: 1px solid rgba(255, 95, 110, 0.18);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 95, 110, 0.2);
   box-shadow: 0 12px 36px -18px rgba(0, 0, 0, 0.7);
   position: relative;
   overflow: hidden;
@@ -115,15 +113,15 @@
   position: absolute;
   inset: 0 0 auto 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 95, 110, 0.45), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 95, 110, 0.5), transparent);
 }
 
 .boss-widget.boss-dead {
-  border-color: rgba(52, 211, 153, 0.22);
+  border-color: rgba(52, 211, 153, 0.25);
 }
 
 .boss-widget.boss-dead::before {
-  background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.45), transparent);
+  background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.5), transparent);
 }
 
 .boss-row {
@@ -161,7 +159,7 @@
 .boss-track {
   height: 10px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.06);
   overflow: hidden;
 }
@@ -226,7 +224,7 @@
   position: absolute;
   inset: -18px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 138, 53, 0.3) 0%, rgba(255, 138, 53, 0.08) 45%, transparent 72%);
+  background: radial-gradient(circle, rgba(201, 207, 221, 0.22) 0%, rgba(201, 207, 221, 0.06) 45%, transparent 72%);
   animation: haloPulse 3s ease-in-out infinite;
 }
 
@@ -240,8 +238,8 @@
   position: absolute;
   inset: -6px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 207, 87, 0.35);
-  border-top-color: rgba(255, 207, 87, 0.9);
+  border: 2px solid rgba(218, 221, 229, 0.25);
+  border-top-color: rgba(218, 221, 229, 0.85);
   animation: ringSpin 6s linear infinite;
   pointer-events: none;
 }
@@ -258,30 +256,25 @@
   transform: scale(0.94);
 }
 
-@keyframes rippleOut {
-  0% { transform: scale(0.9); opacity: 0.9; }
-  100% { transform: scale(1.55); opacity: 0; }
-}
-
 .tap-coin {
   width: 208px;
   height: 208px;
   border-radius: 50%;
   background:
-    radial-gradient(circle at 31% 27%, #ffe9b0 0%, #ffd87c 28%, #f5a623 58%, #c77f00 80%, #8a5700 100%);
-  border: 6px solid #9c6500;
+    radial-gradient(circle at 32% 26%, #23262c 0%, #14161a 42%, #0a0b0d 100%);
+  border: 1px solid rgba(201, 207, 221, 0.45);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
-  box-shadow: var(--shadow-coin), inset 0 7px 16px rgba(255, 255, 255, 0.35), inset 0 -12px 22px rgba(96, 45, 0, 0.55);
+  box-shadow: var(--glow-coin), inset 0 4px 14px rgba(255, 255, 255, 0.06), inset 0 -14px 30px rgba(0, 0, 0, 0.8);
   position: relative;
   overflow: hidden;
-  transition: transform 0.08s ease, box-shadow 0.12s ease;
+  transition: transform 0.08s ease, box-shadow 0.12s ease, opacity 0.12s ease;
   z-index: 1;
-  opacity: 0.94;
+  opacity: 0.95;
 }
 
 .tap-coin::before {
@@ -289,46 +282,44 @@
   position: absolute;
   inset: 0;
   z-index: 2;
-  background: conic-gradient(from 0deg, transparent 0deg, rgba(255, 255, 255, 0.35) 18deg, transparent 40deg);
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(235, 239, 247, 0.14) 18deg, transparent 40deg);
   animation: ringSpin 8s linear infinite;
-  mix-blend-mode: soft-light;
+  mix-blend-mode: screen;
   pointer-events: none;
 }
 
 .tap-coin::after {
   content: '';
   position: absolute;
-  inset: 6px;
+  inset: 7px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(201, 207, 221, 0.22);
   z-index: 1;
   pointer-events: none;
 }
 
 .tap-coin:active {
   transform: scale(0.94);
-  opacity: 0.88;
-  box-shadow: 0 10px 40px -14px rgba(249, 115, 22, 0.7), inset 0 7px 16px rgba(255, 255, 255, 0.3), inset 0 -12px 22px rgba(96, 45, 0, 0.6);
+  opacity: 0.85;
+  box-shadow: 0 0 44px -2px rgba(201, 207, 221, 0.6), inset 0 4px 14px rgba(255, 255, 255, 0.06), inset 0 -14px 30px rgba(0, 0, 0, 0.85);
 }
 
 .tap-coin-icon {
-  font-size: 74px;
-  line-height: 1;
-  color: #fff7e0;
-  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.35));
+  color: var(--coin);
+  filter: drop-shadow(0 0 18px rgba(218, 221, 229, 0.7));
   position: relative;
   z-index: 3;
 }
 
 .tap-coin-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
-  letter-spacing: 2.4px;
+  letter-spacing: 3px;
   text-transform: uppercase;
-  color: #663b05;
+  color: var(--text-dim);
   position: relative;
   z-index: 3;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+  text-shadow: 0 0 10px rgba(218, 221, 229, 0.3);
 }
 
 .tap-hint {
@@ -361,7 +352,7 @@
   gap: 6px;
   padding: 7px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--card-border);
   font-size: 12px;
   font-weight: 700;
@@ -370,9 +361,9 @@
 }
 
 .chip svg {
-  color: var(--gold);
+  color: var(--coin);
   flex-shrink: 0;
-  filter: drop-shadow(0 0 5px rgba(255, 191, 77, 0.4));
+  filter: drop-shadow(0 0 5px rgba(218, 221, 229, 0.4));
 }
 
 .chip-neon {

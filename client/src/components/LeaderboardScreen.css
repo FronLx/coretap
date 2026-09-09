@@ -29,7 +29,7 @@
   box-shadow: 0 14px 36px -22px rgba(0, 0, 0, 0.7);
   position: relative;
   overflow: hidden;
-  transition: transform 0.12s ease, border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .leaderboard-card:active {
@@ -37,13 +37,13 @@
 }
 
 .leaderboard-card.top-3 {
-  border-color: rgba(255, 207, 87, 0.35);
-  background: linear-gradient(135deg, rgba(255, 207, 87, 0.08), rgba(255, 138, 53, 0.05));
+  border-color: rgba(201, 207, 221, 0.35);
+  background: linear-gradient(135deg, rgba(201, 207, 221, 0.08), rgba(127, 135, 153, 0.05));
 }
 
 .leaderboard-card.mine {
-  border-color: rgba(255, 138, 53, 0.55);
-  box-shadow: 0 0 30px -8px rgba(255, 138, 53, 0.35);
+  border-color: rgba(201, 207, 221, 0.6);
+  box-shadow: 0 0 30px -8px rgba(201, 207, 221, 0.4);
 }
 
 .leaderboard-card.top-3::before {
@@ -51,11 +51,11 @@
   position: absolute;
   inset: 0 0 auto 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 207, 87, 0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(218, 221, 229, 0.5), transparent);
 }
 
 .leaderboard-card.mine::before {
-  background: linear-gradient(90deg, transparent, rgba(255, 138, 53, 0.55), transparent);
+  background: linear-gradient(90deg, transparent, var(--neon), transparent);
 }
 
 .leaderboard-rank {
@@ -68,12 +68,11 @@
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   color: var(--text-dim);
-  filter: drop-shadow(0 0 8px rgba(255, 191, 77, 0.2));
 }
 
 .rank-gold {
-  color: var(--gold);
-  filter: drop-shadow(0 0 10px rgba(255, 207, 87, 0.5));
+  color: var(--coin);
+  filter: drop-shadow(0 0 10px rgba(218, 221, 229, 0.5));
 }
 
 .rank-silver {
@@ -81,23 +80,23 @@
 }
 
 .rank-bronze {
-  color: #d99a5b;
+  color: #9aa3b5;
 }
 
 .screen-title-icon {
-  color: var(--gold);
+  color: var(--coin);
   display: inline-flex;
   vertical-align: -3px;
   margin-right: 6px;
-  filter: drop-shadow(0 0 6px rgba(255, 191, 77, 0.4));
+  filter: drop-shadow(0 0 7px rgba(218, 221, 229, 0.45));
 }
 
 .inline-coin {
-  color: var(--gold);
+  color: var(--coin);
   display: inline-flex;
   vertical-align: -3px;
   margin-right: 4px;
-  filter: drop-shadow(0 0 6px rgba(255, 191, 77, 0.35));
+  filter: drop-shadow(0 0 7px rgba(218, 221, 229, 0.4));
 }
 
 .leaderboard-coins {

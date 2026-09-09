@@ -91,7 +91,7 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
         <div className="tap-arena">
           <div className={`tap-ring ${flash ? 'flash' : ''}`}>
             <div ref={coinRef} className="tap-coin">
-              <CoinIcon size={96} className="tap-coin-icon" />
+              <BoltIcon size={118} className="tap-coin-icon" />
               <span className="tap-coin-label">CoreTap</span>
             </div>
           </div>

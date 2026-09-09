@@ -10,7 +10,7 @@
 
 .admin-title .screen-title-icon {
   color: var(--accent);
-  filter: drop-shadow(0 0 8px rgba(255, 138, 53, 0.5));
+  filter: drop-shadow(0 0 8px rgba(201, 207, 221, 0.5));
 }
 
 .admin-tabs {
@@ -34,9 +34,9 @@
 }
 
 .admin-tab.active {
-  color: #ffb066;
-  background: linear-gradient(135deg, rgba(255, 138, 53, 0.22), rgba(255, 95, 31, 0.12));
-  box-shadow: 0 8px 24px -12px rgba(255, 138, 53, 0.5);
+  color: #e6eaf2;
+  background: linear-gradient(135deg, rgba(201, 207, 221, 0.2), rgba(127, 135, 153, 0.1));
+  box-shadow: 0 8px 24px -10px rgba(201, 207, 221, 0.55), inset 0 0 0 1px rgba(201, 207, 221, 0.25);
 }
 
 .admin-stats {
@@ -114,11 +114,11 @@
 }
 
 .as-icon {
-  color: var(--gold);
+  color: var(--coin);
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 0 6px rgba(255, 191, 77, 0.4));
+  filter: drop-shadow(0 0 7px rgba(218, 221, 229, 0.45));
 }
 
 .as-value {
@@ -213,8 +213,8 @@
 }
 
 .au-meta svg {
-  color: var(--gold);
-  filter: drop-shadow(0 0 5px rgba(255, 191, 77, 0.35));
+  color: var(--coin);
+  filter: drop-shadow(0 0 6px rgba(218, 221, 229, 0.4));
 }
 
 .au-actions {
@@ -236,7 +236,8 @@
 
 .mini-btn:active {
   transform: scale(0.95);
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(201, 207, 221, 0.1);
+  box-shadow: 0 0 20px -6px rgba(201, 207, 221, 0.5);
 }
 
 .mini-btn:disabled {
@@ -261,7 +262,7 @@
 
 .mini-btn.blue {
   color: var(--accent);
-  border-color: rgba(255, 138, 53, 0.4);
+  border-color: rgba(201, 207, 221, 0.45);
 }
 
 .tag {
@@ -280,8 +281,8 @@
 }
 
 .tag-prot {
-  color: var(--gold);
-  background: rgba(255, 207, 87, 0.12);
+  color: var(--coin);
+  background: rgba(218, 221, 229, 0.1);
 }
 
 .tag-admin {

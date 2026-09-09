@@ -18,7 +18,7 @@
   background: var(--card-solid);
   border: 2px solid transparent;
   background-clip: padding-box;
-  box-shadow: 0 0 0 3px rgba(255, 138, 53, 0.4), 0 0 34px -8px rgba(255, 138, 53, 0.6);
+  box-shadow: 0 0 0 3px rgba(201, 207, 221, 0.38), 0 0 34px -8px rgba(201, 207, 221, 0.55);
 }
 
 .profile-avatar-fb {
@@ -27,8 +27,8 @@
   justify-content: center;
   font-size: 36px;
   font-weight: 800;
-  background: linear-gradient(135deg, rgba(255, 138, 53, 0.25), rgba(139, 123, 255, 0.18));
-  color: var(--gold);
+  background: linear-gradient(135deg, rgba(201, 207, 221, 0.2), rgba(127, 135, 153, 0.12));
+  color: var(--coin);
 }
 
 .profile-name {
@@ -36,10 +36,11 @@
   font-weight: 800;
   letter-spacing: 0.2px;
   text-align: center;
-  background: linear-gradient(180deg, #fff 40%, #ffd9a0 100%);
+  background: linear-gradient(180deg, #fff 40%, #c8cdd8 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  filter: drop-shadow(0 0 14px rgba(218, 221, 229, 0.2));
 }
 
 .profile-username {
@@ -61,7 +62,7 @@
   font-size: 11px;
   font-weight: 700;
   color: var(--text-dim);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--card-border);
   padding: 3px 10px;
   border-radius: 999px;
@@ -69,8 +70,9 @@
 
 .profile-tag-accent {
   color: var(--accent);
-  border-color: rgba(255, 138, 53, 0.4);
+  border-color: rgba(201, 207, 221, 0.45);
   background: var(--accent-soft);
+  box-shadow: 0 0 18px -6px rgba(201, 207, 221, 0.4);
 }
 
 .profile-tag-vain {
@@ -89,7 +91,7 @@
 .profile-xp-track {
   flex: 1;
   height: 8px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--card-border);
   border-radius: 999px;
   overflow: hidden;
@@ -99,7 +101,7 @@
   height: 100%;
   background: linear-gradient(90deg, var(--gold), var(--accent));
   border-radius: 999px;
-  box-shadow: 0 0 12px rgba(255, 191, 77, 0.5);
+  box-shadow: 0 0 12px rgba(218, 221, 229, 0.5);
   transition: width 0.3s;
 }
 
@@ -138,15 +140,15 @@
   position: absolute;
   inset: 0 0 auto 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 138, 53, 0.4), transparent);
+  background: linear-gradient(90deg, transparent, rgba(201, 207, 221, 0.4), transparent);
 }
 
 .profile-stat-icon {
   font-size: 17px;
   line-height: 1;
   display: inline-flex;
-  color: var(--gold);
-  filter: drop-shadow(0 0 6px rgba(255, 191, 77, 0.4));
+  color: var(--coin);
+  filter: drop-shadow(0 0 6px rgba(218, 221, 229, 0.45));
 }
 
 .profile-stat-value {
@@ -178,7 +180,7 @@
   gap: 6px;
   padding: 7px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--card-border);
   font-size: 12px;
   font-weight: 700;
@@ -187,9 +189,9 @@
 }
 
 .profile-chip svg {
-  color: var(--gold);
+  color: var(--coin);
   flex-shrink: 0;
-  filter: drop-shadow(0 0 5px rgba(255, 191, 77, 0.35));
+  filter: drop-shadow(0 0 5px rgba(218, 221, 229, 0.4));
 }
 
 .profile-card-btn {
