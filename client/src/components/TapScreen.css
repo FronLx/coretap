@@ -6,6 +6,15 @@
   padding: 0 16px;
 }
 
+.tap-top-row {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 10px;
+}
+
 .energy-bar {
   width: 100%;
   max-width: 360px;
@@ -15,8 +24,32 @@
   border-radius: 999px;
   overflow: hidden;
   position: relative;
-  margin: 8px 0 10px;
   box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+  flex: 1;
+}
+
+.sound-toggle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--card-border);
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.08s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.sound-toggle:active {
+  transform: scale(0.9);
+}
+
+.sound-toggle.muted {
+  color: rgba(127, 135, 153, 0.7);
+  opacity: 0.75;
 }
 
 .energy-bar-fill {

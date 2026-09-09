@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect, memo } from 'react';
-import { BoltIcon, CoinIcon } from './Icons.jsx';
+import { BoltIcon, CoinIcon, SoundOnIcon, SoundOffIcon } from './Icons.jsx';
 import { Emoji } from './Emoji.jsx';
-import { playTapSound, initAudio } from '../utils/sound.js';
+import { playTapSound, initAudio, isSoundEnabled, setSoundEnabled } from '../utils/sound.js';
 import './TapScreen.css';
 
 function fmt(n) {
@@ -39,8 +39,15 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
   const [flash, setFlash] = useState(false);
   const [now, setNow] = useState(Date.now());
   const [sparks, setSparks] = useState([]);
+  const [soundOn, setSoundOn] = useState(isSoundEnabled());
   const flashTimer = useRef(null);
   const coinRef = useRef(null);
+
+  const toggleSound = useCallback(() => {
+    const next = !isSoundEnabled();
+    setSoundEnabled(next);
+    setSoundOn(next);
+  }, []);
 
   useEffect(() => {
     const iv = setInterval(() => setNow(Date.now()), 1000);
@@ -108,9 +115,19 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
   return (
     <>
       <div className="tap-screen" onPointerDown={handleTapStart}>
-        <div className="energy-bar">
-          <div className="energy-bar-fill" style={{ width: `${energyPercent}%` }} />
-          <span className="energy-label"><BoltIcon size={15} /> {Math.floor(display.energy)} / {stats?.maxEnergy || 0}</span>
+        <div className="tap-top-row">
+          <div className="energy-bar">
+            <div className="energy-bar-fill" style={{ width: `${energyPercent}%` }} />
+            <span className="energy-label"><BoltIcon size={15} /> {Math.floor(display.energy)} / {stats?.maxEnergy || 0}</span>
+          </div>
+          <button
+            className={`sound-toggle ${soundOn ? '' : 'muted'}`}
+            aria-label={soundOn ? 'Выключить звук' : 'Включить звук'}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={toggleSound}
+          >
+            {soundOn ? <SoundOnIcon size={18} /> : <SoundOffIcon size={18} />}
+          </button>
         </div>
 
         <div className="level-bar">
