@@ -1,28 +1,13 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { BoltIcon, CoinIcon, UsersIcon, CloseIcon } from './Icons.jsx';
+import { BoltIcon, CoinIcon } from './Icons.jsx';
 import './TapScreen.css';
-
-const BOT_USERNAME = import.meta.env.VITE_BOT_USERNAME || 'coretapbot';
 
 function fmt(n) {
   return Math.round(n || 0).toLocaleString('ru-RU');
 }
 
-function Modal({ onClose, children }) {
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={e => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}><CloseIcon size={18} /></button>
-        {children}
-      </div>
-    </div>
-  );
-}
-
 export default function TapScreen({ display, stats, user, boss, onTap }) {
   const [flash, setFlash] = useState(false);
-  const [modal, setModal] = useState(null);
-  const [copied, setCopied] = useState(false);
   const [now, setNow] = useState(Date.now());
   const flashTimer = useRef(null);
   const coinRef = useRef(null);
@@ -38,7 +23,6 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
   const xp = user?.xp || 0;
   const level = Math.floor(xp / 100) + 1;
   const levelProgress = xp % 100;
-  const referrals = user?.referrals || 0;
 
   const bossActive = boss?.phase === 'active';
   const bossPct = bossActive ? Math.max(0, Math.min(100, boss?.pct || 0)) : 100;
@@ -63,17 +47,6 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
     if (flashTimer.current) clearTimeout(flashTimer.current);
     flashTimer.current = setTimeout(() => setFlash(false), 130);
   }, [display.energy, onTap]);
-
-  const copyReferral = async () => {
-    const link = `https://t.me/${BOT_USERNAME}?start=ref_${user?.telegram_id}`;
-    try {
-      await navigator.clipboard.writeText(link);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (e) {
-      setCopied(false);
-    }
-  };
 
   return (
     <>
@@ -114,12 +87,6 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
           </div>
         )}
 
-        <div className="action-row">
-          <button className="action-btn" onClick={(e) => { e.stopPropagation(); setModal('referrals'); }}>
-            <UsersIcon size={18} /> <span>Друзья</span><em>{referrals}</em>
-          </button>
-        </div>
-
         <div className="tap-arena">
           <div className={`tap-ring ${flash ? 'flash' : ''}`}>
             <div ref={coinRef} className="tap-coin">
@@ -141,20 +108,6 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
           </div>
         </div>
       </div>
-
-      {modal === 'referrals' && (
-        <Modal onClose={() => setModal(null)}>
-          <h2 className="modal-title">👥 Друзья</h2>
-          <p className="modal-sub">За каждого друга — <b>+1000 🪙</b> тебе, <b>+500 🪙</b> другу.</p>
-          <p className="modal-sub">Приглашено: <b>{referrals}</b></p>
-          <div className="ref-link">
-            <input readOnly value={`https://t.me/${BOT_USERNAME}?start=ref_${user?.telegram_id}`} />
-          </div>
-          <button className="btn-primary modal-action" onClick={copyReferral}>
-            {copied ? '✅ Скопировано!' : '📋 Скопировать'}
-          </button>
-        </Modal>
-      )}
     </>
   );
 }
