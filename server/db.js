@@ -290,8 +290,9 @@ export function setUserXp(telegramId, xp) {
 export function resetUser(telegramId) {
   const user = getUser(telegramId);
   if (!user) return { error: 'User not found' };
-  db.prepare('UPDATE users SET coins = 0, xp = 0, level = 1, energy = max_energy, frenzy_until = \'\' WHERE id = ?').run(user.id);
+  db.prepare('UPDATE users SET coins = 0, xp = 0, level = 1, total_taps = 0, energy = max_energy, frenzy_until = \'\' WHERE id = ?').run(user.id);
   db.prepare('DELETE FROM user_upgrades WHERE user_id = ?').run(user.id);
+  db.prepare('DELETE FROM boss_contrib WHERE user_id = ?').run(user.id);
   return getUser(telegramId);
 }
 

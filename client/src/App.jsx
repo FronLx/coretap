@@ -66,7 +66,7 @@ function initialTab() {
   return TABS.tap;
 }
 
-export { api };
+export { api, API_URL };
 
 export default function App() {
   const [activeTab, setActiveTab] = useState(initialTab);

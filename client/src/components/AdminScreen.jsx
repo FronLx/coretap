@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { api } from '../App.jsx';
+import { api, API_URL } from '../App.jsx';
 import { ShieldIcon, CoinIcon, UsersIcon, CloseIcon, TrophyIcon } from './Icons.jsx';
 import './AdminScreen.css';
 
@@ -119,6 +119,18 @@ export default function AdminScreen({ showNotice }) {
   const coinAction = (u, amount) => {
     doAction(`/api/admin/users/${u.telegram_id}/coins`, { amount });
     setModal(null);
+  };
+
+  const resetMyStats = async () => {
+    setModal(null);
+    try {
+      const data = await api('/api/admin/reset-me', { method: 'POST', body: JSON.stringify({}) });
+      if (data.error) { showNotice(data.error); return; }
+      showNotice('Твоя статистика сброшена');
+      setTimeout(() => window.location.reload(), 900);
+    } catch (e) {
+      showNotice(e.message);
+    }
   };
 
   const actionLabel = {
@@ -271,6 +283,17 @@ export default function AdminScreen({ showNotice }) {
 
       {tab === 'users' && !stats && <div className="admin-list"><p className="admin-hint">Загрузка...</p></div>}
 
+      <div className="admin-actions">
+        <button className="admin-action" onClick={() => setModal({ type: 'coin' })}>
+          <span className="admin-action-icon">🎖</span>
+          <span><b>Эксклюзивный коин</b><em>картинка для аватарки</em></span>
+        </button>
+        <button className="admin-action admin-action-danger" onClick={() => setModal({ type: 'resetMe' })}>
+          <span className="admin-action-icon">🔄</span>
+          <span><b>Сбросить свою статистику</b><em>только для тебя</em></span>
+        </button>
+      </div>
+
       <div className="admin-stats">
         {statItems.map((s, i) => (
           <div key={i} className="admin-stat-card">
@@ -312,6 +335,32 @@ export default function AdminScreen({ showNotice }) {
             <div className="modal-actions">
               <button className="btn-ghost" onClick={() => setModal(null)}>Отмена</button>
               <button className="btn-danger" onClick={() => { doAction(`/api/admin/users/${modal.user.telegram_id}/reset`); setModal(null); }}>Сбросить</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {modal?.type === 'resetMe' && (
+        <div className="modal-overlay" onClick={() => setModal(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setModal(null)}><CloseIcon size={18} /></button>
+            <h2 className="modal-title">Сбросить свою статистику?</h2>
+            <p className="modal-sub">Обнулятся <b>монеты, уровень, тапы и все улучшения</b> твоего аккаунта. Отменить это будет нельзя.</p>
+            <div className="modal-actions">
+              <button className="btn-ghost" onClick={() => setModal(null)}>Отмена</button>
+              <button className="btn-danger" onClick={resetMyStats}>Сбросить</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {modal?.type === 'coin' && (
+        <div className="modal-overlay" onClick={() => setModal(null)}>
+          <div className="modal modal-coin" onClick={e => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setModal(null)}><CloseIcon size={18} /></button>
+            <h2 className="modal-title">🎖 Эксклюзивный коин</h2>
+            <img className="coin-preview" src={`${API_URL}/api/coin.png`} alt="Эксклюзивный коин CoreTap" />
+            <p className="modal-sub">Сохрани картинку и поставь на аватар. Или отправь боту <b>/coin</b> — получишь коин прямо в чат.</p>
+            <div className="modal-actions">
+              <button className="btn-primary" onClick={() => setModal(null)}>Отлично</button>
             </div>
           </div>
         </div>

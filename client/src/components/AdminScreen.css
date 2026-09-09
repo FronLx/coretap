@@ -43,6 +43,61 @@
   margin-bottom: 12px;
 }
 
+.admin-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.admin-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  text-align: left;
+  color: var(--text);
+  transition: all 0.15s;
+}
+
+.admin-action b {
+  display: block;
+  font-size: 13px;
+}
+
+.admin-action em {
+  display: block;
+  font-style: normal;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.admin-action-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.admin-action-danger {
+  border-color: rgba(248, 113, 113, 0.35);
+}
+
+.admin-action-danger b {
+  color: var(--danger, #f87171);
+}
+
+.coin-preview {
+  display: block;
+  width: 200px;
+  height: 200px;
+  margin: 4px auto 10px;
+  border-radius: 50%;
+  background: var(--card);
+}
+
 .admin-stat-card {
   display: flex;
   flex-direction: column;

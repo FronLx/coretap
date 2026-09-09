@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CoinIcon, BoltIcon, UsersIcon } from './Icons.jsx';
+import { CoinIcon, BoltIcon } from './Icons.jsx';
 import { api } from '../App.jsx';
 import './ProfileScreen.css';
 
@@ -59,11 +59,6 @@ export default function ProfileScreen({ display, user, stats, avatarUrl, onOpenC
           <span className="profile-stat-icon">👆</span>
           <strong className="profile-stat-value">{fmt(display?.taps)}</strong>
           <span className="profile-stat-label">Тапов</span>
-        </div>
-        <div className="profile-stat">
-          <span className="profile-stat-icon"><UsersIcon size={20} /></span>
-          <strong className="profile-stat-value">{fmt(user?.referrals)}</strong>
-          <span className="profile-stat-label">Друзья</span>
         </div>
         <div className="profile-stat">
           <span className="profile-stat-icon">🏆</span>

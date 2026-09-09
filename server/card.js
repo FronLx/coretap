@@ -73,7 +73,7 @@ export async function renderUserCard(data) {
   ctx.fillStyle = COLORS.bg;
   ctx.fillRect(0, 0, W, H);
 
-  centerText(ctx, 'C o r e T a p', 160, F(800, 92), COLORS.accent);
+  centerText(ctx, 'CoreTap', 160, F(800, 92), COLORS.accent);
   ctx.fillStyle = COLORS.dim;
   ctx.textAlign = 'center';
   ctx.font = F(500, 30);

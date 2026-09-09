@@ -436,6 +436,26 @@ app.post('/api/admin/users/:id/reset', auth, requireAdmin, (req, res) => {
   res.json({ user: result });
 });
 
+app.post('/api/admin/reset-me', auth, requireAdmin, (req, res) => {
+  const result = resetUser(req.telegramUser.id);
+  if (result.error) return res.status(404).json(result);
+  logAdmin(req.telegramUser.id, 'reset_me', req.telegramUser.id, '');
+  res.json({ user: result });
+});
+
+let coinPng = null;
+app.get('/api/coin.png', async (req, res) => {
+  try {
+    if (!coinPng) {
+      const { renderCoin } = await import('./coin.js');
+      coinPng = await renderCoin();
+    }
+    res.type('png').set('Cache-Control', 'public, max-age=86400').send(coinPng);
+  } catch (e) {
+    res.status(500).json({ error: 'Coin render failed' });
+  }
+});
+
 app.post('/api/admin/users/:id/level', auth, requireAdmin, (req, res) => {
   const tgId = parseInt(req.params.id);
   const xp = Math.round(Number(req.body?.xp) ?? NaN);
