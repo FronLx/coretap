@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect, memo } from 'react';
 import { BoltIcon, CoinIcon } from './Icons.jsx';
 import { Emoji } from './Emoji.jsx';
-import { playTapSound } from '../utils/sound.js';
+import { playTapSound, initAudio } from '../utils/sound.js';
 import './TapScreen.css';
 
 function fmt(n) {
@@ -44,7 +44,14 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
 
   useEffect(() => {
     const iv = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(iv);
+    const unlock = () => initAudio();
+    document.addEventListener('pointerdown', unlock);
+    document.addEventListener('touchstart', unlock);
+    return () => {
+      clearInterval(iv);
+      document.removeEventListener('pointerdown', unlock);
+      document.removeEventListener('touchstart', unlock);
+    };
   }, []);
 
   const spawnSparks = useCallback(() => {
