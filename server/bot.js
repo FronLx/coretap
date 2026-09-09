@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import {
   getUser, createUser, getBossPublic, getUserBossContribution,
   getUserLeaderboardRank, userPublicInfo, BOSS_COOLDOWN_S, isAdmin, setVanished,
+  getAllActiveUserIds, logAdmin,
 } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -42,6 +43,9 @@ async function apiCall(method, params = {}) {
 }
 
 const chatHistory = new Map();
+const pendingBroadcast = new Map();
+
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 async function cleanPreviousMessages(chatId) {
   const ids = chatHistory.get(chatId);
@@ -217,7 +221,83 @@ export async function sendBossMessage(chatId) {
   }
 }
 
+async function handleBroadcast(chatId, fullText) {
+  if (!isAdmin(chatId)) {
+    await sendBotMessage(chatId, { text: 'Это команда только для админов 🙅‍♂️' });
+    return;
+  }
+  const text = fullText.replace(/^\/broadcast\s*/, '').trim();
+  if (!text) {
+    await sendBotMessage(chatId, { text: 'Формат: /broadcast текст сообщения' });
+    return;
+  }
+  const recipients = getAllActiveUserIds();
+  if (recipients.length === 0) {
+    await sendBotMessage(chatId, { text: 'Пока нет игроков для рассылки 😕' });
+    return;
+  }
+  pendingBroadcast.set(chatId, { text, recipients });
+  await sendBotMessage(chatId, {
+    text: `📣 <b>Рассылка всем игрокам</b>\n\n`
+      + `<b>Сообщение:</b>\n${text}\n\n`
+      + `Получателей: <b>${recipients.length}</b>\n`
+      + `<i>Отправить всем, кто запустил бота?</i>`,
+    parse_mode: 'HTML',
+    reply_markup: {
+      inline_keyboard: [[
+        { text: '✅ Отправить', callback_data: 'broadcast_go' },
+        { text: '❌ Отмена', callback_data: 'broadcast_no' }
+      ]]
+    }
+  });
+}
+
+async function handleCallback(update) {
+  const cq = update.callback_query;
+  if (!cq) return;
+  const chatId = cq.message?.chat?.id;
+  const adminTg = cq.from?.id;
+  try {
+    await apiCall('answerCallbackQuery', { callback_query_id: cq.id });
+  } catch (e) {}
+  if (!chatId || !adminTg) return;
+
+  if (cq.data === 'broadcast_go') {
+    const pend = pendingBroadcast.get(chatId);
+    pendingBroadcast.delete(chatId);
+    if (!pend) {
+      await sendBotMessage(chatId, { text: 'Рассылка не найдена — начни заново: /broadcast текст' });
+      return;
+    }
+    if (!isAdmin(adminTg)) {
+      await sendBotMessage(chatId, { text: 'Только админ может запустить рассылку 🙅‍♂️' });
+      return;
+    }
+    await sendBotMessage(chatId, { text: `📣 Рассылка запущена. Отправляю... (${pend.recipients.length})` });
+    let ok = 0;
+    let fail = 0;
+    for (const id of pend.recipients) {
+      if (id === adminTg) continue;
+      let data = await apiCall('sendMessage', { chat_id: id, text: pend.text, parse_mode: 'HTML' });
+      if (!data.ok) data = await apiCall('sendMessage', { chat_id: id, text: pend.text });
+      if (data.ok) ok++;
+      else fail++;
+      await sleep(45);
+    }
+    logAdmin(adminTg, 'broadcast', 0, `${pend.text.slice(0, 80)} (${pend.recipients.length})`);
+    await sendBotMessage(chatId, {
+      text: `Готово ✅\nОтправлено: <b>${ok}</b>\nОшибки: <b>${fail}</b>`,
+      parse_mode: 'HTML'
+    });
+  } else if (cq.data === 'broadcast_no') {
+    pendingBroadcast.delete(chatId);
+    await sendBotMessage(chatId, { text: 'Рассылка отменена.' });
+  }
+}
+
 async function handleUpdate(update) {
+  if (update.callback_query) return handleCallback(update);
+
   const message = update.message;
   if (!message || !message.text) return;
 
@@ -230,6 +310,8 @@ async function handleUpdate(update) {
     await sendCardMessage(chatId);
   } else if (message.text === '/boss') {
     await sendBossMessage(chatId);
+  } else if (message.text.startsWith('/broadcast')) {
+    await handleBroadcast(chatId, message.text);
   } else if (message.text === '/vanish') {
     if (!isAdmin(chatId)) {
       await sendBotMessage(chatId, { text: 'Это команда только для админов 🙅‍♂️' });
@@ -253,7 +335,7 @@ async function poll() {
     const data = await apiCall('getUpdates', {
       offset: updateOffset,
       timeout: 25,
-      allowed_updates: ['message']
+      allowed_updates: ['message', 'callback_query']
     });
 
     if (data.ok && data.result) {

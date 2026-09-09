@@ -265,6 +265,10 @@ export function getAdmins() {
   `).all();
 }
 
+export function getAllActiveUserIds() {
+  return db.prepare('SELECT telegram_id FROM users WHERE blocked = 0').all().map(r => r.telegram_id);
+}
+
 export function setBlocked(telegramId, blocked) {
   db.prepare('UPDATE users SET blocked = ? WHERE telegram_id = ?').run(blocked ? 1 : 0, telegramId);
   return getUser(telegramId);
