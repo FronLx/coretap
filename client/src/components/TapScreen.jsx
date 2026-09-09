@@ -1,8 +1,12 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { BoltIcon, CoinIcon, UsersIcon, CloseIcon } from './Icons.jsx';
 import './TapScreen.css';
 
 const BOT_USERNAME = import.meta.env.VITE_BOT_USERNAME || 'coretapbot';
+
+function fmt(n) {
+  return Math.round(n || 0).toLocaleString('ru-RU');
+}
 
 function Modal({ onClose, children }) {
   return (
@@ -15,12 +19,18 @@ function Modal({ onClose, children }) {
   );
 }
 
-export default function TapScreen({ display, stats, user, onTap }) {
+export default function TapScreen({ display, stats, user, boss, onTap }) {
   const [flash, setFlash] = useState(false);
   const [modal, setModal] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [now, setNow] = useState(Date.now());
   const flashTimer = useRef(null);
   const coinRef = useRef(null);
+
+  useEffect(() => {
+    const iv = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(iv);
+  }, []);
 
   const energyPercent = stats?.maxEnergy ? (display.energy / stats.maxEnergy) * 100 : 0;
   const cpt = (stats?.coinsPerTap || 1) * (stats?.globalMultiplier || 1) * (stats?.tapMultiplier || 1);
@@ -30,6 +40,12 @@ export default function TapScreen({ display, stats, user, onTap }) {
   const levelProgress = xp % 100;
   const referrals = user?.referrals || 0;
   const totalTaps = user?.total_taps || 0;
+
+  const bossActive = boss?.phase === 'active';
+  const bossPct = bossActive ? Math.max(0, Math.min(100, boss?.pct || 0)) : 100;
+  const bossLeftS = boss && boss.phase === 'dead' && boss.ended_at
+    ? Math.max(0, Math.ceil(((boss.cooldown_s || 120) * 1000 - (now - new Date(boss.ended_at).getTime())) / 1000))
+    : 0;
 
   const handleTapStart = useCallback((e) => {
     e.preventDefault();
@@ -60,6 +76,12 @@ export default function TapScreen({ display, stats, user, onTap }) {
     }
   };
 
+  const openCard = () => {
+    const url = `https://t.me/${BOT_USERNAME}?start=card`;
+    if (window.Telegram?.WebApp?.openTelegramLink) window.Telegram.WebApp.openTelegramLink(url);
+    else window.open(url, '_blank');
+  };
+
   return (
     <>
       <div className="tap-screen" onPointerDown={handleTapStart}>
@@ -75,9 +97,36 @@ export default function TapScreen({ display, stats, user, onTap }) {
           <span className="level-label">⭐️ Ур. {level} · {levelProgress}/100 XP</span>
         </div>
 
+        {boss && (
+          <div className={`boss-widget ${bossActive ? '' : 'boss-dead'}`}>
+          <div className="boss-row">
+            <span className="boss-icon">👹</span>
+            <span className="boss-name">
+              {bossActive ? 'Общий босс' : 'Босс повержен'}
+            </span>
+            <span className="boss-status">
+              {bossActive
+                ? `Убит на ${bossPct}%`
+                : bossLeftS > 0 ? `новая волна через ${bossLeftS}с` : 'готовится...'}
+            </span>
+          </div>
+          <div className="boss-track">
+            <div className="boss-fill" style={{ width: `${bossPct}%` }} />
+          </div>
+          <div className="boss-sub">
+            {bossActive
+              ? `Вклад: ${fmt(boss?.myDamage)} · Фонд: ${fmt(boss?.pool)} · Остаток HP: ${fmt(boss?.current_hp)}/${fmt(boss?.total_hp)}`
+              : 'Кто больше вложится — тот больше получит'}
+          </div>
+          </div>
+        )}
+
         <div className="action-row">
           <button className="action-btn" onClick={(e) => { e.stopPropagation(); setModal('referrals'); }}>
             <UsersIcon size={18} /> <span>Друзья</span><em>{referrals}</em>
+          </button>
+          <button className="action-btn" onClick={(e) => { e.stopPropagation(); openCard(); }}>
+            <span className="action-em">🖼</span> <span>Карточка</span>
           </button>
         </div>
 

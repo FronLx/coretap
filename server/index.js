@@ -9,6 +9,7 @@ import {
   isAdmin, grantAdmin, revokeAdmin, getAdmins, setBlocked, giveCoins, setUserXp, resetUser,
   adminStats, searchUsers, logAdmin, getAdminLogs, applyLevelUp, applyReferral, userPublicInfo, computeLevel,
   LEVEL_XP, OWNER_ID, db,
+  getBossPublic, addBossDamage, getUserBossContribution, getBossTop, getUserLeaderboardRank,
 } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -260,6 +261,8 @@ app.post('/api/tap', auth, (req, res) => {
   const leveled = applyLevelUp(user.id);
   const updated = getUser(req.telegramUser.id);
 
+  const bossHit = addBossDamage(user.id, totalTaps);
+
   res.json({
     coinsEarned: Math.floor(coinsEarned),
     energy: newEnergy,
@@ -268,7 +271,10 @@ app.post('/api/tap', auth, (req, res) => {
     level: updated.level,
     leveledUp: leveled.leveled,
     levelReward: leveled.reward,
-    stats: { ...s, frenzyActive: !!s.frenzyActive }
+    stats: { ...s, frenzyActive: !!s.frenzyActive },
+    boss: bossHit.boss,
+    bossDefeated: bossHit.defeated || false,
+    bossReward: bossHit.reward || null
   });
 });
 
@@ -300,6 +306,30 @@ app.post('/api/upgrade/:id', auth, (req, res) => {
 
 app.get('/api/leaderboard', (req, res) => {
   res.json({ leaderboard: getLeaderboard() });
+});
+
+app.get('/api/boss', auth, (req, res) => {
+  const user = req.dbUser || getUser(req.telegramUser.id);
+  const myDamage = user ? getUserBossContribution(user.id) : 0;
+  const top = getBossTop(10);
+  res.json({ boss: getBossPublic(), myDamage, top });
+});
+
+app.get('/api/card', auth, (req, res) => {
+  const user = getUser(req.telegramUser.id);
+  if (!user) return res.status(404).json({ error: 'User not found' });
+  const { rank, total } = getUserLeaderboardRank(user.id);
+  const referrals = userPublicInfo(user.id).referrals;
+  res.json({
+    nickname: user.first_name || user.username || ('#' + user.telegram_id),
+    username: user.username,
+    level: user.level,
+    coins: user.coins,
+    totalTaps: user.total_taps,
+    referrals,
+    rank,
+    total
+  });
 });
 
 app.get('/api/profile', auth, (req, res) => {

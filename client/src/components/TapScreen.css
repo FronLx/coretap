@@ -103,6 +103,80 @@
   color: var(--text-dim);
 }
 
+.action-em {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.boss-widget {
+  width: 100%;
+  max-width: 360px;
+  padding: 9px 12px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+}
+
+.boss-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 7px;
+}
+
+.boss-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.boss-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.boss-status {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dim);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.boss-widget.boss-dead .boss-status {
+  color: var(--green);
+}
+
+.boss-track {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-elev);
+  border: 1px solid var(--card-border);
+  overflow: hidden;
+}
+
+.boss-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--danger);
+  transition: width 0.4s ease;
+}
+
+.boss-widget.boss-dead .boss-fill {
+  background: var(--green);
+}
+
+.boss-sub {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .action-btn em {
   font-style: normal;
   color: var(--text);

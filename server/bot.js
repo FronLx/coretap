@@ -1,6 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import {
+  getUser, createUser, getBossPublic, getUserBossContribution,
+  getUserLeaderboardRank, userPublicInfo, BOSS_COOLDOWN_S,
+} from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -39,6 +43,9 @@ async function apiCall(method, params = {}) {
 
 export async function sendStartMessage(chatId, startParam) {
   const isRef = startParam && startParam.startsWith('ref_');
+  const isCard = startParam === 'card';
+  if (isCard) return sendCardMessage(chatId);
+
   let text = '';
   const TAP = '<tg-emoji emoji-id="5420363154070707696">👆</tg-emoji>';
   const OK = '<tg-emoji emoji-id="5368324170671202286">👍</tg-emoji>';
@@ -70,6 +77,115 @@ export async function sendStartMessage(chatId, startParam) {
   });
 }
 
+async function apiCallFile(method, fields) {
+  const fd = new FormData();
+  const filename = fields.filename;
+  for (const [k, v] of Object.entries(fields)) {
+    if (k === 'filename') continue;
+    if (v instanceof Blob) fd.append(k, v, filename || 'file');
+    else fd.append(k, v);
+  }
+  const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
+    method: 'POST',
+    body: fd
+  });
+  return res.json();
+}
+
+function fmt(n) {
+  return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
+
+export async function sendCardMessage(chatId) {
+  let user = getUser(chatId);
+  if (!user) user = createUser(chatId, '', '');
+
+  const { rank, total } = getUserLeaderboardRank(user.id);
+  const referrals = userPublicInfo(user.id).referrals;
+  const nickname = user.first_name || user.username || ('#' + chatId);
+
+  let png = null;
+  try {
+    const { renderUserCard } = await import('./card.js');
+    png = await renderUserCard({
+      nickname,
+      username: user.username,
+      level: user.level,
+      coins: user.coins,
+      totalTaps: user.total_taps,
+      referrals,
+      rank,
+      total,
+      botUsername: process.env.BOT_USERNAME || 'coretapbot'
+    });
+  } catch (e) {
+    console.error('Card render error:', e.message);
+  }
+
+  if (!png) {
+    const fallback = `<b>${nickname}</b>\n\n`
+      + `🪙 Монеты: <b>${fmt(user.coins)}</b>\n`
+      + `⬆️ Уровень: <b>${user.level}</b>\n`
+      + `👆 Тапов: <b>${fmt(user.total_taps)}</b>\n`
+      + `🏆 Место: <b>#${rank || '—'} из ${total || '—'}</b>\n`
+      + `👥 Друзей: <b>${referrals}</b>\n\n`
+      + `Карточка скоро станет красивой картинкой 🎴`;
+    await apiCall('sendMessage', { chat_id: chatId, text: fallback, parse_mode: 'HTML' });
+    return;
+  }
+
+  const caption = `<b>${nickname}</b> · ур. ${user.level}\n`
+    + `🪙 ${fmt(user.coins)} монет · 👆 ${fmt(user.total_taps)} тапов\n`
+    + `🏆 #${rank || '—'} из ${total || '—'} · 👥 ${referrals}\n\n`
+    + `Хвастайся друзьям и терзай монету вместе с нами!`;
+
+  await apiCallFile('sendPhoto', {
+    chat_id: chatId,
+    photo: new Blob([png], { type: 'image/png' }),
+    filename: 'card.png',
+    caption,
+    parse_mode: 'HTML'
+  });
+}
+
+export async function sendBossMessage(chatId) {
+  const boss = getBossPublic();
+  const user = getUser(chatId);
+  const myDamage = user ? getUserBossContribution(user.id) : 0;
+
+  let text;
+  if (boss.phase === 'active') {
+    const hpLeft = Math.max(0, boss.current_hp);
+    text = `👹 <b>Общий босс</b>\n\n`
+      + `Осталось HP: <b>${fmt(hpLeft)} / ${fmt(boss.total_hp)}</b> (повержен на ${boss.pct}%)\n`
+      + `Призовой фонд: <b>${fmt(boss.pool)} монет</b>\n\n`
+      + `${myDamage > 0 ? `Твой вклад: <b>${fmt(myDamage)}</b>\n\n` : ''}`
+      + `Каждый тап = 1 урон. Награда делится между всеми, кто бил босса. Давай добьём!`;
+    await apiCall('sendMessage', {
+      chat_id: chatId,
+      text,
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [[{ text: 'Играть в CoreTap', web_app: { url: WEBAPP_URL } }]]
+      }
+    });
+  } else {
+    const elapsed = boss.ended_at ? Date.now() - new Date(boss.ended_at).getTime() : 0;
+    const left = Math.max(0, Math.ceil((BOSS_COOLDOWN_S * 1000 - elapsed) / 1000));
+    text = `👹 <b>Общий босс повержен!</b>\n\n`
+      + `Призовой фонд раздан участникам.\n`
+      + `Новая волна через <b>${left}</b> сек. Успей первым!`;
+    await apiCall('sendMessage', {
+      chat_id: chatId,
+      text,
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [[{ text: 'Играть в CoreTap', web_app: { url: WEBAPP_URL } }]]
+      }
+    });
+  }
+}
+
 async function handleUpdate(update) {
   const message = update.message;
   if (!message || !message.text) return;
@@ -79,6 +195,10 @@ async function handleUpdate(update) {
   if (message.text.startsWith('/start')) {
     const parts = message.text.split(' ');
     await sendStartMessage(chatId, parts[1] || '');
+  } else if (message.text === '/card') {
+    await sendCardMessage(chatId);
+  } else if (message.text === '/boss') {
+    await sendBossMessage(chatId);
   }
 }
 

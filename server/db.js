@@ -87,6 +87,21 @@ db.exec(`
     created_at TEXT DEFAULT (datetime('now'))
   );
 
+  CREATE TABLE IF NOT EXISTS boss_state (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    total_hp INTEGER DEFAULT 2500,
+    current_hp INTEGER DEFAULT 2500,
+    phase TEXT DEFAULT 'active',
+    started_at TEXT DEFAULT '',
+    ended_at TEXT DEFAULT '',
+    pool INTEGER DEFAULT 0,
+    total_damage INTEGER DEFAULT 0
+  );
+
+  CREATE TABLE IF NOT EXISTS boss_contrib (
+    user_id INTEGER PRIMARY KEY,
+    damage INTEGER DEFAULT 0
+  );
   `);
 
 const USER_COLUMNS = {
@@ -351,6 +366,129 @@ export function userPublicInfo(userId) {
   const referrals = db.prepare('SELECT COUNT(*) as c FROM users WHERE referrer_id = ?').get(userId).c;
   db.prepare('UPDATE users SET last_seen = ? WHERE id = ?').run(new Date().toISOString(), userId);
   return { referrals };
+}
+
+export const BOSS_COOLDOWN_S = 120;
+const BOSS_HP_BASE = 2500;
+const BOSS_HP_PER_PLAYER = 300;
+const BOSS_HP_CAP = 60000;
+
+function playersToday() {
+  const today = new Date().toISOString().slice(0, 10);
+  return db.prepare(`SELECT COUNT(*) as c FROM users WHERE blocked = 0 AND last_seen LIKE ?`)
+    .get(today + '%').c || 1;
+}
+
+export function initialBossHp() {
+  return Math.min(BOSS_HP_CAP, Math.max(BOSS_HP_BASE, BOSS_HP_BASE + (playersToday() - 1) * BOSS_HP_PER_PLAYER));
+}
+
+export function initialBossPool(hp) {
+  hp = hp || initialBossHp();
+  return Math.floor(hp * 0.35) + 1500;
+}
+
+function ensureBossRow() {
+  let row = db.prepare('SELECT * FROM boss_state WHERE id = 1').get();
+  if (!row) {
+    const hp = initialBossHp();
+    db.prepare(`INSERT INTO boss_state (id, total_hp, current_hp, phase, started_at, pool, total_damage)
+      VALUES (1, ?, ?, 'active', ?, ?, 0)`)
+      .run(hp, hp, new Date().toISOString(), initialBossPool(hp));
+    row = db.prepare('SELECT * FROM boss_state WHERE id = 1').get();
+  }
+  return row;
+}
+
+function advanceBossCycle() {
+  const row = ensureBossRow();
+  if (row.phase === 'dead' && row.ended_at) {
+    const elapsed = Date.now() - new Date(row.ended_at).getTime();
+    if (elapsed >= BOSS_COOLDOWN_S * 1000) {
+      const hp = initialBossHp();
+      db.prepare(`UPDATE boss_state SET total_hp = ?, current_hp = ?, phase = 'active', started_at = ?, ended_at = '', pool = ?, total_damage = 0 WHERE id = 1`)
+        .run(hp, hp, new Date().toISOString(), initialBossPool(hp));
+      db.prepare('DELETE FROM boss_contrib').run();
+      return true;
+    }
+  }
+  return false;
+}
+
+export function getBossPublic() {
+  advanceBossCycle();
+  const row = ensureBossRow();
+  const pct = row.phase === 'active'
+    ? Math.max(0, Math.min(100, Math.floor((1 - row.current_hp / row.total_hp) * 100)))
+    : 100;
+  return {
+    total_hp: row.total_hp,
+    current_hp: row.current_hp,
+    phase: row.phase,
+    pool: row.pool,
+    pct,
+    started_at: row.started_at,
+    ended_at: row.ended_at,
+    cooldown_s: BOSS_COOLDOWN_S,
+    total_damage: row.total_damage
+  };
+}
+
+export function getUserBossContribution(userId) {
+  const row = db.prepare('SELECT damage FROM boss_contrib WHERE user_id = ?').get(userId);
+  return row ? row.damage : 0;
+}
+
+export function getBossTop(limit = 10) {
+  return db.prepare('SELECT user_id, damage FROM boss_contrib ORDER BY damage DESC LIMIT ?').all(limit);
+}
+
+export function finishBoss() {
+  const row = ensureBossRow();
+  const pool = row.pool || 0;
+  const rows = db.prepare('SELECT user_id, damage FROM boss_contrib ORDER BY damage DESC').all();
+  const totalDamage = rows.reduce((a, b) => a + b.damage, 0) || 1;
+  const distributes = [];
+  for (const r of rows) {
+    const reward = Math.floor(pool * r.damage / totalDamage);
+    if (reward > 0) {
+      db.prepare('UPDATE users SET coins = coins + ? WHERE id = ?').run(reward, r.user_id);
+      distributes.push({ user_id: r.user_id, damage: r.damage, reward });
+    }
+  }
+  db.prepare(`UPDATE boss_state SET phase = 'dead', ended_at = ?, total_damage = ? WHERE id = 1`)
+    .run(new Date().toISOString(), totalDamage);
+  return { pool, totalDamage, distributes };
+}
+
+export function addBossDamage(userId, damage) {
+  if (!(damage > 0)) return { boss: getBossPublic() };
+  advanceBossCycle();
+  const row = ensureBossRow();
+  if (row.phase !== 'active') return { boss: getBossPublic() };
+
+  db.prepare(`INSERT INTO boss_contrib (user_id, damage) VALUES (?, ?)
+    ON CONFLICT(user_id) DO UPDATE SET damage = damage + excluded.damage`).run(userId, damage);
+
+  const newHp = Math.max(0, row.current_hp - damage);
+  const totalDamage = row.total_damage + damage;
+  db.prepare('UPDATE boss_state SET current_hp = ?, total_damage = ? WHERE id = 1').run(newHp, totalDamage);
+
+  let defeated = false;
+  let reward = 0;
+  if (newHp <= 0) {
+    defeated = true;
+    reward = finishBoss();
+  }
+  return { boss: getBossPublic(), defeated, reward };
+}
+
+export function getUserLeaderboardRank(userId) {
+  const user = getUserById(userId);
+  if (!user) return { rank: 0, total: 0 };
+  const rank = db.prepare(`SELECT COUNT(*) as c FROM users WHERE blocked = 0 AND coins > ?`).get(user.coins).c + 1;
+  const total = db.prepare(`SELECT COUNT(*) as c FROM users WHERE blocked = 0`).get().c;
+  return { rank, total };
 }
 
 export { db };

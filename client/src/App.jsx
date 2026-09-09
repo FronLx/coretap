@@ -66,6 +66,7 @@ export default function App() {
   const [display, setDisplay] = useState({ coins: 0, energy: 0 });
   const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [welcomeMeta, setWelcomeMeta] = useState({ firstName: '', isNew: false });
+  const [boss, setBoss] = useState(null);
 
   const popupsRef = useRef([]);
   const [popups, setPopups] = useState([]);
@@ -75,6 +76,7 @@ export default function App() {
   const statsRef = useRef({});
   const rafRef = useRef(null);
   const regenTimerRef = useRef(null);
+  const userIdRef = useRef(null);
 
   useEffect(() => {
     loadGame();
@@ -101,6 +103,16 @@ export default function App() {
     return () => clearInterval(regenTimerRef.current);
   }, [user?.id]);
 
+  useEffect(() => {
+    if (!user) return;
+    const iv = setInterval(() => {
+      api('/api/boss', { retries: 0, timeout: 6000 })
+        .then(d => { if (d && d.boss) setBoss(prev => ({ ...(prev || {}), ...d.boss, myDamage: d.myDamage })); })
+        .catch(() => {});
+    }, 20000);
+    return () => clearInterval(iv);
+  }, [user?.id]);
+
   const showNotice = useCallback((msg) => {
     setNotice(msg);
     setTimeout(() => setNotice(''), 3000);
@@ -122,6 +134,7 @@ export default function App() {
     try {
       const data = await api('/api/auth', { method: 'POST', body: JSON.stringify({ initData: getInitData() }) });
       setUser(data.user);
+      userIdRef.current = data.user.id;
       const DISABLED_TYPES = ['tap_multiplier', 'offline_regen'];
       setUpgrades((data.upgrades || []).filter(u => !DISABLED_TYPES.includes(u.effect_type)));
       setUserUpgrades(data.userUpgrades);
@@ -147,6 +160,10 @@ export default function App() {
         setWelcomeOpen(true);
       }
       if (data.offlineCoins > 0) showNotice(`Пока тебя не было: +${data.offlineCoins} монет (автотап)`);
+      const userId = data.user.id;
+      api('/api/boss', { retries: 0, timeout: 6000 })
+        .then(d => { if (d && d.boss) setBoss({ ...d.boss, myDamage: d.myDamage }); })
+        .catch(() => {});
     } catch (e) {
       if (e.blocked) {
         setError('Вы в черном списке. Доступ к игре ограничен.');
@@ -200,6 +217,17 @@ export default function App() {
       setUser(prev => prev ? { ...prev, xp: data.xp ?? prev.xp, level: data.level ?? prev.level } : prev);
       if (data.leveledUp) {
         showNotice(`⭐️ Уровень ${data.level}!`);
+      }
+      if (data.boss) {
+        const myDmg = data.bossDefeated ? 0 : (n + (statsRef.current._bossDmg || 0));
+        statsRef.current._bossDmg = myDmg;
+        setBoss(prev => ({ ...(prev || {}), ...data.boss, myDamage: myDmg }));
+      }
+      if (data.bossDefeated) {
+        const myReward = data.bossReward?.distributes?.find(d => d.user_id === userIdRef.current)?.reward;
+        const rewardTxt = myReward > 0 ? `Ты получил(а) +${myReward} монет!` : `Босс повержен! Призовой фонд раздан участникам.`;
+        showNotice(`👹 Общий босс повержен! ${rewardTxt}`);
+        statsRef.current._bossDmg = 0;
       }
     } catch (e) {
       tapBufRef.current += n;
@@ -296,6 +324,7 @@ export default function App() {
             display={display}
             stats={statsRef.current}
             user={user}
+            boss={boss}
             onTap={handleTap}
           />
         )}
