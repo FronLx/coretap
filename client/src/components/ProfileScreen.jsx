@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CoinIcon, BoltIcon } from './Icons.jsx';
+import { Emoji } from './Emoji.jsx';
 import { api } from '../App.jsx';
 import './ProfileScreen.css';
 
@@ -56,12 +57,12 @@ export default function ProfileScreen({ display, user, stats, avatarUrl, onOpenC
           <span className="profile-stat-label">Монеты</span>
         </div>
         <div className="profile-stat">
-          <span className="profile-stat-icon">👆</span>
+          <span className="profile-stat-icon"><Emoji>👆</Emoji></span>
           <strong className="profile-stat-value">{fmt(display?.taps)}</strong>
           <span className="profile-stat-label">Тапов</span>
         </div>
         <div className="profile-stat">
-          <span className="profile-stat-icon">🏆</span>
+          <span className="profile-stat-icon"><Emoji>🏆</Emoji></span>
           <strong className="profile-stat-value">{top}</strong>
           <span className="profile-stat-label">Место в топе</span>
         </div>
@@ -75,7 +76,7 @@ export default function ProfileScreen({ display, user, stats, avatarUrl, onOpenC
       </div>
 
       <button className="btn-primary profile-card-btn" onClick={onOpenCard}>
-        🖼 Моя карточка
+        <Emoji>🖼</Emoji> Моя карточка
       </button>
       <p className="profile-card-hint">Картинка-хвастовство: уровень, монеты и место в топе — отправь боту /card, чтобы получить.</p>
     </div>

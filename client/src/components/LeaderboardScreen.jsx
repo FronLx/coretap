@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TrophyIcon, CoinIcon } from './Icons.jsx';
+import { Emoji } from './Emoji.jsx';
 import './LeaderboardScreen.css';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -30,7 +31,7 @@ export default function LeaderboardScreen() {
 
   return (
     <div className="leaderboard-screen">
-      <h2 className="leaderboard-title"><TrophyIcon size={22} className="screen-title-icon" /> 👑 Топ игроков</h2>
+      <h2 className="leaderboard-title"><TrophyIcon size={22} className="screen-title-icon" /> <Emoji>👑</Emoji> Топ игроков</h2>
 
       {loading ? (
         <p className="leaderboard-loading">Загрузка топ-игроков...</p>

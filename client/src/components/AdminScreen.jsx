@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../App.jsx';
 import { ShieldIcon, CoinIcon, UsersIcon, CloseIcon, TrophyIcon } from './Icons.jsx';
+import { Emoji } from './Emoji.jsx';
 import './AdminScreen.css';
 
 function CoinModal({ title, placeholder, confirmLabel, onConfirm, onClose }) {
@@ -285,7 +286,7 @@ export default function AdminScreen({ showNotice }) {
 
       <div className="admin-actions">
         <button className="admin-action admin-action-danger" onClick={() => setModal({ type: 'resetMe' })}>
-          <span className="admin-action-icon">🔄</span>
+          <span className="admin-action-icon"><Emoji>🔄</Emoji></span>
           <span><b>Сбросить свою статистику</b><em>только для тебя</em></span>
         </button>
       </div>

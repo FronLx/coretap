@@ -1,5 +1,6 @@
 import React from 'react';
 import { ShopIcon, CoinIcon } from './Icons.jsx';
+import { Emoji } from './Emoji.jsx';
 import './ShopScreen.css';
 
 export default function ShopScreen({ user, upgrades, userUpgrades, onBuyUpgrade }) {
@@ -13,7 +14,7 @@ export default function ShopScreen({ user, upgrades, userUpgrades, onBuyUpgrade 
   return (
     <div className="shop-screen">
       <div className="shop-header">
-        <h2 className="screen-title"><ShopIcon size={22} className="screen-title-icon" /> 🛒 Магазин</h2>
+        <h2 className="screen-title"><ShopIcon size={22} className="screen-title-icon" /> <Emoji>🛒</Emoji> Магазин</h2>
         <p className="shop-balance"><CoinIcon size={15} className="inline-coin" /><strong>{coins.toLocaleString('ru-RU')}</strong></p>
       </div>
 
@@ -27,7 +28,7 @@ export default function ShopScreen({ user, upgrades, userUpgrades, onBuyUpgrade 
           return (
             <div key={upgrade.id} className="card upgrade-cell">
               <div className="upgrade-head">
-                <span className="upgrade-icon">{upgrade.icon}</span>
+                <span className="upgrade-icon"><Emoji>{upgrade.icon}</Emoji></span>
                 <span className="upgrade-level-chip">Lv {level}<em>/{upgrade.max_level}</em></span>
               </div>
               <h3 className="upgrade-name">{upgrade.name}</h3>

@@ -26,8 +26,6 @@
   border: 1px solid var(--card-border);
   border-radius: 16px;
   padding: 12px 14px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 14px 36px -22px rgba(0, 0, 0, 0.7);
   position: relative;
   overflow: hidden;
@@ -35,7 +33,6 @@
 }
 
 .leaderboard-card:active {
-  transform: translateY(-1px);
   border-color: var(--card-border-strong);
 }
 

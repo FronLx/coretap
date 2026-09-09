@@ -223,7 +223,12 @@ export default function App() {
     tapBufRef.current = 0;
     try {
       const data = await api('/api/tap', { method: 'POST', body: JSON.stringify({ taps: n }) });
-      const d = { coins: data.totalCoins, energy: data.energy, taps: data.totalTaps ?? 0 };
+      const cur = displayRef.current;
+      const d = {
+        coins: Math.max(cur.coins, data.totalCoins),
+        energy: data.energy,
+        taps: Math.max(cur.taps || 0, data.totalTaps ?? 0),
+      };
       displayRef.current = d;
       setDisplay(d);
       xpRef.current = { server: data.xp ?? xpRef.current.server, buf: 0 };

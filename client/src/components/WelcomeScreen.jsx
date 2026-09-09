@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CoinIcon, BoltIcon } from './Icons.jsx';
+import { Emoji } from './Emoji.jsx';
 import './WelcomeScreen.css';
 
 const PREMIUM_EMOJIS = ['✨', '🚀', '💎', '⚡', '🔥', '🪙', '👑', '🌟', '🤖', '💥'];
@@ -31,7 +32,7 @@ export default function WelcomeScreen({ firstName, isNew, onStart }) {
       <div className="welcome-sparkles">
         {PREMIUM_EMOJIS.map((e, i) => (
           <span key={i} className="welcome-emoji" style={{ left: `${7 + (i * 12.5) % 85}%`, top: `${12 + (i * 17) % 60}%`, animationDelay: `${i * 0.35}s` }}>
-            {e}
+            <Emoji>{e}</Emoji>
           </span>
         ))}
       </div>
@@ -41,7 +42,7 @@ export default function WelcomeScreen({ firstName, isNew, onStart }) {
           <div className="welcome-coin-ring">
             <CoinIcon size={92} className="welcome-coin" />
           </div>
-          <span className="welcome-coin-emoji">🪙</span>
+          <span className="welcome-coin-emoji"><Emoji>🪙</Emoji></span>
         </div>
 
         <h1 className="welcome-title">CoreTap</h1>
@@ -51,10 +52,10 @@ export default function WelcomeScreen({ firstName, isNew, onStart }) {
         <p className="welcome-sub">Что нужно знать 👇</p>
 
         <div className="welcome-features">
-          <div className="welcome-feature"><span className="wf-emoji">👆</span><div><b>Тапай</b><em>каждый тап = монеты</em></div></div>
-          <div className="welcome-feature"><span className="wf-emoji">⚡️</span><div><b>Энергия</b><em>регенится сама</em></div></div>
-          <div className="welcome-feature"><span className="wf-emoji">🛒</span><div><b>Магазин</b><em>6 апгрейдов</em></div></div>
-          <div className="welcome-feature"><span className="wf-emoji">👹</span><div><b>Общий босс</b><em>бей вместе со всеми — забирай награду</em></div></div>
+          <div className="welcome-feature"><span className="wf-emoji"><Emoji>👆</Emoji></span><div><b>Тапай</b><em>каждый тап = монеты</em></div></div>
+          <div className="welcome-feature"><span className="wf-emoji"><Emoji>⚡️</Emoji></span><div><b>Энергия</b><em>регенится сама</em></div></div>
+          <div className="welcome-feature"><span className="wf-emoji"><Emoji>🛒</Emoji></span><div><b>Магазин</b><em>6 апгрейдов</em></div></div>
+          <div className="welcome-feature"><span className="wf-emoji"><Emoji>👹</Emoji></span><div><b>Общий босс</b><em>бей вместе со всеми — забирай награду</em></div></div>
         </div>
 
         <button className="welcome-start btn-primary" onClick={start}>

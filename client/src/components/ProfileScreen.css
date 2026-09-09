@@ -127,8 +127,6 @@
   border-radius: 16px;
   background: var(--card);
   border: 1px solid var(--card-border);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   min-width: 0;
   box-shadow: 0 12px 30px -20px rgba(0, 0, 0, 0.7);
   position: relative;
@@ -182,8 +180,6 @@
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--card-border);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   font-size: 12px;
   font-weight: 700;
   color: var(--text);

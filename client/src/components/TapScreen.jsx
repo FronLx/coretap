@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { BoltIcon, CoinIcon } from './Icons.jsx';
+import { Emoji } from './Emoji.jsx';
 import './TapScreen.css';
 
 function fmt(n) {
@@ -60,13 +61,13 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
           <div className="level-track">
             <div className="level-fill" style={{ width: `${Math.min(100, levelProgress)}%` }} />
           </div>
-          <span className="level-label">⭐️ Ур. {level} · {levelProgress}/100 XP</span>
+          <span className="level-label"><Emoji>⭐️</Emoji> Ур. {level} · {levelProgress}/100 XP</span>
         </div>
 
         {boss && (
           <div className={`boss-widget ${bossActive ? '' : 'boss-dead'}`}>
           <div className="boss-row">
-            <span className="boss-icon">👹</span>
+            <span className="boss-icon"><Emoji>👹</Emoji></span>
             <span className="boss-name">
               {bossActive ? 'Общий босс' : 'Босс повержен'}
             </span>
@@ -101,9 +102,9 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
           <div className="stats-chips">
             <span className="chip"><CoinIcon size={15} /> +{Math.floor(cpt)}/тап</span>
             <span className="chip"><BoltIcon size={15} /> {stats?.energyRegen || 1}/сек</span>
-            <span className="chip">🍀 {stats?.luckyChance || 0}% x10</span>
+            <span className="chip chip-lucky"><Emoji>🍀</Emoji> {stats?.luckyChance || 0}% x10</span>
             {stats?.autoTap > 0 && (
-              <span className="chip chip-neon">🤖 {stats.autoTap}/сек автотап</span>
+              <span className="chip chip-neon"><Emoji>🤖</Emoji> {stats.autoTap}/сек автотап</span>
             )}
           </div>
         </div>

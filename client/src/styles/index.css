@@ -96,6 +96,10 @@ input {
   font-family: inherit;
 }
 
+.tg-emoji {
+  font-style: normal;
+}
+
 .btn-primary {
   display: flex;
   align-items: center;
@@ -157,7 +161,6 @@ input {
   color: var(--text);
   border: 1px solid var(--card-border);
   background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(8px);
   transition: background 0.15s, border-color 0.15s, transform 0.1s;
 }
 
