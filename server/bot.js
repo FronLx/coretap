@@ -41,6 +41,41 @@ async function apiCall(method, params = {}) {
   return res.json();
 }
 
+const chatHistory = new Map();
+
+async function cleanPreviousMessages(chatId) {
+  const ids = chatHistory.get(chatId);
+  if (!ids || ids.length === 0) return;
+  chatHistory.delete(chatId);
+  for (const id of ids) {
+    try {
+      await apiCall('deleteMessage', { chat_id: chatId, message_id: id });
+    } catch (e) {}
+  }
+}
+
+async function sendBotMessage(chatId, params) {
+  await cleanPreviousMessages(chatId);
+  const data = await apiCall('sendMessage', { chat_id: chatId, ...params });
+  if (data.ok && data.result?.message_id) {
+    const ids = chatHistory.get(chatId) || [];
+    ids.push(data.result.message_id);
+    chatHistory.set(chatId, ids);
+  }
+  return data;
+}
+
+async function sendBotPhoto(chatId, params) {
+  await cleanPreviousMessages(chatId);
+  const data = await apiCallFile('sendPhoto', { chat_id: chatId, ...params });
+  if (data.ok && data.result?.message_id) {
+    const ids = chatHistory.get(chatId) || [];
+    ids.push(data.result.message_id);
+    chatHistory.set(chatId, ids);
+  }
+  return data;
+}
+
 export async function sendStartMessage(chatId, startParam) {
   const isRef = startParam && startParam.startsWith('ref_');
   const isCard = startParam === 'card';
@@ -64,8 +99,7 @@ export async function sendStartMessage(chatId, startParam) {
       + `<i>Жми «Играть» и войди в топ!</i>`;
   }
 
-  await apiCall('sendMessage', {
-    chat_id: chatId,
+  await sendBotMessage(chatId, {
     text,
     parse_mode: 'HTML',
     reply_markup: {
@@ -130,7 +164,7 @@ export async function sendCardMessage(chatId) {
       + `🏆 Место: <b>#${rank || '—'} из ${total || '—'}</b>\n`
       + `👥 Друзей: <b>${referrals}</b>\n\n`
       + `Карточка скоро станет красивой картинкой 🎴`;
-    await apiCall('sendMessage', { chat_id: chatId, text: fallback, parse_mode: 'HTML' });
+    await sendBotMessage(chatId, { text: fallback, parse_mode: 'HTML' });
     return;
   }
 
@@ -139,8 +173,7 @@ export async function sendCardMessage(chatId) {
     + `🏆 #${rank || '—'} из ${total || '—'} · 👥 ${referrals}\n\n`
     + `Хвастайся друзьям и терзай монету вместе с нами!`;
 
-  await apiCallFile('sendPhoto', {
-    chat_id: chatId,
+  await sendBotPhoto(chatId, {
     photo: new Blob([png], { type: 'image/png' }),
     filename: 'card.png',
     caption,
@@ -161,8 +194,7 @@ export async function sendBossMessage(chatId) {
       + `Призовой фонд: <b>${fmt(boss.pool)} монет</b>\n\n`
       + `${myDamage > 0 ? `Твой вклад: <b>${fmt(myDamage)}</b>\n\n` : ''}`
       + `Каждый тап = 1 урон. Награда делится между всеми, кто бил босса. Давай добьём!`;
-    await apiCall('sendMessage', {
-      chat_id: chatId,
+    await sendBotMessage(chatId, {
       text,
       parse_mode: 'HTML',
       reply_markup: {
@@ -175,8 +207,7 @@ export async function sendBossMessage(chatId) {
     text = `👹 <b>Общий босс повержен!</b>\n\n`
       + `Призовой фонд раздан участникам.\n`
       + `Новая волна через <b>${left}</b> сек. Успей первым!`;
-    await apiCall('sendMessage', {
-      chat_id: chatId,
+    await sendBotMessage(chatId, {
       text,
       parse_mode: 'HTML',
       reply_markup: {
@@ -201,7 +232,7 @@ async function handleUpdate(update) {
     await sendBossMessage(chatId);
   } else if (message.text === '/vanish') {
     if (!isAdmin(chatId)) {
-      await apiCall('sendMessage', { chat_id: chatId, text: 'Это команда только для админов 🙅‍♂️' });
+      await sendBotMessage(chatId, { text: 'Это команда только для админов 🙅‍♂️' });
       return;
     }
     const current = getUser(chatId);
@@ -210,10 +241,10 @@ async function handleUpdate(update) {
     const reply = next
       ? '🫥 Готово: ты скрыт из общего топа. Отправь /vanish, чтобы снова появиться.'
       : '👁 Готово: ты снова виден в общем топе.';
-    await apiCall('sendMessage', { chat_id: chatId, text: reply });
+    await sendBotMessage(chatId, { text: reply });
   } else if (message.text === '/coin') {
     if (!isAdmin(chatId)) {
-      await apiCall('sendMessage', { chat_id: chatId, text: 'Это команда только для админов 🙅‍♂️' });
+      await sendBotMessage(chatId, { text: 'Это команда только для админов 🙅‍♂️' });
       return;
     }
     let png = null;
@@ -224,11 +255,10 @@ async function handleUpdate(update) {
       console.error('Coin render error:', e.message);
     }
     if (!png) {
-      await apiCall('sendMessage', { chat_id: chatId, text: 'Не удалось отчеканить монетку 😔 Попробуй позже.' });
+      await sendBotMessage(chatId, { text: 'Не удалось отчеканить монетку 😔 Попробуй позже.' });
       return;
     }
-    await apiCallFile('sendPhoto', {
-      chat_id: chatId,
+    await sendBotPhoto(chatId, {
       photo: new Blob([png], { type: 'image/png' }),
       filename: 'coretap-coin.png',
       caption: '🎖 <b>Эксклюзивный коин CoreTap</b>\nСтавь его на аватар — и все сразу поймут, кто тут король монеты!'
