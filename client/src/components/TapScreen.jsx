@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, memo } from 'react';
 import { BoltIcon, CoinIcon } from './Icons.jsx';
 import { Emoji } from './Emoji.jsx';
 import './TapScreen.css';
@@ -6,6 +6,19 @@ import './TapScreen.css';
 function fmt(n) {
   return Math.round(n || 0).toLocaleString('ru-RU');
 }
+
+const StatsChips = memo(function StatsChips({ cpt, regen, lucky, autoTap }) {
+  return (
+    <div className="stats-chips">
+      <span className="chip"><CoinIcon size={15} /> +{Math.floor(cpt)}/тап</span>
+      <span className="chip"><BoltIcon size={15} /> {regen}/сек</span>
+      <span className="chip chip-lucky"><Emoji>🍀</Emoji> {lucky}% x10</span>
+      {autoTap > 0 && (
+        <span className="chip chip-neon"><Emoji>🤖</Emoji> {autoTap}/сек автотап</span>
+      )}
+    </div>
+  );
+});
 
 export default function TapScreen({ display, stats, user, boss, onTap }) {
   const [flash, setFlash] = useState(false);
@@ -128,14 +141,7 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
         </div>
 
         <div className="tap-bottom" onPointerDown={(e) => e.stopPropagation()}>
-          <div className="stats-chips">
-            <span className="chip"><CoinIcon size={15} /> +{Math.floor(cpt)}/тап</span>
-            <span className="chip"><BoltIcon size={15} /> {stats?.energyRegen || 1}/сек</span>
-            <span className="chip chip-lucky"><Emoji>🍀</Emoji> {stats?.luckyChance || 0}% x10</span>
-            {stats?.autoTap > 0 && (
-              <span className="chip chip-neon"><Emoji>🤖</Emoji> {stats.autoTap}/сек автотап</span>
-            )}
-          </div>
+          <StatsChips cpt={cpt} regen={stats?.energyRegen || 1} lucky={stats?.luckyChance || 0} autoTap={stats?.autoTap || 0} />
         </div>
       </div>
     </>
