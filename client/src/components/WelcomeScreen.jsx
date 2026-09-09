@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CoinIcon, BoltIcon, UsersIcon, GiftIcon } from './Icons.jsx';
+import { CoinIcon, BoltIcon } from './Icons.jsx';
 import './WelcomeScreen.css';
 
 const PREMIUM_EMOJIS = ['✨', '🚀', '💎', '⚡', '🔥', '🪙', '👑', '🌟', '🤖', '💥'];
@@ -54,7 +54,7 @@ export default function WelcomeScreen({ firstName, isNew, onStart }) {
           <div className="welcome-feature"><span className="wf-emoji">👆</span><div><b>Тапай</b><em>каждый тап = монеты</em></div></div>
           <div className="welcome-feature"><span className="wf-emoji">⚡️</span><div><b>Энергия</b><em>регенится сама</em></div></div>
           <div className="welcome-feature"><span className="wf-emoji">🛒</span><div><b>Магазин</b><em>6 апгрейдов</em></div></div>
-          <div className="welcome-feature"><span className="wf-emoji">👥</span><div><b>Друзья</b><em>+1000 🪙 за друга</em></div></div>
+          <div className="welcome-feature"><span className="wf-emoji">👹</span><div><b>Общий босс</b><em>бей вместе со всеми — забирай награду</em></div></div>
         </div>
 
         <button className="welcome-start btn-primary" onClick={start}>

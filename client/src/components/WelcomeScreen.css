@@ -1,20 +1,20 @@
 .welcome-screen {
   position: fixed;
   inset: 0;
-  z-index: 300;
+  z-index: 500;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
   overflow: hidden;
-  background: var(--bg);
-  animation: welcomeFadeIn 0.3s ease;
+  background: transparent;
+  animation: welcomeFadeIn 0.4s ease;
 }
 
 .welcome-leaving {
   opacity: 0;
-  transform: scale(1.02);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform: scale(1.03);
+  transition: opacity 0.35s ease, transform 0.35s ease;
   pointer-events: none;
 }
 
@@ -23,26 +23,107 @@
   to { opacity: 1; }
 }
 
-.welcome-bg,
-.welcome-orbs,
-.welcome-sparkles,
-.welcome-coin-ring,
-.welcome-coin-emoji {
-  display: none;
+.welcome-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  z-index: -1;
+}
+
+.welcome-orbs {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.65;
+  animation: orbFloat 9s ease-in-out infinite alternate;
+}
+
+.orb-1 {
+  width: 340px;
+  height: 340px;
+  left: -140px;
+  top: -70px;
+  background: radial-gradient(circle, rgba(255, 138, 53, 0.5), transparent 70%);
+}
+
+.orb-2 {
+  width: 300px;
+  height: 300px;
+  right: -120px;
+  top: 26%;
+  background: radial-gradient(circle, rgba(139, 123, 255, 0.42), transparent 70%);
+  animation-delay: -3s;
+}
+
+.orb-3 {
+  width: 320px;
+  height: 320px;
+  left: 20%;
+  bottom: -130px;
+  background: radial-gradient(circle, rgba(52, 211, 153, 0.3), transparent 70%);
+  animation-delay: -6s;
+}
+
+@keyframes orbFloat {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(18px, -22px) scale(1.12); }
+}
+
+.welcome-sparkles {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.welcome-emoji {
+  position: absolute;
+  font-size: 16px;
+  opacity: 0;
+  animation: emojiFloat 5s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(255, 191, 77, 0.35));
+}
+
+@keyframes emojiFloat {
+  0%, 100% { transform: translateY(0) scale(0.85); opacity: 0; }
+  18% { opacity: 0.65; }
+  35% { transform: translateY(-24px) scale(1.05); }
+  50% { opacity: 0.65; }
+  65% { transform: translateY(-42px) scale(0.95); opacity: 0; }
 }
 
 .welcome-card {
   position: relative;
   width: 100%;
   max-width: 340px;
-  background: var(--bg-elev);
-  border: 1px solid var(--card-border);
-  border-radius: 20px;
-  padding: 24px 20px 20px;
+  background: var(--glass-strong);
+  border: 1px solid var(--card-border-strong);
+  border-radius: 24px;
+  padding: 26px 20px 20px;
   text-align: center;
+  box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 0 60px -20px rgba(255, 138, 53, 0.35);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  z-index: 1;
   opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.35s ease, transform 0.35s ease;
+  transform: translateY(20px) scale(0.96);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+  overflow: hidden;
+}
+
+.welcome-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 138, 53, 0.6), transparent);
 }
 
 .welcome-card-in {
@@ -51,24 +132,62 @@
 }
 
 .welcome-coin-wrap {
-  width: 92px;
-  height: 92px;
+  width: 108px;
+  height: 108px;
   margin: 0 auto 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+}
+
+.welcome-coin-ring {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 207, 87, 0.35);
+  animation: ringSpin 10s linear infinite;
 }
 
 .welcome-coin {
-  color: var(--coin);
+  color: var(--gold);
+  filter: drop-shadow(0 0 18px rgba(255, 191, 77, 0.6));
+  animation: coinFloat 3.2s ease-in-out infinite;
+}
+
+@keyframes coinFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.welcome-coin-emoji {
+  position: absolute;
+  right: 0;
+  top: 10px;
+  font-size: 22px;
+  animation: emojiSpin 4s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+}
+
+@keyframes emojiSpin {
+  0%, 100% { transform: rotate(0) scale(1); }
+  50% { transform: rotate(-16deg) scale(1.15); }
 }
 
 .welcome-title {
-  font-size: 30px;
-  letter-spacing: 2px;
+  font-size: 32px;
+  letter-spacing: 6px;
   font-weight: 800;
-  color: var(--text);
-  margin-bottom: 6px;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, #ffd9a0, #fff 50%, #ffcf57);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 22px rgba(255, 191, 77, 0.25));
 }
 
 .welcome-greeting {
@@ -95,15 +214,21 @@
 .welcome-feature {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 11px;
-  background: var(--card);
+  gap: 11px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--card-border);
-  border-radius: 12px;
+  border-radius: 14px;
+  transition: transform 0.1s ease;
+}
+
+.welcome-feature:active {
+  transform: scale(0.98);
 }
 
 .wf-emoji {
-  font-size: 20px;
+  font-size: 21px;
+  filter: drop-shadow(0 0 6px rgba(255, 191, 77, 0.3));
 }
 
 .welcome-feature div {
@@ -113,7 +238,7 @@
 
 .welcome-feature b {
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .welcome-feature em {

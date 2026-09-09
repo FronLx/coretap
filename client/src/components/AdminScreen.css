@@ -10,12 +10,17 @@
 
 .admin-title .screen-title-icon {
   color: var(--accent);
+  filter: drop-shadow(0 0 8px rgba(255, 138, 53, 0.5));
 }
 
 .admin-tabs {
   display: flex;
   gap: 8px;
   margin: 12px 0;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--card-border);
+  padding: 4px;
+  border-radius: 16px;
 }
 
 .admin-tab {
@@ -25,15 +30,13 @@
   font-size: 13px;
   font-weight: 700;
   color: var(--text-dim);
-  background: var(--card);
-  border: 1px solid var(--card-border);
-  transition: all 0.15s;
+  transition: all 0.18s ease;
 }
 
 .admin-tab.active {
-  color: var(--accent);
-  border-color: var(--accent);
-  background: var(--accent-soft);
+  color: #ffb066;
+  background: linear-gradient(135deg, rgba(255, 138, 53, 0.22), rgba(255, 95, 31, 0.12));
+  box-shadow: 0 8px 24px -12px rgba(255, 138, 53, 0.5);
 }
 
 .admin-stats {
@@ -44,8 +47,8 @@
 }
 
 .admin-actions {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 8px;
   margin-bottom: 12px;
 }
@@ -53,19 +56,28 @@
 .admin-action {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
-  padding: 12px;
-  border-radius: 12px;
+  padding: 14px;
+  border-radius: 14px;
   background: var(--card);
   border: 1px solid var(--card-border);
   text-align: left;
   color: var(--text);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   transition: all 0.15s;
+}
+
+.admin-action:active {
+  transform: scale(0.98);
+  border-color: var(--card-border-strong);
 }
 
 .admin-action b {
   display: block;
   font-size: 13px;
+  font-weight: 800;
 }
 
 .admin-action em {
@@ -82,51 +94,51 @@
 }
 
 .admin-action-danger {
-  border-color: rgba(248, 113, 113, 0.35);
+  border-color: rgba(248, 113, 113, 0.3);
+  background: linear-gradient(135deg, rgba(255, 95, 110, 0.1), rgba(255, 95, 110, 0.03));
+  box-shadow: 0 12px 32px -18px rgba(255, 95, 110, 0.4);
 }
 
 .admin-action-danger b {
-  color: var(--danger, #f87171);
-}
-
-.coin-preview {
-  display: block;
-  width: 200px;
-  height: 200px;
-  margin: 4px auto 10px;
-  border-radius: 50%;
-  background: var(--card);
+  color: #f87171;
 }
 
 .admin-stat-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   padding: 12px 6px;
-  border-radius: 12px;
+  border-radius: 16px;
   background: var(--card);
   border: 1px solid var(--card-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 12px 30px -20px rgba(0, 0, 0, 0.7);
 }
 
 .as-icon {
-  color: var(--accent);
+  color: var(--gold);
   display: flex;
   align-items: center;
   justify-content: center;
+  filter: drop-shadow(0 0 6px rgba(255, 191, 77, 0.4));
 }
 
 .as-value {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   color: var(--text);
+  white-space: nowrap;
 }
 
 .as-label {
   font-size: 10px;
+  font-weight: 600;
   color: var(--text-dim);
   text-align: center;
+  white-space: nowrap;
 }
 
 .search-row {
@@ -156,15 +168,18 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 12px 14px;
-  border-radius: 14px;
+  padding: 13px 14px;
+  border-radius: 16px;
   background: var(--card);
   border: 1px solid var(--card-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 14px 36px -22px rgba(0, 0, 0, 0.7);
 }
 
 .admin-user-card.blocked {
   border-color: rgba(255, 95, 110, 0.5);
-  background: rgba(255, 95, 110, 0.06);
+  background: rgba(255, 95, 110, 0.07);
 }
 
 .au-info {
@@ -178,7 +193,7 @@
   align-items: center;
   gap: 6px;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 800;
   flex-wrap: wrap;
 }
 
@@ -192,6 +207,7 @@
   display: flex;
   gap: 12px;
   font-size: 12px;
+  font-weight: 600;
   color: var(--text-dim);
   flex-wrap: wrap;
 }
@@ -203,7 +219,8 @@
 }
 
 .au-meta svg {
-  color: var(--coin);
+  color: var(--gold);
+  filter: drop-shadow(0 0 5px rgba(255, 191, 77, 0.35));
 }
 
 .au-actions {
@@ -218,13 +235,14 @@
   font-size: 12px;
   font-weight: 700;
   color: var(--text);
-  background: var(--card);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--card-border);
   transition: all 0.15s;
 }
 
 .mini-btn:active {
   transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.09);
 }
 
 .mini-btn:disabled {
@@ -234,7 +252,7 @@
 
 .mini-btn.ok {
   color: var(--green);
-  border-color: rgba(55, 194, 115, 0.4);
+  border-color: rgba(52, 211, 153, 0.4);
 }
 
 .mini-btn.warn {
@@ -249,7 +267,7 @@
 
 .mini-btn.blue {
   color: var(--accent);
-  border-color: rgba(249, 115, 22, 0.4);
+  border-color: rgba(255, 138, 53, 0.4);
 }
 
 .tag {
@@ -269,7 +287,7 @@
 
 .tag-prot {
   color: var(--gold);
-  background: rgba(247, 201, 72, 0.12);
+  background: rgba(255, 207, 87, 0.12);
 }
 
 .tag-admin {
@@ -293,7 +311,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--card);
   border: 1px solid var(--card-border);
   font-size: 12px;

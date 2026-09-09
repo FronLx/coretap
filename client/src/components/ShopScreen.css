@@ -10,17 +10,19 @@
 }
 
 .screen-title-icon {
-  color: var(--coin);
+  color: var(--gold);
   display: inline-flex;
   vertical-align: -3px;
   margin-right: 6px;
+  filter: drop-shadow(0 0 6px rgba(255, 191, 77, 0.4));
 }
 
 .inline-coin {
-  color: var(--coin);
+  color: var(--gold);
   display: inline-flex;
   vertical-align: -3px;
   margin-right: 3px;
+  filter: drop-shadow(0 0 6px rgba(255, 191, 77, 0.35));
 }
 
 .shop-balance {
@@ -34,7 +36,12 @@
 .shop-balance strong {
   color: var(--text);
   font-size: 18px;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #fff 30%, #ffd9a0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .upgrades-grid {
@@ -46,8 +53,30 @@
 .upgrade-cell {
   display: flex;
   flex-direction: column;
-  padding: 11px;
+  padding: 12px;
   min-width: 0;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 14px 36px -20px rgba(0, 0, 0, 0.7);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.12s ease, border-color 0.15s ease;
+}
+
+.upgrade-cell::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 138, 53, 0.35), transparent);
+}
+
+.upgrade-cell:active {
+  transform: translateY(-1px);
+  border-color: var(--card-border-strong);
 }
 
 .upgrade-head {
@@ -59,26 +88,27 @@
 
 .upgrade-icon {
   font-size: 26px;
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--card);
-  border: 1px solid var(--card-border);
-  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255, 138, 53, 0.2), rgba(139, 123, 255, 0.14));
+  border: 1px solid rgba(255, 138, 53, 0.22);
+  border-radius: 14px;
   flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 18px -6px rgba(255, 138, 53, 0.4);
 }
 
 .upgrade-level-chip {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text);
   white-space: nowrap;
-  background: var(--accent-soft);
-  border: 1px solid var(--card-border);
-  padding: 2px 7px;
-  border-radius: 8px;
+  background: rgba(255, 207, 87, 0.1);
+  border: 1px solid rgba(255, 207, 87, 0.3);
+  padding: 3px 8px;
+  border-radius: 999px;
 }
 
 .upgrade-level-chip::before {
@@ -93,8 +123,8 @@
 
 .upgrade-name {
   font-size: 13px;
-  font-weight: 600;
-  margin: 9px 0 2px;
+  font-weight: 800;
+  margin: 10px 0 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -103,9 +133,9 @@
 .upgrade-desc {
   font-size: 11px;
   color: var(--text-dim);
-  min-height: 28px;
+  min-height: 30px;
   margin-bottom: 8px;
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
 .upgrade-track {
@@ -115,23 +145,24 @@
 .level-track {
   width: 100%;
   height: 6px;
-  background: var(--card);
+  background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--card-border);
-  border-radius: 3px;
+  border-radius: 999px;
   overflow: hidden;
 }
 
 .level-fill {
   height: 100%;
-  background: var(--accent);
-  border-radius: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--accent));
+  border-radius: 999px;
+  box-shadow: 0 0 10px rgba(255, 191, 77, 0.45);
   transition: width 0.3s;
 }
 
 .upgrade-buy {
   padding: 11px 6px;
-  border-radius: 11px;
-  font-weight: 700;
+  border-radius: 13px;
+  font-weight: 800;
   font-size: 13px;
   flex-shrink: 0;
   text-align: center;
@@ -144,26 +175,38 @@
   align-items: center;
   justify-content: center;
   gap: 5px;
-  transition: background 0.15s;
+  transition: transform 0.1s ease, opacity 0.15s ease, filter 0.15s ease;
 }
 
 .upgrade-buy.affordable {
-  background: var(--accent);
+  background: linear-gradient(135deg, #ffb055 0%, #ff8a35 52%, #ff5f1f 100%);
   color: #fff;
+  box-shadow: 0 10px 28px -12px rgba(255, 138, 53, 0.6);
 }
 
 .upgrade-buy.affordable:active {
-  background: #e26412;
+  transform: scale(0.96);
+  filter: brightness(1.07);
+}
+
+.upgrade-buy.affordable .inline-coin {
+  color: #ffefc4;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4));
 }
 
 .upgrade-buy.too-expensive {
-  background: var(--card);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-dim);
   border: 1px solid var(--card-border);
 }
 
 .upgrade-buy.maxed {
-  background: var(--card);
+  background: rgba(52, 211, 153, 0.08);
   color: var(--green);
-  border: 1px solid rgba(55, 194, 115, 0.35);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  box-shadow: 0 0 18px -8px rgba(52, 211, 153, 0.4);
+}
+
+.upgrade-buy .inline-coin {
+  color: var(--gold);
 }

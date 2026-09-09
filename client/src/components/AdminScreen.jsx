@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { api, API_URL } from '../App.jsx';
+import { api } from '../App.jsx';
 import { ShieldIcon, CoinIcon, UsersIcon, CloseIcon, TrophyIcon } from './Icons.jsx';
 import './AdminScreen.css';
 
@@ -284,10 +284,6 @@ export default function AdminScreen({ showNotice }) {
       {tab === 'users' && !stats && <div className="admin-list"><p className="admin-hint">Загрузка...</p></div>}
 
       <div className="admin-actions">
-        <button className="admin-action" onClick={() => setModal({ type: 'coin' })}>
-          <span className="admin-action-icon">🎖</span>
-          <span><b>Эксклюзивный коин</b><em>картинка для аватарки</em></span>
-        </button>
         <button className="admin-action admin-action-danger" onClick={() => setModal({ type: 'resetMe' })}>
           <span className="admin-action-icon">🔄</span>
           <span><b>Сбросить свою статистику</b><em>только для тебя</em></span>
@@ -348,19 +344,6 @@ export default function AdminScreen({ showNotice }) {
             <div className="modal-actions">
               <button className="btn-ghost" onClick={() => setModal(null)}>Отмена</button>
               <button className="btn-danger" onClick={resetMyStats}>Сбросить</button>
-            </div>
-          </div>
-        </div>
-      )}
-      {modal?.type === 'coin' && (
-        <div className="modal-overlay" onClick={() => setModal(null)}>
-          <div className="modal modal-coin" onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setModal(null)}><CloseIcon size={18} /></button>
-            <h2 className="modal-title">🎖 Эксклюзивный коин</h2>
-            <img className="coin-preview" src={`${API_URL}/api/coin.png`} alt="Эксклюзивный коин CoreTap" />
-            <p className="modal-sub">Сохрани картинку и поставь на аватар. Или отправь боту <b>/coin</b> — получишь коин прямо в чат.</p>
-            <div className="modal-actions">
-              <button className="btn-primary" onClick={() => setModal(null)}>Отлично</button>
             </div>
           </div>
         </div>
