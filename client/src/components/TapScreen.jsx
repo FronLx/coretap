@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect, memo } from 'react';
 import { BoltIcon, CoinIcon } from './Icons.jsx';
 import { Emoji } from './Emoji.jsx';
+import { playTapSound } from '../utils/sound.js';
 import './TapScreen.css';
 
 function fmt(n) {
@@ -83,6 +84,7 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
     if (display.energy <= 0) return;
 
     onTap();
+    playTapSound();
 
     if (coinRef.current) {
       const el = coinRef.current;
