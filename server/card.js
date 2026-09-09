@@ -21,15 +21,16 @@ const W = 1080;
 const H = 1350;
 
 const COLORS = {
-  bg: '#0a0a0c',
-  card: '#131316',
-  cardBorder: '#292930',
-  white: '#f4f5f7',
-  dim: '#9aa0aa',
-  accent: '#f97316',
-  accentDark: '#e26412',
+  bg: '#050607',
+  card: '#101216',
+  cardBorder: '#23262e',
+  white: '#eef0f4',
+  dim: '#8b93a1',
+  accent: '#c9cfdd',
+  accentDark: '#9aa3b1',
+  neon: '#e8e9ee',
   green: '#37c273',
-  rule: '#232329'
+  rule: '#1c1f26'
 };
 
 function fmt(n) {
@@ -73,17 +74,20 @@ export async function renderUserCard(data) {
   ctx.fillStyle = COLORS.bg;
   ctx.fillRect(0, 0, W, H);
 
-  centerText(ctx, 'CoreTap', 160, F(800, 92), COLORS.accent);
+  ctx.shadowColor = COLORS.neon;
+  ctx.shadowBlur = 60;
+  centerText(ctx, 'CoreTap', 138, F(800, 92), COLORS.accent);
+  ctx.shadowBlur = 0;
   ctx.fillStyle = COLORS.dim;
   ctx.textAlign = 'center';
   ctx.font = F(500, 30);
-  ctx.fillText('ТАПАЙ — КАЧАЙСЯ — ХВАСТАЙСЯ', W / 2, 216);
+  ctx.fillText('ТАПАЙ — КАЧАЙСЯ — ХВАСТАЙСЯ', W / 2, 202);
 
   ctx.strokeStyle = COLORS.accent;
-  ctx.lineWidth = 6;
+  ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(W / 2 - 90, 252);
-  ctx.lineTo(W / 2 + 90, 252);
+  ctx.moveTo(W / 2 - 90, 238);
+  ctx.lineTo(W / 2 + 90, 238);
   ctx.stroke();
 
   const px = 90;
@@ -106,11 +110,17 @@ export async function renderUserCard(data) {
   ctx.font = F(700, 32);
   const levelW = ctx.measureText(levelText).width + 56;
   ctx.fillStyle = COLORS.accent;
+  ctx.shadowColor = COLORS.neon;
+  ctx.shadowBlur = 34;
   roundRect(ctx, W / 2 - levelW / 2, py + 148, levelW, 64, 32);
   ctx.fill();
+  ctx.shadowBlur = 0;
   centerText(ctx, levelText, py + 180, F(800, 30), COLORS.bg);
 
+  ctx.shadowColor = COLORS.neon;
+  ctx.shadowBlur = 50;
   centerText(ctx, fmt(data.coins), py + 330, F(800, 92), COLORS.accent);
+  ctx.shadowBlur = 0;
   centerText(ctx, 'МОНЕТ', py + 392, F(600, 28), COLORS.dim);
 
   ctx.strokeStyle = COLORS.rule;
@@ -138,7 +148,10 @@ export async function renderUserCard(data) {
     ctx.fillText(st.label, cx, py + 580);
   });
 
+  ctx.shadowColor = COLORS.neon;
+  ctx.shadowBlur = 40;
   centerText(ctx, `@${data.botUsername || 'coretapbot'}`, H - 190, F(700, 44), COLORS.accent);
+  ctx.shadowBlur = 0;
   centerText(ctx, 'ЖМИ ПО МОНЕТЕ И ЗАБИРАЙСЯ В ТОП', H - 120, F(500, 26), COLORS.dim);
 
   return canvas.toBuffer('image/png');
