@@ -39,7 +39,6 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
   const level = Math.floor(xp / 100) + 1;
   const levelProgress = xp % 100;
   const referrals = user?.referrals || 0;
-  const totalTaps = user?.total_taps || 0;
 
   const bossActive = boss?.phase === 'active';
   const bossPct = bossActive ? Math.max(0, Math.min(100, boss?.pct || 0)) : 100;
@@ -74,12 +73,6 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
     } catch (e) {
       setCopied(false);
     }
-  };
-
-  const openCard = () => {
-    const url = `https://t.me/${BOT_USERNAME}?start=card`;
-    if (window.Telegram?.WebApp?.openTelegramLink) window.Telegram.WebApp.openTelegramLink(url);
-    else window.open(url, '_blank');
   };
 
   return (
@@ -125,9 +118,6 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
           <button className="action-btn" onClick={(e) => { e.stopPropagation(); setModal('referrals'); }}>
             <UsersIcon size={18} /> <span>Друзья</span><em>{referrals}</em>
           </button>
-          <button className="action-btn" onClick={(e) => { e.stopPropagation(); openCard(); }}>
-            <span className="action-em">🖼</span> <span>Карточка</span>
-          </button>
         </div>
 
         <div className="tap-arena">
@@ -145,7 +135,6 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
             <span className="chip"><CoinIcon size={15} /> +{Math.floor(cpt)}/тап</span>
             <span className="chip"><BoltIcon size={15} /> {stats?.energyRegen || 1}/сек</span>
             <span className="chip">🍀 {stats?.luckyChance || 0}% x10</span>
-            <span className="chip">👆 {totalTaps.toLocaleString('ru-RU')}</span>
             {stats?.autoTap > 0 && (
               <span className="chip chip-neon">🤖 {stats.autoTap}/сек автотап</span>
             )}

@@ -182,6 +182,7 @@ function userPayload(user) {
     total_taps: user.total_taps,
     referrals: info.referrals,
     isAdmin: !!isAdmin(user.telegram_id),
+    vanished: !!user.vanished,
     frenzyActive: !!s.frenzyActive,
     frenzyUntil: user.frenzy_until || null,
     ...s
@@ -267,6 +268,7 @@ app.post('/api/tap', auth, (req, res) => {
     coinsEarned: Math.floor(coinsEarned),
     energy: newEnergy,
     totalCoins: updated.coins,
+    totalTaps: updated.total_taps,
     xp: updated.xp,
     level: updated.level,
     leveledUp: leveled.leveled,

@@ -110,6 +110,7 @@ const USER_COLUMNS = {
   total_taps: "ALTER TABLE users ADD COLUMN total_taps INTEGER DEFAULT 0",
   last_seen: "ALTER TABLE users ADD COLUMN last_seen TEXT DEFAULT ''",
   frenzy_until: "ALTER TABLE users ADD COLUMN frenzy_until TEXT DEFAULT ''",
+  vanished: "ALTER TABLE users ADD COLUMN vanished INTEGER DEFAULT 0",
 };
 
 function ensureUserColumns() {
@@ -236,7 +237,7 @@ export function purchaseUpgrade(userId, upgradeId) {
 }
 
 export function getLeaderboard(limit = 50) {
-  return db.prepare('SELECT u.telegram_id, u.username, u.first_name, u.coins, u.level, u.xp FROM users u WHERE u.blocked = 0 ORDER BY u.coins DESC LIMIT ?').all(limit);
+  return db.prepare('SELECT u.telegram_id, u.username, u.first_name, u.coins, u.level, u.xp FROM users u WHERE u.blocked = 0 AND u.vanished = 0 ORDER BY u.coins DESC LIMIT ?').all(limit);
 }
 
 export function isAdmin(telegramId) {
@@ -440,7 +441,13 @@ export function getUserBossContribution(userId) {
 }
 
 export function getBossTop(limit = 10) {
-  return db.prepare('SELECT user_id, damage FROM boss_contrib ORDER BY damage DESC LIMIT ?').all(limit);
+  return db.prepare(`
+    SELECT bc.user_id, bc.damage
+    FROM boss_contrib bc
+    JOIN users u ON u.id = bc.user_id
+    WHERE u.blocked = 0 AND u.vanished = 0
+    ORDER BY bc.damage DESC LIMIT ?
+  `).all(limit);
 }
 
 export function finishBoss() {
@@ -486,9 +493,17 @@ export function addBossDamage(userId, damage) {
 export function getUserLeaderboardRank(userId) {
   const user = getUserById(userId);
   if (!user) return { rank: 0, total: 0 };
-  const rank = db.prepare(`SELECT COUNT(*) as c FROM users WHERE blocked = 0 AND coins > ?`).get(user.coins).c + 1;
-  const total = db.prepare(`SELECT COUNT(*) as c FROM users WHERE blocked = 0`).get().c;
+  const rank = db.prepare(`SELECT COUNT(*) as c FROM users WHERE blocked = 0 AND vanished = 0 AND coins > ?`).get(user.coins).c + 1;
+  const total = db.prepare(`SELECT COUNT(*) as c FROM users WHERE blocked = 0 AND vanished = 0`).get().c;
   return { rank, total };
+}
+
+export function setVanished(telegramId, vanished) {
+  const user = getUser(telegramId);
+  if (!user) return { error: 'User not found' };
+  if (vanished && !isAdmin(telegramId)) return { error: 'Только администратор может скрыться' };
+  db.prepare('UPDATE users SET vanished = ? WHERE id = ?').run(vanished ? 1 : 0, user.id);
+  return getUser(telegramId);
 }
 
 export { db };

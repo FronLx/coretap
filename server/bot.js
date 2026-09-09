@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import {
   getUser, createUser, getBossPublic, getUserBossContribution,
-  getUserLeaderboardRank, userPublicInfo, BOSS_COOLDOWN_S,
+  getUserLeaderboardRank, userPublicInfo, BOSS_COOLDOWN_S, isAdmin, setVanished,
 } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -199,6 +199,18 @@ async function handleUpdate(update) {
     await sendCardMessage(chatId);
   } else if (message.text === '/boss') {
     await sendBossMessage(chatId);
+  } else if (message.text === '/vanish') {
+    if (!isAdmin(chatId)) {
+      await apiCall('sendMessage', { chat_id: chatId, text: 'Это команда только для админов 🙅‍♂️' });
+      return;
+    }
+    const current = getUser(chatId);
+    const next = !(current && current.vanished);
+    setVanished(chatId, next);
+    const reply = next
+      ? '🫥 Готово: ты скрыт из общего топа. Отправь /vanish, чтобы снова появиться.'
+      : '👁 Готово: ты снова виден в общем топе.';
+    await apiCall('sendMessage', { chat_id: chatId, text: reply });
   }
 }
 

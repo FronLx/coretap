@@ -3,11 +3,12 @@ import TapScreen from './components/TapScreen.jsx';
 import ShopScreen from './components/ShopScreen.jsx';
 import LeaderboardScreen from './components/LeaderboardScreen.jsx';
 import AdminScreen from './components/AdminScreen.jsx';
+import ProfileScreen from './components/ProfileScreen.jsx';
 import WelcomeScreen from './components/WelcomeScreen.jsx';
-import { BoltIcon, ShopIcon, TrophyIcon, CoinIcon, ShieldIcon } from './components/Icons.jsx';
+import { BoltIcon, ShopIcon, TrophyIcon, CoinIcon, ShieldIcon, UserIcon } from './components/Icons.jsx';
 import './styles/App.css';
 
-const TABS = { tap: 'tap', shop: 'shop', rating: 'rating', admin: 'admin' };
+const TABS = { tap: 'tap', shop: 'shop', rating: 'rating', admin: 'admin', profile: 'profile' };
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -15,6 +16,18 @@ function getInitData() {
   if (window.Telegram?.WebApp?.initData) return window.Telegram.WebApp.initData;
   const params = new URLSearchParams(window.location.hash.substring(1) || window.location.search);
   return params.get('tgWebAppData') || '';
+}
+
+function getInitDataUser() {
+  try {
+    const s = getInitData();
+    if (!s) return null;
+    const params = new URLSearchParams(s);
+    const raw = params.get('user');
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
 }
 
 async function api(path, options = {}) {
@@ -63,10 +76,11 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-  const [display, setDisplay] = useState({ coins: 0, energy: 0 });
+  const [display, setDisplay] = useState({ coins: 0, energy: 0, taps: 0 });
   const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [welcomeMeta, setWelcomeMeta] = useState({ firstName: '', isNew: false });
   const [boss, setBoss] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(() => { const t = getInitDataUser(); return t?.photo_url || ''; });
 
   const popupsRef = useRef([]);
   const [popups, setPopups] = useState([]);
@@ -148,7 +162,7 @@ export default function App() {
         autoTap: data.user.autoTap || 0,
         frenzyActive: !!data.user.frenzyActive,
       };
-      const d = { coins: data.user.coins, energy: data.user.energy };
+      const d = { coins: data.user.coins, energy: data.user.energy, taps: data.user.total_taps || 0 };
       displayRef.current = d;
       setDisplay(d);
       xpRef.current = { server: data.user.xp || 0, buf: 0 };
@@ -189,7 +203,7 @@ export default function App() {
     const cur = displayRef.current;
     if (cur.energy <= 0) return;
     const gained = statsRef.current.coinsPerTap * statsRef.current.globalMultiplier * (statsRef.current.tapMultiplier || 1);
-    const d = { coins: cur.coins + gained, energy: cur.energy - 1 };
+    const d = { coins: cur.coins + gained, energy: cur.energy - 1, taps: (cur.taps || 0) + 1 };
     displayRef.current = d;
     tapBufRef.current += 1;
     xpRef.current.buf += 1;
@@ -209,7 +223,7 @@ export default function App() {
     tapBufRef.current = 0;
     try {
       const data = await api('/api/tap', { method: 'POST', body: JSON.stringify({ taps: n }) });
-      const d = { coins: data.totalCoins, energy: data.energy };
+      const d = { coins: data.totalCoins, energy: data.energy, taps: data.totalTaps ?? 0 };
       displayRef.current = d;
       setDisplay(d);
       xpRef.current = { server: data.xp ?? xpRef.current.server, buf: 0 };
@@ -268,6 +282,13 @@ export default function App() {
     setTimeout(() => setError(''), 3000);
   };
 
+  const openCard = useCallback(() => {
+    const bot = import.meta.env.VITE_BOT_USERNAME || 'coretapbot';
+    const url = `https://t.me/${bot}?start=card`;
+    if (window.Telegram?.WebApp?.openTelegramLink) window.Telegram.WebApp.openTelegramLink(url);
+    else window.open(url, '_blank');
+  }, []);
+
   if (loading) {
     return (
       <div className="loading-screen">
@@ -304,6 +325,7 @@ export default function App() {
   const tabDefs = [
     { id: TABS.tap, icon: <BoltIcon size={24} />, label: 'Тап' },
     { id: TABS.shop, icon: <ShopIcon size={24} />, label: 'Магазин' },
+    { id: TABS.profile, icon: <UserIcon size={24} />, label: 'Профиль' },
     { id: TABS.rating, icon: <TrophyIcon size={24} />, label: 'Топ' },
   ];
   if (user?.isAdmin) tabDefs.push({ id: TABS.admin, icon: <ShieldIcon size={24} />, label: 'Админ' });
@@ -337,6 +359,15 @@ export default function App() {
           />
         )}
         {activeTab === TABS.rating && <LeaderboardScreen />}
+        {activeTab === TABS.profile && (
+          <ProfileScreen
+            display={display}
+            user={user}
+            stats={statsRef.current}
+            avatarUrl={avatarUrl}
+            onOpenCard={openCard}
+          />
+        )}
         {activeTab === TABS.admin && user?.isAdmin && <AdminScreen showNotice={showNotice} />}
       </div>
 
