@@ -49,7 +49,15 @@ app.use((req, res, next) => {
 
 const staticDir = path.join(__dirname, '../client/dist');
 if (fs.existsSync(staticDir)) {
-  app.use('/coretap', express.static(staticDir));
+  app.use('/coretap', express.static(staticDir, {
+    setHeaders(res, filePath) {
+      if (filePath.endsWith('index.html')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      } else {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+    },
+  }));
   app.get('/coretap*', (req, res) => res.sendFile(path.join(staticDir, 'index.html')));
 }
 
