@@ -7,10 +7,24 @@ function fmt(n) {
   return Math.round(n || 0).toLocaleString('ru-RU');
 }
 
-const StatsChips = memo(function StatsChips({ cpt, regen, lucky, autoTap }) {
+function fmtCpt(n) {
+  if (!isFinite(n) || n < 0) n = 0;
+  if (n >= 10) return String(Math.floor(n));
+  const s = n.toFixed(1).replace('.', ',');
+  return s.endsWith(',0') ? s.slice(0, -2) : s;
+}
+
+function fmtMult(m) {
+  return (Math.round((m || 1) * 100) / 100).toString().replace('.', ',');
+}
+
+const StatsChips = memo(function StatsChips({ cpt, regen, lucky, autoTap, mult }) {
   return (
     <div className="stats-chips">
-      <span className="chip"><CoinIcon size={15} /> +{Math.floor(cpt)}/тап</span>
+      <span className="chip"><CoinIcon size={15} /> +{fmtCpt(cpt)}/тап</span>
+      {mult > 1 && (
+        <span className="chip chip-gem"><Emoji>💎</Emoji> ×{fmtMult(mult)}</span>
+      )}
       <span className="chip"><BoltIcon size={15} /> {regen}/сек</span>
       <span className="chip chip-lucky"><Emoji>🍀</Emoji> {lucky}% x10</span>
       {autoTap > 0 && (
@@ -141,7 +155,7 @@ export default function TapScreen({ display, stats, user, boss, onTap }) {
         </div>
 
         <div className="tap-bottom" onPointerDown={(e) => e.stopPropagation()}>
-          <StatsChips cpt={cpt} regen={stats?.energyRegen || 1} lucky={stats?.luckyChance || 0} autoTap={stats?.autoTap || 0} />
+          <StatsChips cpt={cpt} regen={stats?.energyRegen || 1} lucky={stats?.luckyChance || 0} autoTap={stats?.autoTap || 0} mult={stats?.globalMultiplier || 1} />
         </div>
       </div>
     </>
