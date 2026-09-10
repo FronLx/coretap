@@ -23,14 +23,10 @@ const StatsChips = memo(function StatsChips({ cpt, regen, lucky, autoTap, mult }
   return (
     <div className="stats-chips">
       <span className="chip"><CoinIcon size={15} /> +{fmtCpt(cpt)}/тап</span>
-      {mult > 1 && (
-        <span className="chip chip-gem"><Emoji>💎</Emoji> ×{fmtMult(mult)}</span>
-      )}
+      <span className={`chip chip-gem ${mult > 1 ? '' : 'dim'}`}><Emoji>💎</Emoji> ×{fmtMult(mult)}</span>
       <span className="chip"><BoltIcon size={15} /> {regen}/сек</span>
-      <span className="chip chip-lucky"><Emoji>🍀</Emoji> {lucky}% x10</span>
-      {autoTap > 0 && (
-        <span className="chip chip-neon"><Emoji>🤖</Emoji> {autoTap}/сек автотап</span>
-      )}
+      <span className={`chip chip-lucky ${lucky > 0 ? '' : 'dim'}`}><Emoji>🍀</Emoji> {lucky}% x10</span>
+      <span className={`chip chip-neon ${autoTap > 0 ? '' : 'dim'}`}><Emoji>🤖</Emoji> {autoTap}/сек</span>
     </div>
   );
 });

@@ -464,3 +464,13 @@
   border-color: rgba(52, 211, 153, 0.35);
   box-shadow: 0 0 18px -6px rgba(52, 211, 153, 0.45);
 }
+
+.chip.chip-lucky {
+  color: var(--coin);
+  border-color: rgba(201, 207, 221, 0.25);
+}
+
+.chip.dim {
+  opacity: 0.45;
+  box-shadow: none;
+}
